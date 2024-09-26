@@ -36,3 +36,74 @@
     transform: rotate(360deg);
   }
 }
+
+
+ul {
+  list-style-type: none;
+}
+
+input[type="radio"]:checked + label {
+  background-color: #ddd; /* Highlight selected stat */
+}
+
+.creature-image {
+  width: 300px !important; /* or any size you prefer */
+  /* height: auto; /* ensures the aspect ratio is maintained */
+  max-height: 300px; /* limits the height */
+  object-fit: contain; /* ensures the image fits within the size constraints */
+}
+
+
+.player-hand {
+  display: flex;        /* Use Flexbox layout */
+  flex-direction: row;  /* Arrange children in a row */
+  justify-content: space-around; /* Space the cards evenly */
+  gap: 10px;            /* Optional: Add some space between cards */
+}
+
+/* when a card is selected */
+.card.selected {
+  border: 2px solid green;
+}
+
+/* combat buttons */
+.combat-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.combat-button {
+  flex: 1;               /* Buttons take up equal width */
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  margin-right: 10px;    /* Add gap between buttons */
+  text-align: center;
+}
+
+.combat-button.melee {
+  background-color: green;
+  color: white;
+}
+
+.combat-button.ranged {
+  background-color: blue;
+  color: white;
+}
+
+.combat-button.magic {
+  background-color: red;
+  color: white;
+}
+
+/* Add 2px border on selection */
+.combat-button.selected {
+  border: 4px solid black;
+}
+
+/* Remove margin on the last button */
+.combat-button:last-child {
+  margin-right: 0;
+}

@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Fantasy Combat Card Game
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a working but **incomplete** game. There is not yet any fancy cryptography or blockchain anything here.
 
-## Available Scripts
+Currently, the fight results are shown in the console log (Developer Tools - Ctrl+Shift+I in Chrome).
 
-In the project directory, you can run:
+Welcome to the Fantasy Combat Card Game, a strategic two-player game where each player controls a hand of fantasy creatures with unique stats. Players engage in combat rounds, choosing between different combat styles like melee, ranged, or magic, and battle until one player runs out of cards.
 
-### `npm start`
+## Table of Contents
+* Features
+* Game Rules / How To Play
+* Getting Started
+* Technologies Used
+* License
+* Acknowledgements
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features
+* **Card-based Combat**: Each player controls a hand of fantasy creatures.
+* **Combat Choices**: Players can choose between melee, ranged, or magic for each attack.
+* **Strategic Combat**: Attack order is determined by a combination of agility, intelligence, and randomness.
+* **Health-Based Elimination**: Creatures are removed from play when their health reaches zero.
+* **Victory Condition**: A player wins when the other player runs out of cards.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Game Rules / How To Play
+1. **Deal**: Each player is dealt a hand of 3 unique creatures, each with its own stats (Strength, Agility, Intelligence, Defense, Magic).
+1. **Card Selection**: Players select one creature from their hand for each round.
+1. **Combat Style**: The player chooses between melee (strength), ranged (agility), or magic (magic) to attack the opponent.
+1. **Initiative**: The attack order is determined by a combination of agility, intelligence, and a random factor.
+1. **Health**: Each creature has a health pool. When a creature's health reaches zero, it is removed from the player's hand.
+1. **Victory**: The game ends when one player runs out of creatures in their hand, and the other player is declared the winner.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Getting Started
+To get a local copy up and running, follow these simple steps:
 
-### `npm run build`
+### Prerequisites
+Make sure you have Node.js installed. You can download it from here.
+npm (Node Package Manager) comes with Node.js.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Installation
+Clone the repository:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+git clone https://github.com/EdwardAThomson/fantasy-combat-card-game.git
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Navigate to the project directory:
 
-### `npm run eject`
+```bash
+cd fantasy-combat-card-game
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Install the necessary dependencies:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm install
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Start the development server:
+```bash
+npm start
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The app should now be running at http://localhost:3000. Open the developer tools of your browser and check the console log (Ctrl+Shift+I in Chrome) to see the combat results. This will get fixed later!
 
-## Learn More
+## Technologies Used
+* **React**: user interface.
+* **JavaScript** (ES6+): Core logic for the game.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Acknowledgements
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+I used ChatGPT (mostly 4o) to generate the code and art. There was still some human brain power used to provide the ideation and fit everything together. 
