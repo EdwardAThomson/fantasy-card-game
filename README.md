@@ -7,12 +7,12 @@ Currently, the fight results are shown in the console log (Developer Tools - Ctr
 Welcome to the Fantasy Combat Card Game, a strategic two-player game where each player controls a hand of fantasy creatures with unique stats. Players engage in combat rounds, choosing between different combat styles like melee, ranged, or magic, and battle until one player runs out of cards.
 
 ## Table of Contents
-* Features
-* Game Rules / How To Play
-* Getting Started
-* Technologies Used
-* License
-* Acknowledgements
+* [Features](#features)
+* [Game Rules / How To Play](#game-rules--how-to-play)
+* [Getting Started](#getting-started)
+* [Technologies Used](#technologies-used)
+* [License](#license)
+* [Acknowledgements](#acknowledgements)
 
 ## Features
 * **Card-based Combat**: Each player controls a hand of fantasy creatures.
