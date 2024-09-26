@@ -41,7 +41,7 @@ npm (Node Package Manager) comes with Node.js.
 Clone the repository:
 
 ```bash
-git clone https://github.com/EdwardAThomson/fantasy-combat-card-game.git
+git clone https://github.com/EdwardAThomson/fantasy-card-game.git
 ```
 
 Navigate to the project directory:
