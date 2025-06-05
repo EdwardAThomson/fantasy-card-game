@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-function Card({ creature, onChoiceSelect, selectedChoice }) {
+function Card({ creature, onChoiceSelect, selectedChoice, isSelected }) {
 
   return (
-    <div className="card">
+    <div className={`card ${isSelected ? 'selected' : ''}`}>
       <h2>{creature.name}</h2>
       <img src={creature.image} alt={creature.name} className="creature-image" />
 

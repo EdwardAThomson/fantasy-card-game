@@ -80,7 +80,7 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   }
 
   logFn(`${firstAttacker.name} goes first`);
-  logFn(' ---- WHAT ??? ---- ');
+  logFn(' ');
 
   // First Attacker Round (higher initiative)
   let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice, logFn);
@@ -95,8 +95,8 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
 
   // Second Attacker Round (if no winner yet)
   let outcome2 = combatRound(secondAttacker, firstAttacker, secondChoice, logFn);
-  logFn('...');
-  logFn('...');
+  logFn('');
+  logFn('');
 
   // Check again for a winner after the second attack
   const result2 = victoryCheck(player1card, player2card);
@@ -197,7 +197,7 @@ function Game() {
   // - Call combat functions
   // - Victory conditions (for a combat round) check
   const Fight = () => {
-    addLog(`--- Round ${round} ---`);
+    addLog(`-------- Round ${round} --------`);
 
     const outcome = handleCombatRound(
       player1SelectedCard,
@@ -257,6 +257,7 @@ function Game() {
             creature={card}
             onChoiceSelect={(choice) => handlePlayer1Choice(card, choice)}
             selectedChoice={player1SelectedCard === card ? player1Choice : ''}
+            isSelected={player1SelectedCard === card}
           />
         ))}
       </div>
@@ -269,6 +270,7 @@ function Game() {
             creature={card}
             onChoiceSelect={(choice) => handlePlayer2Choice(card, choice)}
             selectedChoice={player2SelectedCard === card ? player2Choice : ''}
+            isSelected={player2SelectedCard === card}
           />
 
         ))}
