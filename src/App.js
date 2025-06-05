@@ -7,7 +7,9 @@ function App() {
   return (
     <div className="App">
       <h1>Fantasy Card Combat Game</h1>
-      <Game />
+      <div className="game-container">
+        <Game />
+      </div>
     </div>
   );
 }
