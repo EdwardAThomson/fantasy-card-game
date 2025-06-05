@@ -258,3 +258,4 @@ function Game() {
 }
 
 export default Game;
+export { getThreeUniqueCards };
