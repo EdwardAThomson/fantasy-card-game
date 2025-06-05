@@ -84,7 +84,7 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   // First Attacker Round (higher initiative)
   let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice, logFn);
 
-  logFn('');
+  logFn('\n');
 
   // Check for a winner after first attack
   const result1 = victoryCheck(player1card, player2card);
@@ -195,8 +195,8 @@ function Game() {
   // - Victory conditions (for a combat round) check
   const Fight = () => {
     if (round > 1) {
-      addLog('');
-      addLog('');
+      addLog('\n');
+      addLog('\n');
     }
     addLog(`--- Round ${round} ---`);
 
@@ -301,7 +301,7 @@ function Game() {
       <div className="combat-log">
         <h3>Combat Log</h3>
         {logMessages.map((msg, idx) => (
-          <p key={idx}>{msg}</p>
+          msg === '\n' ? <br key={idx} /> : <p key={idx}>{msg}</p>
         ))}
       </div>
 
