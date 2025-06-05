@@ -181,25 +181,49 @@ function Game() {
   const Fight = () => {
     console.log('round: ', round);
 
-    const outcome = handleCombatRound(player1SelectedCard, player2SelectedCard, player1Choice, player2Choice);
+    const outcome = handleCombatRound(
+      player1SelectedCard,
+      player2SelectedCard,
+      player1Choice,
+      player2Choice
+    );
+
+    if (outcome.haveWinner) {
+      setHaveWinner(true);
+      setWinner(outcome.winner);
+      setResult(`${outcome.winner.name} wins the round!`);
+    }
 
     // Remove cards on zero HP
     if (player1SelectedCard.currentHealth <= 0) {
-      setPlayer1Hand(prevHand => prevHand.filter(card => card !== player1SelectedCard));
-      console.log(player1SelectedCard.name , '(Player 1) has been killed.');
+      setPlayer1Hand(prevHand =>
+        prevHand.filter(card => card !== player1SelectedCard)
+      );
+      setPlayer1SelectedCard(null);
+      setPlayer1Choice('');
+      console.log(player1SelectedCard.name, '(Player 1) has been killed.');
     }
     if (player2SelectedCard.currentHealth <= 0) {
-      setPlayer2Hand(prevHand => prevHand.filter(card => card !== player2SelectedCard));
-      console.log(player2SelectedCard.name , '(Player 2) has been killed.');
+      setPlayer2Hand(prevHand =>
+        prevHand.filter(card => card !== player2SelectedCard)
+      );
+      setPlayer2SelectedCard(null);
+      setPlayer2Choice('');
+      console.log(player2SelectedCard.name, '(Player 2) has been killed.');
     }
 
-    // Increment round count
     setRound(prev => prev + 1);
   } // ends Fight function
 
 
   // Combat button should only be enabled if both players have selected a stat
-  const isCombatReady = player1Choice && player2Choice && player1SelectedCard.currentHealth > 0 && player2SelectedCard.currentHealth > 0;
+  const isCombatReady =
+    player1SelectedCard &&
+    player2SelectedCard &&
+    player1Choice &&
+    player2Choice &&
+    player1SelectedCard.currentHealth > 0 &&
+    player2SelectedCard.currentHealth > 0;
 
   return (
     <div>
