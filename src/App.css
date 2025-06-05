@@ -53,10 +53,12 @@ input[type="radio"]:checked + label {
 }
 
 .creature-image {
-  width: 300px !important; /* or any size you prefer */
-  /* height: auto; /* ensures the aspect ratio is maintained */
-  max-height: 300px; /* limits the height */
-  object-fit: contain; /* ensures the image fits within the size constraints */
+  width: 220px !important; /* Resized to make cards shorter */
+  max-height: 220px;
+  object-fit: contain;
+  border: 2px solid #333; /* Added a dark border */
+  border-radius: 5px; /* Added rounded corners for a softer look */
+  box-sizing: border-box; /* Ensures border is included in the element's total width */
 }
 
 
@@ -67,9 +69,35 @@ input[type="radio"]:checked + label {
   gap: 10px;            /* Optional: Add some space between cards */
 }
 
+.card {
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 10px; /* Reduced padding */
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: all 0.2s ease-in-out;
+  display: flex; /* Using flexbox for better internal alignment */
+  flex-direction: column;
+  text-align: center;
+}
+
+.card h2 {
+  margin: 0 0 10px 0; /* Reduced margins */
+  font-size: 1.2em; /* Slightly smaller title */
+}
+
+.card ul {
+  margin: 10px 0 0 0; /* Reduced margins */
+  padding: 0;
+  font-size: 0.9em; /* Smaller font for stats */
+  list-style-type: none; /* remove bullet points */
+}
+
 /* when a card is selected */
 .card.selected {
-  border: 2px solid green;
+  border-color: #2cce7d; /* A nice green to indicate selection */
+  box-shadow: 0 6px 12px rgba(44, 206, 125, 0.5);
+  transform: translateY(-5px); /* Lift the card slightly */
 }
 
 /* combat buttons */
@@ -125,5 +153,6 @@ input[type="radio"]:checked + label {
 }
 
 .combat-log p {
-  margin: 2px 0;
+  margin: 0.5em 0;
+  min-height: 1em; /* Ensures even empty paragraphs create space */
 }
