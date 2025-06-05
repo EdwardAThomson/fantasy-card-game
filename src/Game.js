@@ -12,7 +12,6 @@ const getThreeUniqueCards = (creatures) => {
   // Continue generating indices until we have 3 unique ones
   while (selectedIndices.size < 3) {
     const randomIndex = Math.floor(Math.random() * creatures.length);
-    console.log('randomIndex', randomIndex);
 
     // If this index has not been selected yet, add it to the set and push the creature
     if (!selectedIndices.has(randomIndex)) {
@@ -55,8 +54,8 @@ const victoryCheck = (player1card, player2card) => {
 }
 
 // Combat preparation
-const handleCombatRound = (player1card, player2card, player1Choice, player2Choice) => {
-  console.log('Starting combat round');
+const handleCombatRound = (player1card, player2card, player1Choice, player2Choice, logFn) => {
+  logFn('Starting combat round');
 
   // Calculate who strikes first based on agility and intelligence, plus a little randomness
   const player1Initiative = player1card.stats.agility * 0.4 + player1card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21);
@@ -78,7 +77,7 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   }
 
   // First Attacker Round (higher initiative)
-  let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice);
+  let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice, logFn);
 
   // Check for a winner after first attack
   const result1 = victoryCheck(player1card, player2card);
@@ -87,7 +86,7 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   }
 
   // Second Attacker Round (if no winner yet)
-  let outcome2 = combatRound(secondAttacker, firstAttacker, secondChoice);
+  let outcome2 = combatRound(secondAttacker, firstAttacker, secondChoice, logFn);
 
   // Check again for a winner after the second attack
   const result2 = victoryCheck(player1card, player2card);
@@ -103,22 +102,22 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
 
 
 // Combat calculation function
-function combatRound(attacker, defender, combatChoice) {
+function combatRound(attacker, defender, combatChoice, logFn) {
 
   // Calculate damage based on the chosen combat stat plus randomness.
   const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice)  + Math.floor(Math.random() * 21) );
   const opponentDamageTaken = Math.max(0, playerAttack - (defender.stats.defense / 2));
 
-  console.log('Attacker Card: ', attacker.name, '- Defender Card:', defender.name);
-  console.log('Player Attack value:', playerAttack);
-  console.log('Opponent Damage Taken: ', opponentDamageTaken);
+  logFn(`Attacker: ${attacker.name} (${combatChoice})`);
+  logFn(`Attack value: ${playerAttack}`);
+  logFn(`Damage dealt: ${opponentDamageTaken}`);
 
   defender.currentHealth -= opponentDamageTaken;
 
   const player1Health = attacker.currentHealth;
   const player2Health = defender.currentHealth;
-  console.log('Attacker Health: ', attacker.name,  player1Health);
-  console.log('Defender Health: ', defender.name , player2Health);
+  logFn(`${attacker.name} HP: ${player1Health}`);
+  logFn(`${defender.name} HP: ${player2Health}`);
 
   // TODO: Check if we even need this.
   return {
@@ -145,6 +144,13 @@ function Game() {
   const [player1Choice, setPlayer1Choice] = useState('');
   const [player2Choice, setPlayer2Choice] = useState('');
 
+  // Store combat log messages
+  const [logMessages, setLogMessages] = useState([]);
+
+  const addLog = (message) => {
+    setLogMessages(prev => [...prev, message]);
+  };
+
   // variables used in combat
   const [result, setResult] = useState(''); // combat result
   const [round, setRound] = useState(1); // Track the number of rounds
@@ -170,8 +176,10 @@ function Game() {
   useEffect(() => {
     if (player1Hand.length === 0) {
       setResult('Player 2 is the winner!');
+      addLog('Player 2 is the winner!');
     } else if (player2Hand.length === 0) {
       setResult('Player 1 is the winner!');
+      addLog('Player 1 is the winner!');
     }
   }, [player1Hand, player2Hand]);  // This will trigger when player1Hand or player2Hand changes
 
@@ -179,19 +187,21 @@ function Game() {
   // - Call combat functions
   // - Victory conditions (for a combat round) check
   const Fight = () => {
-    console.log('round: ', round);
+    addLog(`--- Round ${round} ---`);
 
     const outcome = handleCombatRound(
       player1SelectedCard,
       player2SelectedCard,
       player1Choice,
-      player2Choice
+      player2Choice,
+      addLog
     );
 
     if (outcome.haveWinner) {
       setHaveWinner(true);
       setWinner(outcome.winner);
       setResult(`${outcome.winner.name} wins the round!`);
+      addLog(`${outcome.winner.name} wins the round!`);
     }
 
     // Remove cards on zero HP
@@ -201,7 +211,7 @@ function Game() {
       );
       setPlayer1SelectedCard(null);
       setPlayer1Choice('');
-      console.log(player1SelectedCard.name, '(Player 1) has been killed.');
+      addLog(`${player1SelectedCard.name} (Player 1) has been killed.`);
     }
     if (player2SelectedCard.currentHealth <= 0) {
       setPlayer2Hand(prevHand =>
@@ -209,7 +219,7 @@ function Game() {
       );
       setPlayer2SelectedCard(null);
       setPlayer2Choice('');
-      console.log(player2SelectedCard.name, '(Player 2) has been killed.');
+      addLog(`${player2SelectedCard.name} (Player 2) has been killed.`);
     }
 
     setRound(prev => prev + 1);
@@ -275,6 +285,13 @@ function Game() {
         Fight!
         </button>
         <h2>{result}</h2>
+      </div>
+
+      <div className="combat-log">
+        <h3>Combat Log</h3>
+        {logMessages.map((msg, idx) => (
+          <p key={idx}>{msg}</p>
+        ))}
       </div>
 
     </div>
