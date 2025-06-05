@@ -169,15 +169,23 @@ function Game() {
   const [haveWinner, setHaveWinner] = useState(false);
   const [winner, setWinner] = useState(null);
 
- // Handle combat choice and implicit card selection for Player 1
-  const handlePlayer1Choice = (card, choice) => {
+ // Handle card selection for Player 1
+  const handlePlayer1CardSelect = (card) => {
     setPlayer1SelectedCard(card); // Set the card as selected
+  };
+
+  // Handle combat choice for Player 1
+  const handlePlayer1ChoiceSelect = (choice) => {
     setPlayer1Choice(choice);     // Set the chosen action
   };
 
-  // Handle combat choice and implicit card selection for Player 2
-  const handlePlayer2Choice = (card, choice) => {
+  // Handle card selection for Player 2
+  const handlePlayer2CardSelect = (card) => {
     setPlayer2SelectedCard(card); // Set the card as selected
+  };
+
+  // Handle combat choice for Player 2
+  const handlePlayer2ChoiceSelect = (choice) => {
     setPlayer2Choice(choice);     // Set the chosen action
   };
 
@@ -246,34 +254,84 @@ function Game() {
     player2SelectedCard.currentHealth > 0;
 
   return (
-    <div>
-      <h2>Combat Screen</h2>
+    <div className="game-container">
+      <h2>Fantasy Card Combat Game</h2>
+      <h3>Combat Screen</h3>
 
-      <div className="player-hand">
-        <h2>Player 1's Hand</h2>
-        {player1Hand.map((card, index) => (
-          <Card
-            key={index}
-            creature={card}
-            onChoiceSelect={(choice) => handlePlayer1Choice(card, choice)}
-            selectedChoice={player1SelectedCard === card ? player1Choice : ''}
-            isSelected={player1SelectedCard === card}
-          />
-        ))}
-      </div>
+      <div className="players-container">
+        {/* Player 1 Area */}
+        <div className="player-area">
+          <div className="player-info">
+            <h2>Player 1's Hand</h2>
+            <div className="combat-buttons">
+              <button
+                className={`combat-button melee ${player1Choice === 'Melee' ? 'selected' : ''}`}
+                onClick={() => handlePlayer1ChoiceSelect('Melee')}
+              >
+                Melee
+              </button>
+              <button
+                className={`combat-button ranged ${player1Choice === 'Ranged' ? 'selected' : ''}`}
+                onClick={() => handlePlayer1ChoiceSelect('Ranged')}
+              >
+                Ranged
+              </button>
+              <button
+                className={`combat-button magic ${player1Choice === 'Magic' ? 'selected' : ''}`}
+                onClick={() => handlePlayer1ChoiceSelect('Magic')}
+              >
+                Magic
+              </button>
+            </div>
+          </div>
+          <div className="player-hand">
+            {player1Hand.map((card, index) => (
+              <Card
+                key={index}
+                creature={card}
+                onCardSelect={() => handlePlayer1CardSelect(card)}
+                isSelected={player1SelectedCard === card}
+              />
+            ))}
+          </div>
+        </div>
 
-      <div className="player-hand">
-        <h2>Player 2's Hand</h2>
-        {player2Hand.map((card, index) => (
-          <Card
-            key={index}
-            creature={card}
-            onChoiceSelect={(choice) => handlePlayer2Choice(card, choice)}
-            selectedChoice={player2SelectedCard === card ? player2Choice : ''}
-            isSelected={player2SelectedCard === card}
-          />
-
-        ))}
+        {/* Player 2 Area */}
+        <div className="player-area">
+          <div className="player-info">
+            <h2>Player 2's Hand</h2>
+            <div className="combat-buttons">
+              <button
+                className={`combat-button melee ${player2Choice === 'Melee' ? 'selected' : ''}`}
+                onClick={() => handlePlayer2ChoiceSelect('Melee')}
+              >
+                Melee
+              </button>
+              <button
+                className={`combat-button ranged ${player2Choice === 'Ranged' ? 'selected' : ''}`}
+                onClick={() => handlePlayer2ChoiceSelect('Ranged')}
+              >
+                Ranged
+              </button>
+              <button
+                className={`combat-button magic ${player2Choice === 'Magic' ? 'selected' : ''}`}
+                onClick={() => handlePlayer2ChoiceSelect('Magic')}
+              >
+                Magic
+              </button>
+            </div>
+          </div>
+          <div className="player-hand">
+            {player2Hand.map((card, index) => (
+              <Card
+                key={index}
+                creature={card}
+                onCardSelect={() => handlePlayer2CardSelect(card)}
+                isSelected={player2SelectedCard === card}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Display selected choices */}
