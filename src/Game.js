@@ -61,6 +61,9 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   const player1Initiative = player1card.stats.agility * 0.4 + player1card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21);
   const player2Initiative = player2card.stats.agility * 0.4 + player2card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21);
 
+  logFn(`${player1card.name} initiative: ${player1Initiative}`);
+  logFn(`${player2card.name} initiative: ${player2Initiative}`);
+
   let firstAttacker, secondAttacker;
   let firstChoice, secondChoice;
 
@@ -76,8 +79,12 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
     secondChoice = player1Choice;
   }
 
+  logFn(`${firstAttacker.name} goes first`);
+
   // First Attacker Round (higher initiative)
   let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice, logFn);
+
+  logFn('');
 
   // Check for a winner after first attack
   const result1 = victoryCheck(player1card, player2card);
@@ -187,6 +194,10 @@ function Game() {
   // - Call combat functions
   // - Victory conditions (for a combat round) check
   const Fight = () => {
+    if (round > 1) {
+      addLog('');
+      addLog('');
+    }
     addLog(`--- Round ${round} ---`);
 
     const outcome = handleCombatRound(
