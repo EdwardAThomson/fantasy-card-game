@@ -80,12 +80,12 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   }
 
   logFn(`${firstAttacker.name} goes first`);
-  logFn('');
+  logFn(' ');
 
   // First Attacker Round (higher initiative)
   let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice, logFn);
 
-  logFn('');
+  logFn(' ');
 
   // Check for a winner after first attack
   const result1 = victoryCheck(player1card, player2card);
@@ -95,8 +95,8 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
 
   // Second Attacker Round (if no winner yet)
   let outcome2 = combatRound(secondAttacker, firstAttacker, secondChoice, logFn);
-  logFn('');
-  logFn('');
+  logFn('...');
+  logFn('...');
 
   // Check again for a winner after the second attack
   const result2 = victoryCheck(player1card, player2card);
