@@ -242,7 +242,7 @@ function Game() {
         </h3>
       </div>
 
-      {/* FIght button */}
+      {/* Fight button */}
       <div>
         <button
           onClick={Fight}
