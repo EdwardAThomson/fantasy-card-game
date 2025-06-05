@@ -80,7 +80,7 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   }
 
   logFn(`${firstAttacker.name} goes first`);
-  logFn(' ');
+  logFn(' ---- WHAT ??? ---- ');
 
   // First Attacker Round (higher initiative)
   let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice, logFn);
