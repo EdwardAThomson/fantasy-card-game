@@ -105,7 +105,7 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
 // Combat calculation function
 function combatRound(attacker, defender, combatChoice) {
 
-   // Calculate damage based on combat statayer2card
+  // Calculate damage based on the chosen combat stat plus randomness.
   const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice)  + Math.floor(Math.random() * 21) );
   const opponentDamageTaken = Math.max(0, playerAttack - (defender.stats.defense / 2));
 
