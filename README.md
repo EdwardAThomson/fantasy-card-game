@@ -47,7 +47,7 @@ git clone https://github.com/EdwardAThomson/fantasy-card-game.git
 Navigate to the project directory:
 
 ```bash
-cd fantasy-combat-card-game
+cd fantasy-card-game
 ```
 
 Install the necessary dependencies:
@@ -62,6 +62,13 @@ npm start
 ```
 
 The app should now be running at http://localhost:3000. Open the developer tools of your browser and check the console log (Ctrl+Shift+I in Chrome) to see the combat results. This will get fixed later!
+
+### Running Tests
+Before running tests, make sure all dependencies are installed. If you have not already run `npm install` (or `npm ci`), do so first, then run:
+
+```bash
+npm test
+```
 
 ## Technologies Used
 * **React**: user interface.
