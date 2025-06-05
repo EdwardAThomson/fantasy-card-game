@@ -100,20 +100,34 @@ input[type="radio"]:checked + label {
   transform: translateY(-5px); /* Lift the card slightly */
 }
 
+.players-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.player-area {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 /* combat buttons */
 .combat-buttons {
   display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .combat-button {
-  flex: 1;               /* Buttons take up equal width */
-  padding: 10px;
-  font-size: 16px;
   cursor: pointer;
   border: 1px solid transparent;
-  margin-right: 10px;    /* Add gap between buttons */
   text-align: center;
 }
 
