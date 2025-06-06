@@ -2,10 +2,22 @@
   text-align: center;
 }
 
+.app-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
 .game-container {
+  flex: 1 1 980px; /* Flex-grow, flex-shrink, flex-basis */
   max-width: 1000px;
-  margin: 0 auto;
-  width: 90%;
+}
+
+.game-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .App-logo {
@@ -67,6 +79,7 @@ input[type="radio"]:checked + label {
   flex-direction: row;  /* Arrange children in a row */
   justify-content: space-around; /* Space the cards evenly */
   gap: 10px;            /* Optional: Add some space between cards */
+  position: relative;
 }
 
 .card {
@@ -79,6 +92,7 @@ input[type="radio"]:checked + label {
   display: flex; /* Using flexbox for better internal alignment */
   flex-direction: column;
   text-align: center;
+  position: relative;
 }
 
 .card h2 {
@@ -108,20 +122,25 @@ input[type="radio"]:checked + label {
 
 .player-area {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
 }
 
 .player-info {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  justify-content: center;
+  gap: 10px;
+  min-width: 120px;
 }
 
 /* combat buttons */
 .combat-buttons {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -157,16 +176,67 @@ input[type="radio"]:checked + label {
 }
 
 .combat-log {
-  max-height: 200px;
+  flex: 0 0 300px; /* Don't grow, don't shrink, start at 300px */
+  max-height: 85vh;
   overflow-y: auto;
   background-color: #f3f3f3;
   padding: 10px;
-  margin-top: 20px;
   text-align: left;
   border: 1px solid #ccc;
+  align-self: flex-start; /* Align to the top of the flex container */
 }
 
 .combat-log p {
   margin: 0.5em 0;
   min-height: 1em; /* Ensures even empty paragraphs create space */
+}
+
+.card-hp-circle {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+@media (max-width: 1200px) {
+  .combat-log {
+    display: none;
+  }
+}
+
+h1 {
+  text-align: center;
+}
+
+.help-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  font-size: 1.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 999;
+}
+
+.help-button:hover {
+  background-color: #2980b9;
 }

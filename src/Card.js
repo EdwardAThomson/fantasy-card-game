@@ -4,6 +4,7 @@ function Card({ creature, onCardSelect, isSelected }) {
 
   return (
     <div className={`card ${isSelected ? 'selected' : ''}`} onClick={onCardSelect}>
+      <div className="card-hp-circle">{creature.currentHealth}</div>
       <h2>{creature.name}</h2>
       <img src={creature.image} alt={creature.name} className="creature-image" />
 
@@ -13,9 +14,6 @@ function Card({ creature, onCardSelect, isSelected }) {
                 {stat}: {creature.stats[stat]}
           </li>
         ))}
-          <li>
-              HP: {creature.maxHealth}
-          </li>
       </ul>
 
     </div>

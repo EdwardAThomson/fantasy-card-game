@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import creatures from './creatures';  // Import the creatures data
 import Card from './Card';  // Import the Card component
+import Modal from './Modal'; // Import the Modal component
 
 
 // Deck Creation
@@ -79,7 +80,8 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
     secondChoice = player1Choice;
   }
 
-  logFn(`${firstAttacker.name} goes first`);
+  const firstAttackerPlayer = firstAttacker === player1card ? 'Player 1' : 'Player 2';
+  logFn(`${firstAttacker.name} (${firstAttackerPlayer}) goes first`);
   logFn(' ');
 
   // First Attacker Round (higher initiative)
@@ -161,6 +163,11 @@ function Game() {
     setLogMessages(prev => [...prev, message]);
   };
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+
   // variables used in combat
   const [result, setResult] = useState(''); // combat result
   const [round, setRound] = useState(1); // Track the number of rounds
@@ -193,10 +200,12 @@ function Game() {
   // Check for victory (overall) when hands change
   useEffect(() => {
     if (player1Hand.length === 0) {
-      setResult('Player 2 is the winner!');
+      setModalMessage('Player 2 is the winner!');
+      setIsModalOpen(true);
       addLog('Player 2 is the winner!');
     } else if (player2Hand.length === 0) {
-      setResult('Player 1 is the winner!');
+      setModalMessage('Player 1 is the winner!');
+      setIsModalOpen(true);
       addLog('Player 1 is the winner!');
     }
   }, [player1Hand, player2Hand]);  // This will trigger when player1Hand or player2Hand changes
@@ -218,8 +227,10 @@ function Game() {
     if (outcome.haveWinner) {
       setHaveWinner(true);
       setWinner(outcome.winner);
-      setResult(`${outcome.winner.name} wins the round!`);
-      addLog(`${outcome.winner.name} wins the round!`);
+      const winnerPlayer = outcome.winner === player1SelectedCard ? 'Player 1' : 'Player 2';
+      setModalMessage(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
+      setIsModalOpen(true);
+      addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
     }
 
     // Remove cards on zero HP
@@ -254,107 +265,99 @@ function Game() {
     player2SelectedCard.currentHealth > 0;
 
   return (
-    <div className="game-container">
-      <h2>Fantasy Card Combat Game</h2>
-      <h3>Combat Screen</h3>
+    <>
+    <h1>Fantasy Card Combat Game</h1>
+    <div className="app-wrapper">
+      <div className="game-container">
+        <div className="game-main">
 
-      <div className="players-container">
-        {/* Player 1 Area */}
-        <div className="player-area">
-          <div className="player-info">
-            <h2>Player 1's Hand</h2>
-            <div className="combat-buttons">
-              <button
-                className={`combat-button melee ${player1Choice === 'Melee' ? 'selected' : ''}`}
-                onClick={() => handlePlayer1ChoiceSelect('Melee')}
-              >
-                Melee
-              </button>
-              <button
-                className={`combat-button ranged ${player1Choice === 'Ranged' ? 'selected' : ''}`}
-                onClick={() => handlePlayer1ChoiceSelect('Ranged')}
-              >
-                Ranged
-              </button>
-              <button
-                className={`combat-button magic ${player1Choice === 'Magic' ? 'selected' : ''}`}
-                onClick={() => handlePlayer1ChoiceSelect('Magic')}
-              >
-                Magic
-              </button>
+          <div className="players-container">
+            {/* Player 1 Area */}
+            <div className="player-area">
+              <div className="player-info">
+                <h2>Player 1</h2>
+                <div className="combat-buttons">
+                  <button
+                    className={`combat-button melee ${player1Choice === 'Melee' ? 'selected' : ''}`}
+                    onClick={() => handlePlayer1ChoiceSelect('Melee')}
+                  >
+                    Melee
+                  </button>
+                  <button
+                    className={`combat-button ranged ${player1Choice === 'Ranged' ? 'selected' : ''}`}
+                    onClick={() => handlePlayer1ChoiceSelect('Ranged')}
+                  >
+                    Ranged
+                  </button>
+                  <button
+                    className={`combat-button magic ${player1Choice === 'Magic' ? 'selected' : ''}`}
+                    onClick={() => handlePlayer1ChoiceSelect('Magic')}
+                  >
+                    Magic
+                  </button>
+                </div>
+              </div>
+              <div className="player-hand">
+                {player1Hand.map((card, index) => (
+                  <Card
+                    key={index}
+                    creature={card}
+                    onCardSelect={() => handlePlayer1CardSelect(card)}
+                    isSelected={player1SelectedCard === card}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Player 2 Area */}
+            <div className="player-area">
+              <div className="player-info">
+                <h2>Player 2</h2>
+                <div className="combat-buttons">
+                  <button
+                    className={`combat-button melee ${player2Choice === 'Melee' ? 'selected' : ''}`}
+                    onClick={() => handlePlayer2ChoiceSelect('Melee')}
+                  >
+                    Melee
+                  </button>
+                  <button
+                    className={`combat-button ranged ${player2Choice === 'Ranged' ? 'selected' : ''}`}
+                    onClick={() => handlePlayer2ChoiceSelect('Ranged')}
+                  >
+                    Ranged
+                  </button>
+                  <button
+                    className={`combat-button magic ${player2Choice === 'Magic' ? 'selected' : ''}`}
+                    onClick={() => handlePlayer2ChoiceSelect('Magic')}
+                  >
+                    Magic
+                  </button>
+                </div>
+              </div>
+              <div className="player-hand">
+                {player2Hand.map((card, index) => (
+                  <Card
+                    key={index}
+                    creature={card}
+                    onCardSelect={() => handlePlayer2CardSelect(card)}
+                    isSelected={player2SelectedCard === card}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-          <div className="player-hand">
-            {player1Hand.map((card, index) => (
-              <Card
-                key={index}
-                creature={card}
-                onCardSelect={() => handlePlayer1CardSelect(card)}
-                isSelected={player1SelectedCard === card}
-              />
-            ))}
+
+          {/* Fight button */}
+          <div>
+            <button
+              onClick={Fight}
+              disabled={!isCombatReady}
+            >
+            Fight!
+            </button>
           </div>
+
         </div>
-
-        {/* Player 2 Area */}
-        <div className="player-area">
-          <div className="player-info">
-            <h2>Player 2's Hand</h2>
-            <div className="combat-buttons">
-              <button
-                className={`combat-button melee ${player2Choice === 'Melee' ? 'selected' : ''}`}
-                onClick={() => handlePlayer2ChoiceSelect('Melee')}
-              >
-                Melee
-              </button>
-              <button
-                className={`combat-button ranged ${player2Choice === 'Ranged' ? 'selected' : ''}`}
-                onClick={() => handlePlayer2ChoiceSelect('Ranged')}
-              >
-                Ranged
-              </button>
-              <button
-                className={`combat-button magic ${player2Choice === 'Magic' ? 'selected' : ''}`}
-                onClick={() => handlePlayer2ChoiceSelect('Magic')}
-              >
-                Magic
-              </button>
-            </div>
-          </div>
-          <div className="player-hand">
-            {player2Hand.map((card, index) => (
-              <Card
-                key={index}
-                creature={card}
-                onCardSelect={() => handlePlayer2CardSelect(card)}
-                isSelected={player2SelectedCard === card}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Display selected choices */}
-      <div>
-         <h3>
-          Player 1 selected:
-          {player1SelectedCard ? ` ${player1SelectedCard.name} - ${player1Choice}` : ' No card selected'}
-        </h3>
-        <h3>
-          Player 2 selected:
-          {player2SelectedCard ? ` ${player2SelectedCard.name} - ${player2Choice}` : ' No card selected'}
-        </h3>
-      </div>
-
-      {/* Fight button */}
-      <div>
-        <button
-          onClick={Fight}
-          disabled={!isCombatReady}
-        >
-        Fight!
-        </button>
-        <h2>{result}</h2>
       </div>
 
       <div className="combat-log">
@@ -363,8 +366,39 @@ function Game() {
           <p key={idx}>{msg}</p>
         ))}
       </div>
-
     </div>
+
+    <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <h2>{modalMessage}</h2>
+    </Modal>
+    <Modal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)}>
+      <h2>How to Play</h2>
+      <div style={{textAlign: 'left', marginTop: '20px'}}>
+          <p><strong>Objective:</strong> Defeat all of your opponent's creatures to win the game!</p>
+          <br/>
+          <h4>Game Flow:</h4>
+          <ol>
+              <li>Each player is dealt a hand of three unique creature cards.</li>
+              <li><strong>Selection Phase:</strong>
+                  <ul>
+                      <li>Select one of your creatures to send into combat by clicking on its card.</li>
+                      <li>Choose a combat style for that round: Melee, Ranged, or Magic.</li>
+                  </ul>
+              </li>
+              <li><strong>Combat Phase:</strong>
+                  <ul>
+                      <li>Once both players have made their selections, click the "Fight!" button.</li>
+                      <li>Creatures attack one by one, with the faster creature (based on Agility and Intelligence) striking first.</li>
+                      <li>Damage is calculated based on your chosen combat style vs. the opponent's defense.</li>
+                      <li>A creature is defeated and removed from the game when its HP reaches 0.</li>
+                  </ul>
+              </li>
+              <li>The round ends after both creatures have attacked. The player with the last creature standing wins the game.</li>
+          </ol>
+      </div>
+    </Modal>
+    <button className="help-button" onClick={() => setIsHelpModalOpen(true)}>?</button>
+    </>
   );
 }
 
