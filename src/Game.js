@@ -142,11 +142,21 @@ function combatRound(attacker, defender, combatChoice, logFn) {
 
 
 // Main Game function
-function Game() {
+function Game({ player1Deck, player2Deck }) {
 
   // Initialize player hands using useState
-  const [player1Hand, setPlayer1Hand] = useState(() => getThreeUniqueCards(creatures));
-  const [player2Hand, setPlayer2Hand] = useState(() => getThreeUniqueCards(creatures));
+  const [player1Hand, setPlayer1Hand] = useState(() => {
+    if (player1Deck && player1Deck.length === 3) {
+      return player1Deck.map(card => JSON.parse(JSON.stringify(card)));
+    }
+    return getThreeUniqueCards(creatures);
+  });
+  const [player2Hand, setPlayer2Hand] = useState(() => {
+    if (player2Deck && player2Deck.length === 3) {
+      return player2Deck.map(card => JSON.parse(JSON.stringify(card)));
+    }
+    return getThreeUniqueCards(creatures);
+  });
 
   // Selected card in each hand
   const [player1SelectedCard, setPlayer1SelectedCard] = useState(null);
