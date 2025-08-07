@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import creatures from './creatures';  // Import the creatures data
+import creatures, { ABILITIES } from './creatures';  // Import the creatures data and ability IDs
 import Card from './Card';  // Import the Card component
 import Modal from './Modal'; // Import the Modal component
 import { DECK_SIZE } from './constants';
@@ -40,6 +40,39 @@ function getCombatStat (attacker, choice) {
       default:
         return 0; // Default to 0 if no valid choice
     }
+}
+
+// Ability resolution helper
+function resolveAbility(attacker, defender, ability, damage, logFn) {
+  if (!ability) return damage;
+
+  switch (ability) {
+    case ABILITIES.FIRE_BREATH: {
+      logFn(`${attacker.name} uses Fire Breath!`);
+      return damage + 10;
+    }
+    case ABILITIES.HEAL: {
+      const healAmount = 10;
+      attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + healAmount);
+      logFn(`${attacker.name} casts Heal and restores ${healAmount} HP!`);
+      return damage;
+    }
+    case ABILITIES.BERSERK: {
+      logFn(`${attacker.name} goes Berserk!`);
+      return damage + 5;
+    }
+    case ABILITIES.SHIELD_WALL: {
+      logFn(`${attacker.name} raises a Shield Wall!`);
+      return Math.max(0, damage - 5);
+    }
+    case ABILITIES.STUN: {
+      logFn(`${attacker.name} uses a stunning blow! ${defender.name} is stunned.`);
+      defender.isStunned = true;
+      return damage;
+    }
+    default:
+      return damage;
+  }
 }
 
 
@@ -116,16 +149,28 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
 
 // Combat calculation function
 function combatRound(attacker, defender, combatChoice, logFn) {
+  if (attacker.isStunned) {
+    logFn(`${attacker.name} is stunned and cannot act!`);
+    attacker.isStunned = false;
+    return {
+      player1Health: attacker.currentHealth,
+      player2Health: defender.currentHealth,
+      playerAttack: 0,
+      opponentDamageTaken: 0,
+    };
+  }
 
   // Calculate damage based on the chosen combat stat plus randomness.
-  const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice)  + Math.floor(Math.random() * 21) );
-  const opponentDamageTaken = Math.max(0, playerAttack - (defender.stats.defense / 2));
+  const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice) + Math.floor(Math.random() * 21));
+  let damage = Math.max(0, playerAttack - (defender.stats.defense / 2));
+  const ability = attacker.selectedAbility || (attacker.abilities && attacker.abilities[0]);
+  damage = resolveAbility(attacker, defender, ability, damage, logFn);
 
   logFn(`Attacker: ${attacker.name} (${combatChoice})`);
   logFn(`Attack value: ${playerAttack}`);
-  logFn(`Damage dealt: ${opponentDamageTaken}`);
+  logFn(`Damage dealt: ${damage}`);
 
-  defender.currentHealth -= opponentDamageTaken;
+  defender.currentHealth -= damage;
 
   const player1Health = attacker.currentHealth;
   const player2Health = defender.currentHealth;
@@ -137,7 +182,7 @@ function combatRound(attacker, defender, combatChoice, logFn) {
     player1Health,
     player2Health,
     playerAttack,
-    opponentDamageTaken,
+    opponentDamageTaken: damage,
   };
 }
 
@@ -414,4 +459,4 @@ function Game({ player1Deck, player2Deck }) {
 }
 
 export default Game;
-export { getRandomUniqueCards };
+export { getRandomUniqueCards, combatRound, resolveAbility };
