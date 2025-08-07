@@ -6,6 +6,10 @@ function DeckBuilder({ onDecksSelected }) {
   const [player1Deck, setPlayer1Deck] = useState([]);
   const [player2Deck, setPlayer2Deck] = useState([]);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(0);
+
+  const CREATURES_PER_PAGE = 5;
+  const totalPages = Math.ceil(creatures.length / CREATURES_PER_PAGE);
 
   const toggleSelection = (player, creature) => {
     const deck = player === 1 ? player1Deck : player2Deck;
@@ -60,18 +64,35 @@ function DeckBuilder({ onDecksSelected }) {
     );
   };
 
+  const pageCreatures = creatures.slice(
+    page * CREATURES_PER_PAGE,
+    (page + 1) * CREATURES_PER_PAGE
+  );
+
+  const prevPage = () =>
+    setPage((page - 1 + totalPages) % totalPages);
+  const nextPage = () =>
+    setPage((page + 1) % totalPages);
+
   return (
     <div>
       <h2>Deck Builder</h2>
       <div style={{display: 'flex', justifyContent: 'space-around'}}>
         <div>
           <h3>Player 1</h3>
-          {creatures.map(creature => renderCreature(creature, 1))}
+          {pageCreatures.map(creature => renderCreature(creature, 1))}
         </div>
         <div>
           <h3>Player 2</h3>
-          {creatures.map(creature => renderCreature(creature, 2))}
+          {pageCreatures.map(creature => renderCreature(creature, 2))}
         </div>
+      </div>
+      <div style={{display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem'}}>
+        <button onClick={prevPage}>Prev</button>
+        <span>
+          Page {page + 1} of {totalPages}
+        </span>
+        <button onClick={nextPage}>Next</button>
       </div>
       {error && <p style={{color: 'red'}}>{error}</p>}
       <button onClick={finalizeDecks}>Start Game</button>
