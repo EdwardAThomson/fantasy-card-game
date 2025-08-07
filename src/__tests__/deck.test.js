@@ -1,6 +1,7 @@
-import { getThreeUniqueCards } from '../Game';
+import { getRandomUniqueCards } from '../Game';
+import { DECK_SIZE } from '../constants';
 
-describe('getThreeUniqueCards', () => {
+describe('getRandomUniqueCards', () => {
   const sampleCreatures = [
     { name: 'A' },
     { name: 'B' },
@@ -8,15 +9,15 @@ describe('getThreeUniqueCards', () => {
     { name: 'D' }
   ];
 
-  test('returns an array of length 3', () => {
-    const cards = getThreeUniqueCards(sampleCreatures);
-    expect(cards).toHaveLength(3);
+  test('returns an array of specified length', () => {
+    const cards = getRandomUniqueCards(sampleCreatures, DECK_SIZE);
+    expect(cards).toHaveLength(DECK_SIZE);
   });
 
   test('returns unique cards', () => {
-    const cards = getThreeUniqueCards(sampleCreatures);
+    const cards = getRandomUniqueCards(sampleCreatures, DECK_SIZE);
     const names = cards.map(c => c.name);
     const uniqueNames = new Set(names);
-    expect(uniqueNames.size).toBe(3);
+    expect(uniqueNames.size).toBe(DECK_SIZE);
   });
 });

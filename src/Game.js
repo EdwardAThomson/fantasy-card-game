@@ -2,24 +2,25 @@ import React, { useState, useEffect } from 'react';
 import creatures from './creatures';  // Import the creatures data
 import Card from './Card';  // Import the Card component
 import Modal from './Modal'; // Import the Modal component
+import { DECK_SIZE } from './constants';
 
 
 // Deck Creation
-// - draw 3 unique cards
-const getThreeUniqueCards = (creatures) => {
+// - draw a number of unique cards
+const getRandomUniqueCards = (creaturesList, count) => {
   const selectedIndices = new Set();  // Use a set to store unique indices
   const selectedCards = [];
 
-  // Continue generating indices until we have 3 unique ones
-  while (selectedIndices.size < 3) {
-    const randomIndex = Math.floor(Math.random() * creatures.length);
+  // Continue generating indices until we have the desired number of unique ones
+  while (selectedIndices.size < count) {
+    const randomIndex = Math.floor(Math.random() * creaturesList.length);
 
     // If this index has not been selected yet, add it to the set and push the creature
     if (!selectedIndices.has(randomIndex)) {
       selectedIndices.add(randomIndex);
 
       // Create a deep copy of the selected creature
-      const creatureCopy = JSON.parse(JSON.stringify(creatures[randomIndex]));
+      const creatureCopy = JSON.parse(JSON.stringify(creaturesList[randomIndex]));
       selectedCards.push(creatureCopy);
     }
   }
@@ -142,11 +143,21 @@ function combatRound(attacker, defender, combatChoice, logFn) {
 
 
 // Main Game function
-function Game() {
+function Game({ player1Deck, player2Deck }) {
 
   // Initialize player hands using useState
-  const [player1Hand, setPlayer1Hand] = useState(() => getThreeUniqueCards(creatures));
-  const [player2Hand, setPlayer2Hand] = useState(() => getThreeUniqueCards(creatures));
+  const [player1Hand, setPlayer1Hand] = useState(() => {
+    if (player1Deck && player1Deck.length === DECK_SIZE) {
+      return player1Deck.map(card => JSON.parse(JSON.stringify(card)));
+    }
+    return getRandomUniqueCards(creatures, DECK_SIZE);
+  });
+  const [player2Hand, setPlayer2Hand] = useState(() => {
+    if (player2Deck && player2Deck.length === DECK_SIZE) {
+      return player2Deck.map(card => JSON.parse(JSON.stringify(card)));
+    }
+    return getRandomUniqueCards(creatures, DECK_SIZE);
+  });
 
   // Selected card in each hand
   const [player1SelectedCard, setPlayer1SelectedCard] = useState(null);
@@ -403,4 +414,4 @@ function Game() {
 }
 
 export default Game;
-export { getThreeUniqueCards };
+export { getRandomUniqueCards };
