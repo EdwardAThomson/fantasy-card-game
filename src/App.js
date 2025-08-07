@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Game from './Game';
 import DeckBuilder from './DeckBuilder';
+import { DECK_SIZE } from './constants';
 import './App.css';
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
     setPlayer2Deck(p2);
   };
 
-  if (mode === 'custom' && (player1Deck.length !== 3 || player2Deck.length !== 3)) {
+  if (mode === 'custom' && (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE)) {
     return (
       <div className="App">
         <DeckBuilder onDecksSelected={handleDecksSelected} />
@@ -31,7 +32,7 @@ function App() {
         </div>
       )}
       {mode === 'random' && <Game />}
-      {mode === 'custom' && player1Deck.length === 3 && player2Deck.length === 3 && (
+      {mode === 'custom' && player1Deck.length === DECK_SIZE && player2Deck.length === DECK_SIZE && (
         <Game player1Deck={player1Deck} player2Deck={player2Deck} />
       )}
     </div>

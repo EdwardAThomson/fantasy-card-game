@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import creatures from './creatures';
+import { DECK_SIZE } from './constants';
 
 function DeckBuilder({ onDecksSelected }) {
   const [player1Deck, setPlayer1Deck] = useState([]);
@@ -15,8 +16,8 @@ function DeckBuilder({ onDecksSelected }) {
     if (isSelected) {
       newDeck = deck.filter(c => c.name !== creature.name);
     } else {
-      if (deck.length >= 3) {
-        setError(`Player ${player} already has 3 creatures.`);
+      if (deck.length >= DECK_SIZE) {
+        setError(`Player ${player} already has ${DECK_SIZE} creatures.`);
         return;
       }
       newDeck = [...deck, creature];
@@ -26,13 +27,13 @@ function DeckBuilder({ onDecksSelected }) {
   };
 
   const finalizeDecks = () => {
-    if (player1Deck.length !== 3 || player2Deck.length !== 3) {
-      setError('Each player must select exactly 3 creatures.');
+    if (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE) {
+      setError(`Each player must select exactly ${DECK_SIZE} creatures.`);
       return;
     }
     const unique1 = new Set(player1Deck.map(c => c.name));
     const unique2 = new Set(player2Deck.map(c => c.name));
-    if (unique1.size !== 3 || unique2.size !== 3) {
+    if (unique1.size !== DECK_SIZE || unique2.size !== DECK_SIZE) {
       setError('Duplicate selections are not allowed.');
       return;
     }
@@ -45,7 +46,7 @@ function DeckBuilder({ onDecksSelected }) {
   const renderCreature = (creature, player) => {
     const deck = player === 1 ? player1Deck : player2Deck;
     const isSelected = deck.some(c => c.name === creature.name);
-    const disabled = deck.length >= 3 && !isSelected;
+    const disabled = deck.length >= DECK_SIZE && !isSelected;
     return (
       <label key={`${player}-${creature.name}`} style={{display: 'block'}}>
         <input
