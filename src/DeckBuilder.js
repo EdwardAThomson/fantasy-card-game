@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import creatures from './creatures';
 import { DECK_SIZE } from './constants';
+import Card from './Card';
 
 function DeckBuilder({ onDecksSelected }) {
   const [player1Deck, setPlayer1Deck] = useState([]);
@@ -52,15 +53,13 @@ function DeckBuilder({ onDecksSelected }) {
     const isSelected = deck.some(c => c.name === creature.name);
     const disabled = deck.length >= DECK_SIZE && !isSelected;
     return (
-      <label key={`${player}-${creature.name}`} style={{display: 'block'}}>
-        <input
-          type="checkbox"
-          checked={isSelected}
-          disabled={disabled}
-          onChange={() => toggleSelection(player, creature)}
-        />
-        {creature.name}
-      </label>
+      <Card
+        key={`${player}-${creature.name}`}
+        creature={creature}
+        onCardSelect={() => toggleSelection(player, creature)}
+        isSelected={isSelected}
+        disabled={disabled}
+      />
     );
   };
 
@@ -75,15 +74,17 @@ function DeckBuilder({ onDecksSelected }) {
     setPage((page + 1) % totalPages);
 
   return (
-    <div>
+    <div className="deck-builder">
       <h2>Deck Builder</h2>
-      <div style={{display: 'flex', justifyContent: 'space-around'}}>
-        <div>
-          <h3>Player 1</h3>
+      <div>
+        <h3>Player 1</h3>
+        <div className="player-cards">
           {pageCreatures.map(creature => renderCreature(creature, 1))}
         </div>
-        <div>
-          <h3>Player 2</h3>
+      </div>
+      <div>
+        <h3>Player 2</h3>
+        <div className="player-cards">
           {pageCreatures.map(creature => renderCreature(creature, 2))}
         </div>
       </div>
