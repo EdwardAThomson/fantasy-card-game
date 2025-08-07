@@ -1,3 +1,11 @@
+export const ABILITIES = {
+  FIRE_BREATH: 'fire_breath',
+  HEAL: 'heal',
+  BERSERK: 'berserk',
+  SHIELD_WALL: 'shield_wall',
+  STUN: 'stun',
+};
+
 const creatures = [
   {
     name: 'Dragon',
@@ -10,7 +18,7 @@ const creatures = [
       defense: 85,
       magic: 80
     },
-    abilities: ['fire_breath', 'fly'],
+    abilities: [ABILITIES.FIRE_BREATH, 'fly'],
     currentHealth: 500,
     maxHealth: 500,
     statusEffects: [],
@@ -27,7 +35,7 @@ const creatures = [
       defense: 75,
       magic: 30
     },
-    abilities: ['berserk', 'shield_wall'],
+    abilities: [ABILITIES.BERSERK, ABILITIES.SHIELD_WALL],
     currentHealth: 400,
     maxHealth: 400,
     statusEffects: [],
@@ -78,7 +86,7 @@ const creatures = [
       defense: 70,
       magic: 55
     },
-    abilities: ['soul_reap', 'shield_bash'],
+    abilities: ['soul_reap', ABILITIES.STUN],
     currentHealth: 450,
     maxHealth: 450,
     statusEffects: [],
@@ -95,7 +103,7 @@ const creatures = [
       defense: 60,
       magic: 90
     },
-    abilities: ['heal', 'entangle'],
+    abilities: [ABILITIES.HEAL, ABILITIES.STUN],
     currentHealth: 350,
     maxHealth: 350,
     statusEffects: [],
@@ -112,7 +120,7 @@ const creatures = [
       defense: 80,
       magic: 30
     },
-    abilities: ['rage', 'battle_cry'],
+    abilities: [ABILITIES.BERSERK],
     currentHealth: 420,
     maxHealth: 420,
     statusEffects: [],
@@ -129,7 +137,7 @@ const creatures = [
       defense: 65,
       magic: 100
     },
-    abilities: ['rebirth', 'flame_wings'],
+    abilities: [ABILITIES.HEAL, ABILITIES.FIRE_BREATH],
     currentHealth: 380,
     maxHealth: 380,
     statusEffects: [],
@@ -146,7 +154,7 @@ const creatures = [
       defense: 75,
       magic: 25
     },
-    abilities: ['regenerate', 'club_slam'],
+    abilities: [ABILITIES.HEAL, ABILITIES.STUN],
     currentHealth: 430,
     maxHealth: 430,
     statusEffects: [],
@@ -180,7 +188,7 @@ const creatures = [
       defense: 80,
       magic: 35
     },
-    abilities: ['charge', 'horn_strike'],
+    abilities: [ABILITIES.BERSERK, ABILITIES.STUN],
     currentHealth: 410,
     maxHealth: 410,
     statusEffects: [],
@@ -197,7 +205,7 @@ const creatures = [
       defense: 85,
       magic: 90
     },
-    abilities: ['elemental_shield', 'light_beam'],
+    abilities: [ABILITIES.SHIELD_WALL, 'light_beam'],
     currentHealth: 400,
     maxHealth: 400,
     statusEffects: [],
@@ -248,7 +256,7 @@ const creatures = [
       defense: 60,
       magic: 30
     },
-    abilities: ['poison_bite', 'web_sling'],
+    abilities: ['poison_bite', ABILITIES.STUN],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -265,7 +273,7 @@ const creatures = [
       defense: 90,
       magic: 110
     },
-    abilities: ['divine_heal', 'light_breath'],
+    abilities: [ABILITIES.HEAL, ABILITIES.FIRE_BREATH],
     currentHealth: 550,
     maxHealth: 550,
     statusEffects: [],
@@ -316,7 +324,7 @@ const creatures = [
       defense: 60,
       magic: 50
     },
-    abilities: ['spear_thrust', 'shield_wall'],
+    abilities: ['spear_thrust', ABILITIES.SHIELD_WALL],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -367,7 +375,7 @@ const creatures = [
       defense: 40,
       magic: 95
     },
-    abilities: ['flame_burst', 'burn'],
+    abilities: [ABILITIES.FIRE_BREATH, 'burn'],
     currentHealth: 320,
     maxHealth: 320,
     statusEffects: [],
@@ -384,7 +392,7 @@ const creatures = [
       defense: 50,
       magic: 90
   },
-    abilities: ['water_blast', 'healing_surge'],
+    abilities: ['water_blast', ABILITIES.HEAL],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -401,7 +409,7 @@ const creatures = [
       defense: 90,
       magic: 70
     },
-    abilities: ['rock_throw', 'earth_shield'],
+    abilities: ['rock_throw', ABILITIES.SHIELD_WALL],
     currentHealth: 380,
     maxHealth: 380,
     statusEffects: [],
@@ -418,7 +426,7 @@ const creatures = [
       defense: 40,
       magic: 80
     },
-    abilities: ['gust_of_wind', 'whirlwind'],
+    abilities: ['gust_of_wind', ABILITIES.STUN],
     currentHealth: 290,
     maxHealth: 290,
     statusEffects: [],
@@ -435,7 +443,7 @@ const creatures = [
       defense: 45,
       magic: 85
     },
-    abilities: ['lightning_bolt', 'shock'],
+    abilities: [ABILITIES.STUN],
     currentHealth: 310,
     maxHealth: 310,
     statusEffects: [],
