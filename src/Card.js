@@ -1,11 +1,14 @@
 import React from 'react';
 
-function Card({ creature, onCardSelect, isSelected }) {
+function Card({ creature, onCardSelect, isSelected, disabled }) {
   const healthPercent = (creature.currentHealth / creature.maxHealth) * 100;
   const barColor = `hsl(${healthPercent * 1.2}, 70%, 50%)`;
 
   return (
-    <div className={`card ${isSelected ? 'selected' : ''}`} onClick={onCardSelect}>
+    <div
+      className={`card ${isSelected ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+      onClick={disabled ? undefined : onCardSelect}
+    >
       <div className="health-bar">
         <div
           className="health-bar-fill"

@@ -198,6 +198,27 @@ input[type="radio"]:checked + label {
   border: 4px solid black;
 }
 
+.card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.deck-builder .player-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.deck-builder .card {
+  width: 180px;
+}
+
+.deck-builder .creature-image {
+  width: 100% !important;
+  max-height: 160px;
+}
+
 /* Remove margin on the last button */
 .combat-button:last-child {
   margin-right: 0;
