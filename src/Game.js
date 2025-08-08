@@ -91,7 +91,7 @@ function resolveAbility(attacker, defender, ability, damage, logFn) {
 
   switch (effect.type) {
     case 'damage':
-      logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
+      logFn(`${attacker.name} uses ${formatAbility(ability)} (+${effect.value} damage)!`);
       return damage + effect.value;
     case 'heal': {
       attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + effect.value);
@@ -99,7 +99,7 @@ function resolveAbility(attacker, defender, ability, damage, logFn) {
       return damage;
     }
     case 'defense':
-      logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
+      logFn(`${attacker.name} uses ${formatAbility(ability)} (-${effect.value} damage)!`);
       return Math.max(0, damage - effect.value);
     case 'stun':
       defender.isStunned = true;
@@ -197,7 +197,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
 
   // Calculate damage based on the chosen combat stat plus randomness.
   const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice) + Math.floor(Math.random() * 21));
-  let damage = Math.max(0, playerAttack - (defender.stats.defense / 2));
+  const defenseMod = defender.stats.defense / 2;
+  let damage = Math.max(0, playerAttack - defenseMod);
   const ability =
     attacker.selectedAbility ||
     (attacker.abilities &&
@@ -206,6 +207,9 @@ function combatRound(attacker, defender, combatChoice, logFn) {
 
   logFn(`Attacker: ${attacker.name} (${combatChoice})`);
   logFn(`Attack value: ${playerAttack}`);
+  if (defenseMod > 0) {
+    logFn(`Defense modifier: -${defenseMod}`);
+  }
   logFn(`Damage dealt: ${damage}`);
 
   defender.currentHealth -= damage;
