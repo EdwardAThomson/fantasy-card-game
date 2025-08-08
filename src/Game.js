@@ -42,34 +42,69 @@ function getCombatStat (attacker, choice) {
     }
 }
 
+// Ability configuration
+const abilityEffects = {
+  [ABILITIES.FIRE_BREATH]: { type: 'damage', value: 10 },
+  [ABILITIES.HEAL]: { type: 'heal', value: 10 },
+  [ABILITIES.BERSERK]: { type: 'damage', value: 5 },
+  [ABILITIES.SHIELD_WALL]: { type: 'defense', value: 5 },
+  [ABILITIES.STUN]: { type: 'stun', value: 0 },
+  [ABILITIES.FLY]: { type: 'defense', value: 5 },
+  [ABILITIES.CAST_SPELL]: { type: 'damage', value: 10 },
+  [ABILITIES.TELEPORT]: { type: 'defense', value: 5 },
+  [ABILITIES.PRECISION_SHOT]: { type: 'damage', value: 10 },
+  [ABILITIES.EVASION]: { type: 'defense', value: 5 },
+  [ABILITIES.SOUL_REAP]: { type: 'damage', value: 10 },
+  [ABILITIES.MANA_BOLT]: { type: 'damage', value: 10 },
+  [ABILITIES.CURSE]: { type: 'damage', value: 5 },
+  [ABILITIES.LIGHT_BEAM]: { type: 'damage', value: 10 },
+  [ABILITIES.SUMMON_UNDEAD]: { type: 'heal', value: 10 },
+  [ABILITIES.DARK_SPELL]: { type: 'damage', value: 10 },
+  [ABILITIES.BACKSTAB]: { type: 'damage', value: 15 },
+  [ABILITIES.SHADOW_STEP]: { type: 'defense', value: 5 },
+  [ABILITIES.POISON_BITE]: { type: 'damage', value: 10 },
+  [ABILITIES.RAISE_DEAD]: { type: 'heal', value: 15 },
+  [ABILITIES.NECROTIC_BLAST]: { type: 'damage', value: 10 },
+  [ABILITIES.DARK_BLAST]: { type: 'damage', value: 10 },
+  [ABILITIES.SUMMON_MINION]: { type: 'heal', value: 10 },
+  [ABILITIES.SPEAR_THRUST]: { type: 'damage', value: 10 },
+  [ABILITIES.COMMAND]: { type: 'defense', value: 5 },
+  [ABILITIES.RALLY]: { type: 'heal', value: 10 },
+  [ABILITIES.RANGED_ATTACK]: { type: 'damage', value: 10 },
+  [ABILITIES.CAMOUFLAGE]: { type: 'defense', value: 5 },
+  [ABILITIES.BURN]: { type: 'damage', value: 10 },
+  [ABILITIES.WATER_BLAST]: { type: 'damage', value: 10 },
+  [ABILITIES.ROCK_THROW]: { type: 'damage', value: 10 },
+  [ABILITIES.GUST_OF_WIND]: { type: 'damage', value: 10 },
+};
+
+const formatAbility = ability => ability.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
 // Ability resolution helper
 function resolveAbility(attacker, defender, ability, damage, logFn) {
   if (!ability) return damage;
+  const effect = abilityEffects[ability];
+  if (!effect) {
+    logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
+    return damage;
+  }
 
-  switch (ability) {
-    case ABILITIES.FIRE_BREATH: {
-      logFn(`${attacker.name} uses Fire Breath!`);
-      return damage + 10;
-    }
-    case ABILITIES.HEAL: {
-      const healAmount = 10;
-      attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + healAmount);
-      logFn(`${attacker.name} casts Heal and restores ${healAmount} HP!`);
+  switch (effect.type) {
+    case 'damage':
+      logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
+      return damage + effect.value;
+    case 'heal': {
+      attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + effect.value);
+      logFn(`${attacker.name} uses ${formatAbility(ability)} and restores ${effect.value} HP!`);
       return damage;
     }
-    case ABILITIES.BERSERK: {
-      logFn(`${attacker.name} goes Berserk!`);
-      return damage + 5;
-    }
-    case ABILITIES.SHIELD_WALL: {
-      logFn(`${attacker.name} raises a Shield Wall!`);
-      return Math.max(0, damage - 5);
-    }
-    case ABILITIES.STUN: {
-      logFn(`${attacker.name} uses a stunning blow! ${defender.name} is stunned.`);
+    case 'defense':
+      logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
+      return Math.max(0, damage - effect.value);
+    case 'stun':
       defender.isStunned = true;
+      logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`);
       return damage;
-    }
     default:
       return damage;
   }
@@ -459,4 +494,4 @@ function Game({ player1Deck, player2Deck }) {
 }
 
 export default Game;
-export { getRandomUniqueCards, combatRound, resolveAbility };
+export { getRandomUniqueCards, combatRound, resolveAbility, abilityEffects };
