@@ -230,7 +230,7 @@ function combatRound(attacker, defender, combatChoice, logFn) {
 
 
 // Main Game function
-function Game({ player1Deck, player2Deck }) {
+function Game({ player1Deck, player2Deck, singlePlayer = false }) {
 
   // Initialize player hands using useState
   const [player1Hand, setPlayer1Hand] = useState(() => {
@@ -273,6 +273,36 @@ function Game({ player1Deck, player2Deck }) {
   // Setting the winner
   const [haveWinner, setHaveWinner] = useState(false);
   const [winner, setWinner] = useState(null);
+
+  // AI decision logic
+  const makeAIDecision = () => {
+    if (!singlePlayer) return;
+    if (!player1SelectedCard || !player1Choice) return;
+    if (player2Hand.length === 0) return;
+
+    const best = player2Hand.reduce((acc, card) => {
+      if (card.currentHealth <= 0) return acc;
+      const stats = [
+        { choice: 'Melee', value: card.stats.strength },
+        { choice: 'Ranged', value: card.stats.agility },
+        { choice: 'Magic', value: card.stats.magic },
+      ];
+      const top = stats.reduce((p, c) => (c.value > p.value ? c : p));
+      if (!acc || top.value > acc.value) {
+        return { card, choice: top.choice, value: top.value };
+      }
+      return acc;
+    }, null);
+
+    if (best) {
+      setPlayer2SelectedCard(best.card);
+      setPlayer2Choice(best.choice);
+    }
+  };
+
+  useEffect(() => {
+    makeAIDecision();
+  }, [player1Choice, player1SelectedCard, player2Hand, singlePlayer]);
 
  // Handle card selection for Player 1
   const handlePlayer1CardSelect = (card) => {
@@ -415,18 +445,21 @@ function Game({ player1Deck, player2Deck }) {
                   <button
                     className={`combat-button melee ${player2Choice === 'Melee' ? 'selected' : ''}`}
                     onClick={() => handlePlayer2ChoiceSelect('Melee')}
+                    disabled={singlePlayer}
                   >
                     Melee
                   </button>
                   <button
                     className={`combat-button ranged ${player2Choice === 'Ranged' ? 'selected' : ''}`}
                     onClick={() => handlePlayer2ChoiceSelect('Ranged')}
+                    disabled={singlePlayer}
                   >
                     Ranged
                   </button>
                   <button
                     className={`combat-button magic ${player2Choice === 'Magic' ? 'selected' : ''}`}
                     onClick={() => handlePlayer2ChoiceSelect('Magic')}
+                    disabled={singlePlayer}
                   >
                     Magic
                   </button>
@@ -439,6 +472,7 @@ function Game({ player1Deck, player2Deck }) {
                     creature={card}
                     onCardSelect={() => handlePlayer2CardSelect(card)}
                     isSelected={player2SelectedCard === card}
+                    disabled={singlePlayer}
                   />
                 ))}
               </div>
