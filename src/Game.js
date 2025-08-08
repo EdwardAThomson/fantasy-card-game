@@ -198,7 +198,10 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   // Calculate damage based on the chosen combat stat plus randomness.
   const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice) + Math.floor(Math.random() * 21));
   let damage = Math.max(0, playerAttack - (defender.stats.defense / 2));
-  const ability = attacker.selectedAbility || (attacker.abilities && attacker.abilities[0]);
+  const ability =
+    attacker.selectedAbility ||
+    (attacker.abilities &&
+      attacker.abilities[Math.floor(Math.random() * attacker.abilities.length)]);
   damage = resolveAbility(attacker, defender, ability, damage, logFn);
 
   logFn(`Attacker: ${attacker.name} (${combatChoice})`);

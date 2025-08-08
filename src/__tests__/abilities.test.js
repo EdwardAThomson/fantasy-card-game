@@ -59,4 +59,35 @@ describe('ability interactions', () => {
       ).toBe(true);
     });
   });
+
+  test('random ability is selected when multiple are available', () => {
+    const attacker = {
+      name: 'Attacker',
+      stats: { strength: 50, agility: 0, intelligence: 0, defense: 0, magic: 0 },
+      abilities: [ABILITIES.FIRE_BREATH, ABILITIES.HEAL],
+      currentHealth: 80,
+      maxHealth: 100,
+    };
+    const defender = {
+      name: 'Defender',
+      stats: { defense: 0, strength: 0, agility: 0, intelligence: 0, magic: 0 },
+      abilities: [],
+      currentHealth: 100,
+      maxHealth: 100,
+      isStunned: false,
+    };
+    const logFn = jest.fn();
+    jest
+      .spyOn(Math, 'random')
+      .mockReturnValueOnce(0) // attack roll
+      .mockReturnValueOnce(0.75); // ability selection
+
+    combatRound(attacker, defender, 'Melee', logFn);
+
+    expect(attacker.currentHealth).toBe(90);
+    expect(defender.currentHealth).toBe(50);
+    expect(
+      logFn.mock.calls.some(call => call[0].toLowerCase().includes('heal'))
+    ).toBe(true);
+  });
 });
