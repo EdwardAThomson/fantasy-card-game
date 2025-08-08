@@ -4,6 +4,33 @@ export const ABILITIES = {
   BERSERK: 'berserk',
   SHIELD_WALL: 'shield_wall',
   STUN: 'stun',
+  FLY: 'fly',
+  CAST_SPELL: 'cast_spell',
+  TELEPORT: 'teleport',
+  PRECISION_SHOT: 'precision_shot',
+  EVASION: 'evasion',
+  SOUL_REAP: 'soul_reap',
+  MANA_BOLT: 'mana_bolt',
+  CURSE: 'curse',
+  LIGHT_BEAM: 'light_beam',
+  SUMMON_UNDEAD: 'summon_undead',
+  DARK_SPELL: 'dark_spell',
+  BACKSTAB: 'backstab',
+  SHADOW_STEP: 'shadow_step',
+  POISON_BITE: 'poison_bite',
+  RAISE_DEAD: 'raise_dead',
+  NECROTIC_BLAST: 'necrotic_blast',
+  DARK_BLAST: 'dark_blast',
+  SUMMON_MINION: 'summon_minion',
+  SPEAR_THRUST: 'spear_thrust',
+  COMMAND: 'command',
+  RALLY: 'rally',
+  RANGED_ATTACK: 'ranged_attack',
+  CAMOUFLAGE: 'camouflage',
+  BURN: 'burn',
+  WATER_BLAST: 'water_blast',
+  ROCK_THROW: 'rock_throw',
+  GUST_OF_WIND: 'gust_of_wind',
 };
 
 const creatures = [
@@ -18,7 +45,7 @@ const creatures = [
       defense: 85,
       magic: 80
     },
-    abilities: [ABILITIES.FIRE_BREATH, 'fly'],
+    abilities: [ABILITIES.FIRE_BREATH, ABILITIES.FLY],
     currentHealth: 500,
     maxHealth: 500,
     statusEffects: [],
@@ -52,7 +79,7 @@ const creatures = [
       defense: 45,
       magic: 95
     },
-    abilities: ['cast_spell', 'teleport'],
+    abilities: [ABILITIES.CAST_SPELL, ABILITIES.TELEPORT],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -69,7 +96,7 @@ const creatures = [
       defense: 50,
       magic: 60
     },
-    abilities: ['precision_shot', 'evasion'],
+    abilities: [ABILITIES.PRECISION_SHOT, ABILITIES.EVASION],
     currentHealth: 280,
     maxHealth: 280,
     statusEffects: [],
@@ -86,7 +113,7 @@ const creatures = [
       defense: 70,
       magic: 55
     },
-    abilities: ['soul_reap', ABILITIES.STUN],
+    abilities: [ABILITIES.SOUL_REAP, ABILITIES.STUN],
     currentHealth: 450,
     maxHealth: 450,
     statusEffects: [],
@@ -171,7 +198,7 @@ const creatures = [
       defense: 50,
       magic: 100
     },
-    abilities: ['mana_bolt', 'curse'],
+    abilities: [ABILITIES.MANA_BOLT, ABILITIES.CURSE],
     currentHealth: 320,
     maxHealth: 320,
     statusEffects: [],
@@ -205,7 +232,7 @@ const creatures = [
       defense: 85,
       magic: 90
     },
-    abilities: [ABILITIES.SHIELD_WALL, 'light_beam'],
+    abilities: [ABILITIES.SHIELD_WALL, ABILITIES.LIGHT_BEAM],
     currentHealth: 400,
     maxHealth: 400,
     statusEffects: [],
@@ -222,7 +249,7 @@ const creatures = [
       defense: 45,
       magic: 100
     },
-    abilities: ['summon_undead', 'dark_spell'],
+    abilities: [ABILITIES.SUMMON_UNDEAD, ABILITIES.DARK_SPELL],
     currentHealth: 290,
     maxHealth: 290,
     statusEffects: [],
@@ -239,7 +266,7 @@ const creatures = [
       defense: 40,
       magic: 50
     },
-    abilities: ['backstab', 'shadow_step'],
+    abilities: [ABILITIES.BACKSTAB, ABILITIES.SHADOW_STEP],
     currentHealth: 250,
     maxHealth: 250,
     statusEffects: [],
@@ -256,7 +283,7 @@ const creatures = [
       defense: 60,
       magic: 30
     },
-    abilities: ['poison_bite', ABILITIES.STUN],
+    abilities: [ABILITIES.POISON_BITE, ABILITIES.STUN],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -290,7 +317,7 @@ const creatures = [
       defense: 70,
       magic: 110
     },
-    abilities: ['raise_dead', 'necrotic_blast'],
+    abilities: [ABILITIES.RAISE_DEAD, ABILITIES.NECROTIC_BLAST],
     currentHealth: 350,
     maxHealth: 350,
     statusEffects: [],
@@ -307,7 +334,7 @@ const creatures = [
       defense: 50,
       magic: 100
     },
-    abilities: ['dark_blast', 'summon_minion'],
+    abilities: [ABILITIES.DARK_BLAST, ABILITIES.SUMMON_MINION],
     currentHealth: 280,
     maxHealth: 280,
     statusEffects: [],
@@ -324,7 +351,7 @@ const creatures = [
       defense: 60,
       magic: 50
     },
-    abilities: ['spear_thrust', ABILITIES.SHIELD_WALL],
+    abilities: [ABILITIES.SPEAR_THRUST, ABILITIES.SHIELD_WALL],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -341,7 +368,7 @@ const creatures = [
       defense: 70,
       magic: 65
     },
-    abilities: ['command', 'rally'],
+    abilities: [ABILITIES.COMMAND, ABILITIES.RALLY],
     currentHealth: 330,
     maxHealth: 330,
     statusEffects: [],
@@ -358,7 +385,7 @@ const creatures = [
       defense: 55,
       magic: 45
     },
-    abilities: ['ranged_attack', 'camouflage'],
+    abilities: [ABILITIES.RANGED_ATTACK, ABILITIES.CAMOUFLAGE],
     currentHealth: 290,
     maxHealth: 290,
     statusEffects: [],
@@ -375,7 +402,7 @@ const creatures = [
       defense: 40,
       magic: 95
     },
-    abilities: [ABILITIES.FIRE_BREATH, 'burn'],
+    abilities: [ABILITIES.FIRE_BREATH, ABILITIES.BURN],
     currentHealth: 320,
     maxHealth: 320,
     statusEffects: [],
@@ -392,7 +419,7 @@ const creatures = [
       defense: 50,
       magic: 90
   },
-    abilities: ['water_blast', ABILITIES.HEAL],
+    abilities: [ABILITIES.WATER_BLAST, ABILITIES.HEAL],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -409,7 +436,7 @@ const creatures = [
       defense: 90,
       magic: 70
     },
-    abilities: ['rock_throw', ABILITIES.SHIELD_WALL],
+    abilities: [ABILITIES.ROCK_THROW, ABILITIES.SHIELD_WALL],
     currentHealth: 380,
     maxHealth: 380,
     statusEffects: [],
@@ -426,7 +453,7 @@ const creatures = [
       defense: 40,
       magic: 80
     },
-    abilities: ['gust_of_wind', ABILITIES.STUN],
+    abilities: [ABILITIES.GUST_OF_WIND, ABILITIES.STUN],
     currentHealth: 290,
     maxHealth: 290,
     statusEffects: [],
