@@ -5,7 +5,7 @@ import { DECK_SIZE } from './constants';
 import './App.css';
 
 function App() {
-  const [mode, setMode] = useState(null); // 'random' or 'custom'
+  const [players, setPlayers] = useState(null); // 1 or 2 players
   const [player1Deck, setPlayer1Deck] = useState([]);
   const [player2Deck, setPlayer2Deck] = useState([]);
 
@@ -14,7 +14,7 @@ function App() {
     setPlayer2Deck(p2);
   };
 
-  if (mode === 'custom' && (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE)) {
+  if (players === 2 && (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE)) {
     return (
       <div className="App">
         <DeckBuilder onDecksSelected={handleDecksSelected} />
@@ -24,15 +24,15 @@ function App() {
 
   return (
     <div className="App">
-      {mode === null && (
+      {players === null && (
         <div>
-          <h2>Select Game Mode</h2>
-          <button onClick={() => setMode('random')}>Random Decks</button>
-          <button onClick={() => setMode('custom')}>Choose Decks</button>
+          <h2>Select Players</h2>
+          <button onClick={() => setPlayers(1)}>1 player</button>
+          <button onClick={() => setPlayers(2)}>2 players</button>
         </div>
       )}
-      {mode === 'random' && <Game />}
-      {mode === 'custom' && player1Deck.length === DECK_SIZE && player2Deck.length === DECK_SIZE && (
+      {players === 1 && <Game singlePlayer />}
+      {players === 2 && player1Deck.length === DECK_SIZE && player2Deck.length === DECK_SIZE && (
         <Game player1Deck={player1Deck} player2Deck={player2Deck} />
       )}
     </div>
