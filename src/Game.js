@@ -392,6 +392,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     player1SelectedCard.currentHealth > 0 &&
     player2SelectedCard.currentHealth > 0;
 
+  // Reset current round selections (helper for UX)
+  const resetSelections = () => {
+    setPlayer1SelectedCard(null);
+    setPlayer2SelectedCard(null);
+    setPlayer1Choice('');
+    setPlayer2Choice('');
+  };
+
   return (
     <>
     <h1>Fantasy Card Combat Game</h1>
@@ -406,22 +414,25 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                 <h2>Player 1</h2>
                 <div className="combat-buttons">
                   <button
-                    className={`combat-button melee ${player1Choice === 'Melee' ? 'selected' : ''}`}
+                    className={`btn-choice is-melee ${player1Choice === 'Melee' ? 'selected' : ''}`}
                     onClick={() => handlePlayer1ChoiceSelect('Melee')}
+                    aria-pressed={player1Choice === 'Melee'}
                   >
-                    Melee
+                    🗡️ Melee
                   </button>
                   <button
-                    className={`combat-button ranged ${player1Choice === 'Ranged' ? 'selected' : ''}`}
+                    className={`btn-choice is-ranged ${player1Choice === 'Ranged' ? 'selected' : ''}`}
                     onClick={() => handlePlayer1ChoiceSelect('Ranged')}
+                    aria-pressed={player1Choice === 'Ranged'}
                   >
-                    Ranged
+                    🏹 Ranged
                   </button>
                   <button
-                    className={`combat-button magic ${player1Choice === 'Magic' ? 'selected' : ''}`}
+                    className={`btn-choice is-magic ${player1Choice === 'Magic' ? 'selected' : ''}`}
                     onClick={() => handlePlayer1ChoiceSelect('Magic')}
+                    aria-pressed={player1Choice === 'Magic'}
                   >
-                    Magic
+                    🪄 Magic
                   </button>
                 </div>
               </div>
@@ -443,25 +454,28 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                 <h2>Player 2</h2>
                 <div className="combat-buttons">
                   <button
-                    className={`combat-button melee ${player2Choice === 'Melee' ? 'selected' : ''}`}
+                    className={`btn-choice is-melee ${player2Choice === 'Melee' ? 'selected' : ''}`}
                     onClick={() => handlePlayer2ChoiceSelect('Melee')}
+                    aria-pressed={player2Choice === 'Melee'}
                     disabled={singlePlayer}
                   >
-                    Melee
+                    🗡️ Melee
                   </button>
                   <button
-                    className={`combat-button ranged ${player2Choice === 'Ranged' ? 'selected' : ''}`}
+                    className={`btn-choice is-ranged ${player2Choice === 'Ranged' ? 'selected' : ''}`}
                     onClick={() => handlePlayer2ChoiceSelect('Ranged')}
+                    aria-pressed={player2Choice === 'Ranged'}
                     disabled={singlePlayer}
                   >
-                    Ranged
+                    🏹 Ranged
                   </button>
                   <button
-                    className={`combat-button magic ${player2Choice === 'Magic' ? 'selected' : ''}`}
+                    className={`btn-choice is-magic ${player2Choice === 'Magic' ? 'selected' : ''}`}
                     onClick={() => handlePlayer2ChoiceSelect('Magic')}
+                    aria-pressed={player2Choice === 'Magic'}
                     disabled={singlePlayer}
                   >
-                    Magic
+                    🪄 Magic
                   </button>
                 </div>
               </div>
@@ -480,12 +494,22 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
           </div>
 
           {/* Fight button */}
-          <div>
+          <div className="fight-cta">
             <button
+              className={`btn btn-primary btn-lg ${isCombatReady ? 'btn-glow' : ''}`}
               onClick={Fight}
               disabled={!isCombatReady}
+              aria-label="Start combat"
             >
-            Fight!
+              ⚔️ Fight!
+            </button>
+            <button
+              className="btn btn-ghost"
+              type="button"
+              onClick={resetSelections}
+              aria-label="Reset selections"
+            >
+              Reset selections
             </button>
           </div>
 

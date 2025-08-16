@@ -73,6 +73,36 @@ h1, h2, h3 {
 }
 .btn-secondary:hover { background: rgba(255,255,255,0.05); }
 
+/* Ghost button (very subtle) */
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border-color: transparent;
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+
+/* States & sizes */
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(10%);
+  box-shadow: none;
+}
+.btn-lg { padding: 1rem 1.4rem; font-size: 1.1rem; }
+
+/* Ready-state glow */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+.btn-glow {
+  animation: pulseGlow 1.8s ease-in-out infinite;
+}
+
+/* Fight CTA container */
+.fight-cta { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+
 /* Panels */
 .panel {
   background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
@@ -342,7 +372,45 @@ input[type="radio"]:checked + label {
 }
 
 /* Improve contrast for combat log on light background */
-.combat-log, .combat-log h3, .combat-log p, .combat-log strong { color: #111827; }
+.combat-log, .combat-log h3, .combat-log p { margin: 0 0 6px; font-size: 0.95rem; color: #0f172a; }
+
+/* Combat choice buttons */
+.combat-buttons { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.btn-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.5rem 0.9rem;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid #374151;
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  transition: background 180ms ease, transform 120ms ease, box-shadow 120ms ease, color 120ms ease, border-color 180ms ease;
+}
+.btn-choice:hover { background: rgba(255,255,255,0.06); transform: translateY(-1px); }
+.btn-choice:active { transform: translateY(0); }
+.btn-choice:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--ring); }
+.btn-choice:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* Color modifiers */
+.btn-choice.is-melee { --choice: #22c55e; }
+.btn-choice.is-ranged { --choice: #3b82f6; }
+.btn-choice.is-magic { --choice: #ef4444; }
+
+/* Selected state: fill with gradient using the modifier color */
+.btn-choice.selected {
+  color: #1f2937;
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--choice), color-mix(in oklab, var(--choice) 75%, #111827));
+  box-shadow: 0 8px 16px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.15);
+}
+.btn-choice.selected:hover { transform: translateY(-1px); }
+
+/* Subtle colored border when not selected */
+.btn-choice.is-melee:not(.selected) { border-color: color-mix(in oklab, var(--choice) 35%, #374151); }
+.btn-choice.is-ranged:not(.selected) { border-color: color-mix(in oklab, var(--choice) 35%, #374151); }
+.btn-choice.is-magic:not(.selected) { border-color: color-mix(in oklab, var(--choice) 35%, #374151); }
 
 .combat-log p {
   margin: 0.5em 0;
