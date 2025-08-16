@@ -392,6 +392,11 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     player1SelectedCard.currentHealth > 0 &&
     player2SelectedCard.currentHealth > 0;
 
+  // Determine tint color for Fight CTA based on chosen style
+  const styleColorMap = { Melee: '#22c55e', Ranged: '#3b82f6', Magic: '#ef4444' };
+  const fightTint = styleColorMap[player1Choice] || styleColorMap[player2Choice] || undefined;
+  const glowClass = singlePlayer ? 'glow-ai' : 'glow-player';
+
   // Reset current round selections (helper for UX)
   const resetSelections = () => {
     setPlayer1SelectedCard(null);
@@ -443,6 +448,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     creature={card}
                     onCardSelect={() => handlePlayer1CardSelect(card)}
                     isSelected={player1SelectedCard === card}
+                    side="p1"
                   />
                 ))}
               </div>
@@ -487,6 +493,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     onCardSelect={() => handlePlayer2CardSelect(card)}
                     isSelected={player2SelectedCard === card}
                     disabled={singlePlayer}
+                    side="p2"
                   />
                 ))}
               </div>
@@ -496,7 +503,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
           {/* Fight button */}
           <div className="fight-cta">
             <button
-              className={`btn btn-primary btn-lg ${isCombatReady ? 'btn-glow' : ''}`}
+              className={`btn btn-primary btn-lg ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
+              style={fightTint ? { '--choice': fightTint } : undefined}
               onClick={Fight}
               disabled={!isCombatReady}
               aria-label="Start combat"

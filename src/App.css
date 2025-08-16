@@ -66,6 +66,16 @@ h1, h2, h3 {
 .btn-primary:hover { transform: translateY(-1px); }
 .btn-primary:active { transform: translateY(0); }
 
+/* Tinted variant: blends theme accent with provided --choice color */
+.btn-primary.tinted {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--accent) 60%, var(--choice, var(--accent)) 40%) 0%,
+    color-mix(in oklab, var(--accent-2) 60%, var(--choice, var(--accent-2)) 40%) 100%
+  );
+  box-shadow: 0 10px 20px rgba(0,0,0,0.35), 0 0 0 1px color-mix(in oklab, var(--choice, var(--accent)) 70%, #0b1220);
+}
+
 .btn-secondary {
   background: transparent;
   color: var(--text);
@@ -92,13 +102,15 @@ h1, h2, h3 {
 
 /* Ready-state glow */
 @keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
-  70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  0% { box-shadow: 0 0 0 0 var(--glow-base, rgba(245, 158, 11, 0.5)); }
+  70% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--glow-base, rgba(245, 158, 11, 0.5)) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--glow-base, rgba(245, 158, 11, 0.5)) 0%, transparent); }
 }
-.btn-glow {
-  animation: pulseGlow 1.8s ease-in-out infinite;
-}
+.btn-glow { animation: pulseGlow 1.8s ease-in-out infinite; }
+
+/* Glow color utilities */
+.glow-player { --glow-base: rgba(245, 158, 11, 0.5); } /* gold */
+.glow-ai { --glow-base: rgba(99, 102, 241, 0.5); }     /* indigo */
 
 /* Fight CTA container */
 .fight-cta { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
@@ -271,10 +283,14 @@ input[type="radio"]:checked + label {
   text-shadow: 0 0 3px #000;
 }
 
+/* Card side theming */
+.card-p1 { --card-glow: rgba(245, 158, 11, 0.45); --card-border: #f59e0b; } /* gold */
+.card-p2 { --card-glow: rgba(99, 102, 241, 0.45); --card-border: #6366f1; }   /* indigo */
+
 /* when a card is selected */
 .card.selected {
-  border-color: #2cce7d; /* A nice green to indicate selection */
-  box-shadow: 0 6px 12px rgba(44, 206, 125, 0.5);
+  border-color: var(--card-border, #2cce7d);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.18), 0 0 0 4px var(--card-glow, rgba(44, 206, 125, 0.35));
   transform: translateY(-5px); /* Lift the card slightly */
 }
 
