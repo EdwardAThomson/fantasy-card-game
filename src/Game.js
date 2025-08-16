@@ -397,6 +397,16 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   const fightTint = styleColorMap[player1Choice] || styleColorMap[player2Choice] || undefined;
   const glowClass = singlePlayer ? 'glow-ai' : 'glow-player';
 
+  // Overall game over when a player's hand is empty
+  const isGameOver = player1Hand.length === 0 || player2Hand.length === 0;
+
+  // Full reset: refresh the app (simple, reliable)
+  const resetGame = () => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  };
+
   // Reset current round selections (helper for UX)
   const resetSelections = () => {
     setPlayer1SelectedCard(null);
@@ -520,6 +530,19 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
               Reset selections
             </button>
           </div>
+
+          {/* New Game / Reset, only after game ends */}
+          {isGameOver && (
+            <div className="fight-cta" style={{ marginTop: 16 }}>
+              <button
+                className="btn btn-primary btn-lg"
+                onClick={resetGame}
+                aria-label="Start a new game"
+              >
+                🔁 New Game
+              </button>
+            </div>
+          )}
 
         </div>
       </div>
