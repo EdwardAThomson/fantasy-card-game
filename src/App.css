@@ -2,6 +2,108 @@
   text-align: center;
 }
 
+/* Theme */
+:root {
+  --bg: #0f172a; /* slate-900 */
+  --bg-2: #111827; /* gray-900 */
+  --surface: #111827;
+  --surface-2: #1f2937;
+  --text: #e5e7eb; /* gray-200 */
+  --muted: #9ca3af; /* gray-400 */
+  --accent: #d4af37; /* desaturated gold */
+  --accent-2: #f59e0b; /* amber-500 */
+  --success: #2cce7d;
+  --danger: #ef4444;
+  --ring: rgba(212, 175, 55, 0.6);
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* Global background and typography */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1000px 600px at 10% 0%, #0b1229 0%, var(--bg) 40%, #0a0f20 100%),
+              linear-gradient(180deg, rgba(212,175,55,0.06), rgba(0,0,0,0));
+  background-attachment: fixed;
+}
+
+h1, h2, h3 {
+  font-family: Cinzel, Georgia, "Times New Roman", serif;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.5rem 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #1f2937;
+}
+.btn-primary:hover { transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: #3f4b63;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.05); }
+
+/* Panels */
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+/* Entry screen */
+.entry-screen {
+  display: grid;
+  place-content: center;
+  min-height: calc(100vh - 40px);
+  gap: 24px;
+  padding: 20px;
+}
+
+.title {
+  font-size: clamp(28px, 4vw, 44px);
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--muted);
+}
+
+.select-panel h2 { margin-bottom: 8px; }
+.select-panel p { color: var(--muted); margin-top: 0; }
+.cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+
 .app-wrapper {
   display: flex;
   justify-content: center;
@@ -96,6 +198,10 @@ input[type="radio"]:checked + label {
   width: 220px;
   max-width: 100%;
 }
+
+/* Improve contrast on light card surface */
+.card, .card h2 { color: #111827; }
+.card ul { color: #374151; }
 
 .card h2 {
   margin: 0 0 10px 0; /* Reduced margins */
@@ -234,6 +340,9 @@ input[type="radio"]:checked + label {
   border: 1px solid #ccc;
   align-self: flex-start; /* Align to the top of the flex container */
 }
+
+/* Improve contrast for combat log on light background */
+.combat-log, .combat-log h3, .combat-log p, .combat-log strong { color: #111827; }
 
 .combat-log p {
   margin: 0.5em 0;

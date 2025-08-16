@@ -25,10 +25,15 @@ function App() {
   return (
     <div className="App">
       {players === null && (
-        <div>
-          <h2>Select Players</h2>
-          <button onClick={() => setPlayers(1)}>1 player</button>
-          <button onClick={() => setPlayers(2)}>2 players</button>
+        <div className="entry-screen">
+          <div className="select-panel panel">
+            <h1 className="title">Fantasy Card Game</h1>
+            <p className="subtitle">Choose a mode to begin.</p>
+            <div className="cta-group">
+              <button className="btn btn-primary" onClick={() => setPlayers(1)}>Single Player (vs AI)</button>
+              <button className="btn btn-secondary" onClick={() => setPlayers(2)}>Two Players (Local)</button>
+            </div>
+          </div>
         </div>
       )}
       {players === 1 && <Game singlePlayer />}
