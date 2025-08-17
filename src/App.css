@@ -438,6 +438,10 @@ input[type="radio"]:checked + label {
     flex-direction: column;
   }
 
+  .combat-buttons {
+    flex-direction: row;
+  }
+
   .card {
     width: 180px;
   }

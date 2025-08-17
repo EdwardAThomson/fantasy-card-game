@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import creatures from './creatures';
 import { DECK_SIZE } from './constants';
 import Card from './Card';
+import { getRandomUniqueCards } from './Game';
 
-function DeckBuilder({ onDecksSelected }) {
+function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
   const [player1Deck, setPlayer1Deck] = useState([]);
   const [player2Deck, setPlayer2Deck] = useState([]);
   const [error, setError] = useState('');
@@ -32,20 +33,35 @@ function DeckBuilder({ onDecksSelected }) {
   };
 
   const finalizeDecks = () => {
-    if (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE) {
-      setError(`Each player must select exactly ${DECK_SIZE} creatures.`);
-      return;
-    }
-    const unique1 = new Set(player1Deck.map(c => c.name));
-    const unique2 = new Set(player2Deck.map(c => c.name));
-    if (unique1.size !== DECK_SIZE || unique2.size !== DECK_SIZE) {
-      setError('Duplicate selections are not allowed.');
-      return;
-    }
-    setError('');
-    // Deep copy to avoid modifying the original objects during the game
     const copyDeck = deck => deck.map(c => JSON.parse(JSON.stringify(c)));
-    onDecksSelected(copyDeck(player1Deck), copyDeck(player2Deck));
+
+    if (singlePlayer) {
+      if (player1Deck.length !== DECK_SIZE) {
+        setError(`You must select exactly ${DECK_SIZE} creatures.`);
+        return;
+      }
+      const unique1 = new Set(player1Deck.map(c => c.name));
+      if (unique1.size !== DECK_SIZE) {
+        setError('Duplicate selections are not allowed.');
+        return;
+      }
+      const aiDeck = getRandomUniqueCards(creatures, DECK_SIZE);
+      setError('');
+      onDecksSelected(copyDeck(player1Deck), aiDeck);
+    } else {
+      if (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE) {
+        setError(`Each player must select exactly ${DECK_SIZE} creatures.`);
+        return;
+      }
+      const unique1 = new Set(player1Deck.map(c => c.name));
+      const unique2 = new Set(player2Deck.map(c => c.name));
+      if (unique1.size !== DECK_SIZE || unique2.size !== DECK_SIZE) {
+        setError('Duplicate selections are not allowed.');
+        return;
+      }
+      setError('');
+      onDecksSelected(copyDeck(player1Deck), copyDeck(player2Deck));
+    }
   };
 
   const renderCreature = (creature, player) => {
@@ -82,12 +98,14 @@ function DeckBuilder({ onDecksSelected }) {
           {pageCreatures.map(creature => renderCreature(creature, 1))}
         </div>
       </div>
-      <div>
-        <h3>Player 2</h3>
-        <div className="player-cards">
-          {pageCreatures.map(creature => renderCreature(creature, 2))}
+      {!singlePlayer && (
+        <div>
+          <h3>Player 2</h3>
+          <div className="player-cards">
+            {pageCreatures.map(creature => renderCreature(creature, 2))}
+          </div>
         </div>
-      </div>
+      )}
       <div style={{display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem'}}>
         <button onClick={prevPage}>Prev</button>
         <span>
