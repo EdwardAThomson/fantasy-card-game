@@ -500,7 +500,7 @@ h1 {
   transform: translateX(-50%);
   font-size: 4.5rem;
   font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0,0,0,1.5), 0 0 8px currentColor;
+  text-shadow: 2px 2px 8px rgba(0,0,0,1.5), 0 0 8px currentColor;
   pointer-events: none;
   z-index: 1000;
   animation: flyUp 1.5s ease-out forwards;
