@@ -161,7 +161,11 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   // Check for a winner after first attack
   const result1 = victoryCheck(player1card, player2card);
   if (result1.haveWinner) {
-    return result1; // Return early if there's a winner
+    return {
+      ...result1,
+      player1Damage: outcome1.defender === player1card ? outcome1.damageDealt : 0,
+      player2Damage: outcome1.defender === player2card ? outcome1.damageDealt : 0
+    };
   }
 
   // Second Attacker Round (if no winner yet)
@@ -172,12 +176,18 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   // Check again for a winner after the second attack
   const result2 = victoryCheck(player1card, player2card);
   if (result2.haveWinner) {
-    return result2; // Return the final winner if there's one after the second attack
+    return {
+      ...result2,
+      player1Damage: (outcome1.defender === player1card ? outcome1.damageDealt : 0) + (outcome2.defender === player1card ? outcome2.damageDealt : 0),
+      player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0)
+    };
   }
 
   // If no one won, return the current state of the fight
   return {
     haveWinner: false,
+    player1Damage: (outcome1.defender === player1card ? outcome1.damageDealt : 0) + (outcome2.defender === player1card ? outcome2.damageDealt : 0),
+    player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0)
   };
 };
 
@@ -213,6 +223,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   logFn(`Damage dealt: ${damage}`);
 
   defender.currentHealth -= damage;
+  
+  // Remove the damage event code from here since we handle it in handleCombatRound
 
   const player1Health = attacker.currentHealth;
   const player2Health = defender.currentHealth;
@@ -225,6 +237,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
     player2Health,
     playerAttack,
     opponentDamageTaken: damage,
+    damageDealt: damage,
+    defender: defender
   };
 }
 
@@ -256,6 +270,10 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
 
   // Store combat log messages
   const [logMessages, setLogMessages] = useState([]);
+  
+  // Store damage events for flying text animations
+  const [player1DamageEvents, setPlayer1DamageEvents] = useState([]);
+  const [player2DamageEvents, setPlayer2DamageEvents] = useState([]);
 
   const addLog = (message) => {
     setLogMessages(prev => [...prev, message]);
@@ -360,6 +378,16 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       setIsModalOpen(true);
       addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
     }
+    
+    // Trigger damage events for flying text
+    if (outcome.player1Damage > 0) {
+      setPlayer1DamageEvents([{ damage: outcome.player1Damage, type: 'damage' }]);
+      setTimeout(() => setPlayer1DamageEvents([]), 100);
+    }
+    if (outcome.player2Damage > 0) {
+      setPlayer2DamageEvents([{ damage: outcome.player2Damage, type: 'damage' }]);
+      setTimeout(() => setPlayer2DamageEvents([]), 100);
+    }
 
     // Remove cards on zero HP
     if (player1SelectedCard.currentHealth <= 0) {
@@ -459,6 +487,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     onCardSelect={() => handlePlayer1CardSelect(card)}
                     isSelected={player1SelectedCard === card}
                     side="p1"
+                    damageEvents={player1SelectedCard === card ? player1DamageEvents : []}
                   />
                 ))}
               </div>
@@ -504,6 +533,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     isSelected={player2SelectedCard === card}
                     disabled={singlePlayer}
                     side="p2"
+                    damageEvents={player2SelectedCard === card ? player2DamageEvents : []}
                   />
                 ))}
               </div>
