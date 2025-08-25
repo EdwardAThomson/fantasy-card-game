@@ -379,14 +379,20 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
     }
     
-    // Trigger damage events for flying text
+    // Trigger damage events for flying text with 500ms delay between them
+    let delay = 0;
     if (outcome.player1Damage > 0) {
-      setPlayer1DamageEvents([{ damage: outcome.player1Damage, type: 'damage' }]);
-      setTimeout(() => setPlayer1DamageEvents([]), 100);
+      setTimeout(() => {
+        setPlayer1DamageEvents([{ damage: outcome.player1Damage, type: 'damage' }]);
+        setTimeout(() => setPlayer1DamageEvents([]), 100);
+      }, delay);
+      delay += 500; // Add 500ms delay for next damage event
     }
     if (outcome.player2Damage > 0) {
-      setPlayer2DamageEvents([{ damage: outcome.player2Damage, type: 'damage' }]);
-      setTimeout(() => setPlayer2DamageEvents([]), 100);
+      setTimeout(() => {
+        setPlayer2DamageEvents([{ damage: outcome.player2Damage, type: 'damage' }]);
+        setTimeout(() => setPlayer2DamageEvents([]), 100);
+      }, delay);
     }
 
     // Remove cards on zero HP
@@ -443,9 +449,11 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     setPlayer2Choice('');
   };
 
+  // <h1>Fantasy Card Combat Game</h1>
+  
   return (
     <>
-    <h1>Fantasy Card Combat Game</h1>
+    
     <div className="app-wrapper">
       <div className="game-container">
         <div className="game-main">

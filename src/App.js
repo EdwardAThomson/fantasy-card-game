@@ -32,12 +32,14 @@ function App() {
     );
   }
 
+  // <h1 className="title">Fantasy Card Game</h1>
+
   return (
     <div className="App">
       {gameMode === null && (
         <div className="entry-screen">
           <div className="select-panel panel">
-            <h1 className="title">Fantasy Card Game</h1>
+            
             <p className="subtitle">Choose a mode to begin.</p>
             <div className="cta-group">
               <button className="btn btn-primary" onClick={() => setGameMode('sp_random')}>Single Player (Quick)</button>
