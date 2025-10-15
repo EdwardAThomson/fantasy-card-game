@@ -209,10 +209,15 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice) + Math.floor(Math.random() * 21));
   const defenseMod = defender.stats.defense / 2;
   let damage = Math.max(0, playerAttack - defenseMod);
-  const ability =
-    attacker.selectedAbility ||
-    (attacker.abilities &&
-      attacker.abilities[Math.floor(Math.random() * attacker.abilities.length)]);
+  let ability = null;
+
+  // Only trigger an ability if a random check passes (e.g., 25% chance)
+  if (Math.random() < 0.25) {
+    ability =
+      attacker.selectedAbility ||
+      (attacker.abilities &&
+        attacker.abilities[Math.floor(Math.random() * attacker.abilities.length)]);
+  }
   damage = resolveAbility(attacker, defender, ability, damage, logFn);
 
   logFn(`Attacker: ${attacker.name} (${combatChoice})`);

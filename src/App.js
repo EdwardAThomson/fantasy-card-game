@@ -14,48 +14,51 @@ function App() {
     setPlayer2Deck(p2);
   };
 
-  // Show deck builder for 2-player mode
-  if (gameMode === 'mp_builder' && (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE)) {
+  const handleReset = () => {
+    setGameMode(null);
+    setPlayer1Deck([]);
+    setPlayer2Deck([]);
+  };
+
+  const renderContent = () => {
+    if (gameMode === 'mp_builder' && (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE)) {
+      return <DeckBuilder onDecksSelected={handleDecksSelected} />;
+    }
+
+    if (gameMode === 'sp_builder' && player1Deck.length !== DECK_SIZE) {
+      return <DeckBuilder onDecksSelected={handleDecksSelected} singlePlayer />;
+    }
+
+    if (gameMode === 'sp_random') {
+      return <Game singlePlayer />;
+    }
+
+    if (gameMode === 'sp_builder' && player1Deck.length === DECK_SIZE) {
+      return <Game player1Deck={player1Deck} singlePlayer />;
+    }
+
+    if (gameMode === 'mp_builder' && player1Deck.length === DECK_SIZE && player2Deck.length === DECK_SIZE) {
+      return <Game player1Deck={player1Deck} player2Deck={player2Deck} />;
+    }
+
     return (
-      <div className="App">
-        <DeckBuilder onDecksSelected={handleDecksSelected} />
+      <div className="entry-screen">
+        <div className="select-panel panel">
+          <p className="subtitle">Choose a mode to begin.</p>
+          <div className="cta-group">
+            <button className="btn btn-primary" onClick={() => setGameMode('sp_random')}>Single Player (Quick)</button>
+            <button className="btn btn-primary" onClick={() => setGameMode('sp_builder')}>Single Player (Advanced)</button>
+            <button className="btn btn-secondary" onClick={() => setGameMode('mp_builder')}>Two Players (Local)</button>
+          </div>
+        </div>
       </div>
     );
-  }
-
-  // Show deck builder for single-player (advanced) mode
-  if (gameMode === 'sp_builder' && player1Deck.length !== DECK_SIZE) {
-    return (
-      <div className="App">
-        <DeckBuilder onDecksSelected={handleDecksSelected} singlePlayer />
-      </div>
-    );
-  }
-
-  // <h1 className="title">Fantasy Card Game</h1>
+  };
 
   return (
     <div className="App">
-      {gameMode === null && (
-        <div className="entry-screen">
-          <div className="select-panel panel">
-            
-            <p className="subtitle">Choose a mode to begin.</p>
-            <div className="cta-group">
-              <button className="btn btn-primary" onClick={() => setGameMode('sp_random')}>Single Player (Quick)</button>
-              <button className="btn btn-primary" onClick={() => setGameMode('sp_builder')}>Single Player (Advanced)</button>
-              <button className="btn btn-secondary" onClick={() => setGameMode('mp_builder')}>Two Players (Local)</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {gameMode === 'sp_random' && <Game singlePlayer />}
-      {gameMode === 'sp_builder' && player1Deck.length === DECK_SIZE && (
-        <Game player1Deck={player1Deck} singlePlayer />
-      )}
-      {gameMode === 'mp_builder' && player1Deck.length === DECK_SIZE && player2Deck.length === DECK_SIZE && (
-        <Game player1Deck={player1Deck} player2Deck={player2Deck} />
-      )}
+      {gameMode !== null && <button className="home-button" onClick={handleReset}>🏠</button>}
+      {renderContent()}
     </div>
   );
 }

@@ -362,13 +362,25 @@ input[type="radio"]:checked + label {
   justify-content: center;
 }
 
-.deck-builder .card {
-  width: 180px;
+.player-decks-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
 }
 
-.deck-builder .creature-image {
-  width: 100% !important;
-  max-height: 160px;
+.deck-display {
+  width: 45%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.creature-pool {
+  margin-top: 20px;
+}
+
+.deck-builder-actions {
+  margin-top: 20px;
 }
 
 /* Remove margin on the last button */
@@ -469,6 +481,27 @@ input[type="radio"]:checked + label {
 
 h1 {
   text-align: center;
+}
+
+.home-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  font-size: 1.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.home-button:hover {
+  background-color: #2980b9;
 }
 
 .help-button {
