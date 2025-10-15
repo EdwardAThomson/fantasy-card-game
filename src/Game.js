@@ -227,6 +227,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   }
   logFn(`Damage dealt: ${damage}`);
 
+  // Cap damage to remaining HP to prevent overflow
+  const actualDamage = Math.min(damage, defender.currentHealth);
   defender.currentHealth -= damage;
   
   // Remove the damage event code from here since we handle it in handleCombatRound
@@ -242,7 +244,7 @@ function combatRound(attacker, defender, combatChoice, logFn) {
     player2Health,
     playerAttack,
     opponentDamageTaken: damage,
-    damageDealt: damage,
+    damageDealt: actualDamage,
     defender: defender
   };
 }
@@ -384,24 +386,21 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
     }
     
-    // Trigger damage events for flying text with 500ms delay between them
-    let delay = 0;
-    if (outcome.player1Damage > 0) {
-      setTimeout(() => {
-        setPlayer1DamageEvents([{ damage: outcome.player1Damage, type: 'damage' }]);
-        setTimeout(() => setPlayer1DamageEvents([]), 100);
-      }, delay);
-      delay += 500; // Add 500ms delay for next damage event
+    // Trigger damage events for flying text immediately (no delay)
+    // Only show damage if the card is still alive
+    if (outcome.player1Damage > 0 && player1SelectedCard.currentHealth > 0) {
+      setPlayer1DamageEvents([{ damage: outcome.player1Damage, type: 'damage' }]);
+      setTimeout(() => setPlayer1DamageEvents([]), 1000);
     }
-    if (outcome.player2Damage > 0) {
-      setTimeout(() => {
-        setPlayer2DamageEvents([{ damage: outcome.player2Damage, type: 'damage' }]);
-        setTimeout(() => setPlayer2DamageEvents([]), 100);
-      }, delay);
+    if (outcome.player2Damage > 0 && player2SelectedCard.currentHealth > 0) {
+      setPlayer2DamageEvents([{ damage: outcome.player2Damage, type: 'damage' }]);
+      setTimeout(() => setPlayer2DamageEvents([]), 1000);
     }
 
     // Remove cards on zero HP
     if (player1SelectedCard.currentHealth <= 0) {
+      // Clear damage events immediately for defeated card
+      setPlayer1DamageEvents([]);
       setPlayer1Hand(prevHand =>
         prevHand.filter(card => card !== player1SelectedCard)
       );
@@ -410,6 +409,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       addLog(`${player1SelectedCard.name} (Player 1) has been killed.`);
     }
     if (player2SelectedCard.currentHealth <= 0) {
+      // Clear damage events immediately for defeated card
+      setPlayer2DamageEvents([]);
       setPlayer2Hand(prevHand =>
         prevHand.filter(card => card !== player2SelectedCard)
       );
