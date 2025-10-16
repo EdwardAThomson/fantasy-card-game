@@ -43,6 +43,10 @@ function App() {
 
     return (
       <div className="entry-screen">
+        <div className="game-title-container">
+          <img src="/opening_image.png" alt="Fantasy Card Game" className="opening-image" />
+          <h1 className="game-title">Fantasy Card Game</h1>
+        </div>
         <div className="select-panel panel">
           <p className="subtitle">Choose a mode to begin.</p>
           <div className="cta-group">

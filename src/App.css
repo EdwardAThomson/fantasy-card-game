@@ -142,6 +142,11 @@ h1, h2, h3 {
   color: var(--muted);
 }
 
+.select-panel {
+  max-width: 500px;
+  justify-self: center;
+}
+
 .select-panel h2 { margin-bottom: 8px; }
 .select-panel p { color: var(--muted); margin-top: 0; }
 .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
@@ -592,5 +597,36 @@ h1 {
       opacity: 0;
       transform: translateX(-50%) translateY(-100px) scale(0.8);
     }
+  }
+}
+
+.opening-image {
+  border: 4px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 80%;
+  height: auto;
+}
+
+.game-title-container {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.game-title {
+  position: absolute;
+  font-family: 'MedievalSharp', cursive;
+  font-size: 3rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+}
+
+@media (min-width: 769px) {
+  .game-title {
+    font-size: 6rem;
   }
 }
