@@ -439,6 +439,20 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     makeAIDecision();
   }, [player1Choice, player1SelectedCard, player2Hand, singlePlayer]);
 
+  // Auto-select card if only one remains for player 1
+  useEffect(() => {
+    if (player1Hand.length === 1 && !player1SelectedCard) {
+      setPlayer1SelectedCard(player1Hand[0]);
+    }
+  }, [player1Hand, player1SelectedCard]);
+
+  // Auto-select card if only one remains for player 2 (in two-player mode)
+  useEffect(() => {
+    if (!singlePlayer && player2Hand.length === 1 && !player2SelectedCard) {
+      setPlayer2SelectedCard(player2Hand[0]);
+    }
+  }, [player2Hand, player2SelectedCard, singlePlayer]);
+
  // Handle card selection for Player 1
   const handlePlayer1CardSelect = (card) => {
     setPlayer1SelectedCard(card); // Set the card as selected
@@ -838,16 +852,37 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
         </div>
         <div label="Abilities">
           <h4>Abilities:</h4>
-          <p>Creatures have a chance to use a special ability during combat. These can be powerful attacks, healing spells, or other effects.</p>
+          <p>Creatures have a 50% chance to use a special ability during combat. Abilities can deal extra damage, heal, provide defense, or apply status effects.</p>
           <ul>
-              <li><strong>Heal:</strong> Restores health to the creature.</li>
+              <li><strong>Damage Abilities:</strong> Deal bonus damage (e.g., Fire Breath, Berserk, Backstab).</li>
+              <li><strong>Heal Abilities:</strong> Restore health to the creature (e.g., Heal, Rally).</li>
+              <li><strong>Defense Abilities:</strong> Reduce incoming damage (e.g., Shield Wall, Evasion).</li>
               <li><strong>Stun:</strong> Causes the opponent to skip their next turn.</li>
-              <li><strong>Berserk:</strong> Increases the creature's attack power.</li>
           </ul>
           <br/>
           <h4>Status Effects:</h4>
+          <p>Status effects appear as colored badges on creature cards and last for one round.</p>
           <ul>
-              <li><strong>Stunned:</strong> A stunned creature will skip its next turn.</li>
+              <li><strong>🔥 Burning:</strong> Takes 5 damage per round for 2 rounds (Fire Breath, Burn).</li>
+              <li><strong>☠️ Poisoned:</strong> Takes 4 damage per round for 3 rounds (Poison Bite).</li>
+              <li><strong>🩸 Bleeding:</strong> Takes 3 damage per round for 3 rounds (Backstab).</li>
+              <li><strong>❄️ Frozen:</strong> Visual effect from ice attacks (Water Blast).</li>
+              <li><strong>✨ Blessed:</strong> Indicates a buff is active (Heal, Shield Wall).</li>
+              <li><strong>🌙 Cursed:</strong> Dark magic effect (Curse, Soul Reap).</li>
+              <li><strong>⭐ Stunned:</strong> Creature skips its next turn completely.</li>
+          </ul>
+          <br/>
+          <h4>Damage Over Time (DoT):</h4>
+          <p>Some abilities apply DoT effects that deal damage at the start of each round. DoT damage is applied before combat begins and is shown in the combat log.</p>
+        </div>
+        <div label="Visual Effects">
+          <h4>Visual Feedback:</h4>
+          <ul>
+              <li><strong>Flying Numbers:</strong> Damage and healing amounts fly up from cards.</li>
+              <li><strong>Ability Icons:</strong> Emoji icons pop up when abilities are used (🔥💚⚡🗡️ etc).</li>
+              <li><strong>Status Badges:</strong> Colored badges show active status effects in the center of cards.</li>
+              <li><strong>Card Glow:</strong> Cards glow green when buffed, red when debuffed.</li>
+              <li><strong>Shake Animation:</strong> Cards shake when taking damage.</li>
           </ul>
         </div>
       </Tabs>

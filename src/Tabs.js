@@ -24,12 +24,14 @@ function Tabs({ children }) {
         ))}
       </ul>
       <div className="tab-content">
-        {children.map(child => {
-          if (child.props.label === activeTab) {
-            return <div key={child.props.label}>{child.props.children}</div>;
-          }
-          return null;
-        })}
+        {children.map(child => (
+          <div 
+            key={child.props.label}
+            className={child.props.label === activeTab ? 'tab-pane active' : 'tab-pane'}
+          >
+            {child.props.children}
+          </div>
+        ))}
       </div>
     </div>
   );

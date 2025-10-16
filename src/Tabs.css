@@ -22,4 +22,21 @@
   padding: 20px;
   border: 1px solid #ccc;
   border-top: none;
+  position: relative;
+}
+
+.tab-pane {
+  visibility: hidden;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+}
+
+.tab-pane.active {
+  visibility: visible;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
 }
