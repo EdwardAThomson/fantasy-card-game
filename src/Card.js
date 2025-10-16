@@ -10,15 +10,16 @@ function Card({ creature, onCardSelect, isSelected, disabled, side, damageEvents
   const barColor = `hsl(${healthPercent * 1.2}, 70%, 50%)`;
   
   useEffect(() => {
-    if (damageEvents.length > 0) {
-      const newTexts = damageEvents.map(event => ({
+    const relevantEvents = damageEvents.filter(event => event.cardName === creature.name);
+    if (relevantEvents.length > 0) {
+      const newTexts = relevantEvents.map(event => ({
         id: Date.now() + Math.random(),
         ...event
       }));
       setActiveDamageTexts(prev => [...prev, ...newTexts]);
       
       // Trigger shake animation for damage
-      if (damageEvents.some(event => event.type === 'damage')) {
+      if (relevantEvents.some(event => event.type === 'damage')) {
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 600); // Match CSS animation duration
         
@@ -28,7 +29,7 @@ function Card({ creature, onCardSelect, isSelected, disabled, side, damageEvents
         }, 300);
       }
     }
-  }, [damageEvents, creature.currentHealth]);
+  }, [damageEvents, creature.name, creature.currentHealth]);
   
   // Update display health when creature health changes (for non-damage updates)
   useEffect(() => {

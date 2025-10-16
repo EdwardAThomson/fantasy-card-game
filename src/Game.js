@@ -46,12 +46,12 @@ function getCombatStat (attacker, choice) {
 // Ability configuration
 const abilityEffects = {
   [ABILITIES.FIRE_BREATH]: { type: 'damage', value: 10 },
-  [ABILITIES.HEAL]: { type: 'heal', value: 10 },
-  [ABILITIES.BERSERK]: { type: 'damage', value: 5 },
-  [ABILITIES.SHIELD_WALL]: { type: 'defense', value: 5 },
+  [ABILITIES.HEAL]: { type: 'heal', value: 30 },
+  [ABILITIES.BERSERK]: { type: 'damage', value: 15 },
+  [ABILITIES.SHIELD_WALL]: { type: 'defense', value: 15 },
   [ABILITIES.STUN]: { type: 'stun', value: 0 },
   [ABILITIES.FLY]: { type: 'defense', value: 5 },
-  [ABILITIES.CAST_SPELL]: { type: 'damage', value: 10 },
+  [ABILITIES.CAST_SPELL]: { type: 'damage', value: 20 },
   [ABILITIES.TELEPORT]: { type: 'defense', value: 5 },
   [ABILITIES.PRECISION_SHOT]: { type: 'damage', value: 10 },
   [ABILITIES.EVASION]: { type: 'defense', value: 5 },
@@ -108,6 +108,7 @@ function resolveAbility(attacker, defender, ability, damage, logFn) {
       logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`);
       return { damage, heal: 0 };
     default:
+      logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
       return { damage, heal: 0 };
   }
 }
@@ -169,6 +170,9 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
       player2Damage: outcome1.defender === player2card ? outcome1.damageDealt : 0,
       player1Heal: outcome1.attacker === player1card ? outcome1.heal : 0,
       player2Heal: outcome1.attacker === player2card ? outcome1.heal : 0,
+      // Objects are passed by reference, so player1card/player2card are already updated
+      player1card: player1card,
+      player2card: player2card
     };
   }
 
@@ -186,16 +190,22 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
       player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0),
       player1Heal: (outcome1.attacker === player1card ? outcome1.heal : 0) + (outcome2.attacker === player1card ? outcome2.heal : 0),
       player2Heal: (outcome1.attacker === player2card ? outcome1.heal : 0) + (outcome2.attacker === player2card ? outcome2.heal : 0),
+      // Objects are passed by reference, so player1card/player2card are already updated
+      player1card: player1card,
+      player2card: player2card
     };
   }
 
   // If no one won, return the current state of the fight
+  // Objects are passed by reference, so player1card/player2card are already updated
   return {
     haveWinner: false,
     player1Damage: (outcome1.defender === player1card ? outcome1.damageDealt : 0) + (outcome2.defender === player1card ? outcome2.damageDealt : 0),
     player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0),
     player1Heal: (outcome1.attacker === player1card ? outcome1.heal : 0) + (outcome2.attacker === player1card ? outcome2.heal : 0),
     player2Heal: (outcome1.attacker === player2card ? outcome1.heal : 0) + (outcome2.attacker === player2card ? outcome2.heal : 0),
+    player1card: player1card,
+    player2card: player2card
   };
 };
 
@@ -204,12 +214,17 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
 function combatRound(attacker, defender, combatChoice, logFn) {
   if (attacker.isStunned) {
     logFn(`${attacker.name} is stunned and cannot act!`);
-    attacker.isStunned = false;
+    // Don't clear the stun here - it will be cleared at the start of the next round
+    // This allows the visual effect to persist between rounds
     return {
       player1Health: attacker.currentHealth,
       player2Health: defender.currentHealth,
       playerAttack: 0,
       opponentDamageTaken: 0,
+      damageDealt: 0,
+      heal: 0,
+      attacker,
+      defender
     };
   }
 
@@ -220,8 +235,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   let ability = null;
   let heal = 0;
 
-  // Only trigger an ability if a random check passes (e.g., 25% chance)
-  if (Math.random() < 0.25) {
+  // Only trigger an ability if a random check passes (e.g., 50% chance)
+  if (Math.random() < 0.5) {
     ability =
       attacker.selectedAbility ||
       (attacker.abilities &&
@@ -258,7 +273,7 @@ function combatRound(attacker, defender, combatChoice, logFn) {
     damageDealt: actualDamage,
     heal,
     attacker,
-    defender: defender
+    defender
   };
 }
 
@@ -382,6 +397,15 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   const Fight = () => {
     addLog(`-------- Round ${round} --------`);
 
+    // Clear stun status at the start of each round (after it has been displayed)
+    // This ensures the visual effect shows between rounds
+    if (player1SelectedCard && player1SelectedCard.isStunned) {
+      player1SelectedCard.isStunned = false;
+    }
+    if (player2SelectedCard && player2SelectedCard.isStunned) {
+      player2SelectedCard.isStunned = false;
+    }
+
     const outcome = handleCombatRound(
       player1SelectedCard,
       player2SelectedCard,
@@ -399,20 +423,30 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
     }
     
+    const p1DamageEvents = [];
+    const p2DamageEvents = [];
+
     // Trigger damage events for flying text immediately (no delay)
     // Only show damage if the card is still alive
     if (outcome.player1Damage > 0 && player1SelectedCard.currentHealth > 0) {
-      setPlayer1DamageEvents(prev => [...prev, { damage: outcome.player1Damage, type: 'damage' }]);
+      p1DamageEvents.push({ damage: outcome.player1Damage, type: 'damage', cardName: player1SelectedCard.name });
     }
     if (outcome.player2Damage > 0 && player2SelectedCard.currentHealth > 0) {
-      setPlayer2DamageEvents(prev => [...prev, { damage: outcome.player2Damage, type: 'damage' }]);
+      p2DamageEvents.push({ damage: outcome.player2Damage, type: 'damage', cardName: player2SelectedCard.name });
     }
     if (outcome.player1Heal > 0) {
-      setPlayer1DamageEvents(prev => [...prev, { damage: outcome.player1Heal, type: 'heal' }]);
+      p1DamageEvents.push({ damage: outcome.player1Heal, type: 'heal', cardName: player1SelectedCard.name });
     }
     if (outcome.player2Heal > 0) {
-      setPlayer2DamageEvents(prev => [...prev, { damage: outcome.player2Heal, type: 'heal' }]);
+      p2DamageEvents.push({ damage: outcome.player2Heal, type: 'heal', cardName: player2SelectedCard.name });
     }
+
+    setPlayer1DamageEvents(p1DamageEvents);
+    setPlayer2DamageEvents(p2DamageEvents);
+
+    // Update hands with new health and status
+    setPlayer1Hand(prevHand => prevHand.map(card => card.name === outcome.player1card.name ? outcome.player1card : card));
+    setPlayer2Hand(prevHand => prevHand.map(card => card.name === outcome.player2card.name ? outcome.player2card : card));
 
     // Clear events after a delay
     setTimeout(() => {
@@ -425,7 +459,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       // Clear damage events immediately for defeated card
       setPlayer1DamageEvents([]);
       setPlayer1Hand(prevHand =>
-        prevHand.filter(card => card !== player1SelectedCard)
+        prevHand.filter(card => card.name !== player1SelectedCard.name)
       );
       setPlayer1SelectedCard(null);
       setPlayer1Choice('');
@@ -435,7 +469,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       // Clear damage events immediately for defeated card
       setPlayer2DamageEvents([]);
       setPlayer2Hand(prevHand =>
-        prevHand.filter(card => card !== player2SelectedCard)
+        prevHand.filter(card => card.name !== player2SelectedCard.name)
       );
       setPlayer2SelectedCard(null);
       setPlayer2Choice('');
@@ -524,7 +558,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     onCardSelect={() => handlePlayer1CardSelect(card)}
                     isSelected={player1SelectedCard === card}
                     side="p1"
-                    damageEvents={player1SelectedCard === card ? player1DamageEvents : []}
+                    damageEvents={player1DamageEvents}
                   />
                 ))}
               </div>
@@ -570,7 +604,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     isSelected={player2SelectedCard === card}
                     disabled={singlePlayer}
                     side="p2"
-                    damageEvents={player2SelectedCard === card ? player2DamageEvents : []}
+                    damageEvents={player2DamageEvents}
                   />
                 ))}
               </div>
