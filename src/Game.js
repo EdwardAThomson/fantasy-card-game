@@ -45,71 +45,142 @@ function getCombatStat (attacker, choice) {
 
 // Ability configuration
 const abilityEffects = {
-  [ABILITIES.FIRE_BREATH]: { type: 'damage', value: 10 },
-  [ABILITIES.HEAL]: { type: 'heal', value: 30 },
+  [ABILITIES.FIRE_BREATH]: { type: 'damage', value: 10, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
+  [ABILITIES.HEAL]: { type: 'heal', value: 30, statusEffect: 'blessed' },
   [ABILITIES.BERSERK]: { type: 'damage', value: 15 },
-  [ABILITIES.SHIELD_WALL]: { type: 'defense', value: 15 },
+  [ABILITIES.SHIELD_WALL]: { type: 'defense', value: 15, statusEffect: 'blessed' },
   [ABILITIES.STUN]: { type: 'stun', value: 0 },
   [ABILITIES.FLY]: { type: 'defense', value: 5 },
   [ABILITIES.CAST_SPELL]: { type: 'damage', value: 20 },
   [ABILITIES.TELEPORT]: { type: 'defense', value: 5 },
   [ABILITIES.PRECISION_SHOT]: { type: 'damage', value: 10 },
   [ABILITIES.EVASION]: { type: 'defense', value: 5 },
-  [ABILITIES.SOUL_REAP]: { type: 'damage', value: 10 },
+  [ABILITIES.SOUL_REAP]: { type: 'damage', value: 10, statusEffect: 'cursed' },
   [ABILITIES.MANA_BOLT]: { type: 'damage', value: 10 },
-  [ABILITIES.CURSE]: { type: 'damage', value: 5 },
-  [ABILITIES.LIGHT_BEAM]: { type: 'damage', value: 10 },
+  [ABILITIES.CURSE]: { type: 'damage', value: 5, statusEffect: 'cursed' },
+  [ABILITIES.LIGHT_BEAM]: { type: 'damage', value: 10, statusEffect: 'blessed' },
   [ABILITIES.SUMMON_UNDEAD]: { type: 'heal', value: 10 },
-  [ABILITIES.DARK_SPELL]: { type: 'damage', value: 10 },
-  [ABILITIES.BACKSTAB]: { type: 'damage', value: 15 },
+  [ABILITIES.DARK_SPELL]: { type: 'damage', value: 10, statusEffect: 'cursed' },
+  [ABILITIES.BACKSTAB]: { type: 'damage', value: 15, statusEffect: 'bleeding', dot: { damage: 3, duration: 3 } },
   [ABILITIES.SHADOW_STEP]: { type: 'defense', value: 5 },
-  [ABILITIES.POISON_BITE]: { type: 'damage', value: 10 },
+  [ABILITIES.POISON_BITE]: { type: 'damage', value: 10, statusEffect: 'poisoned', dot: { damage: 4, duration: 3 } },
   [ABILITIES.RAISE_DEAD]: { type: 'heal', value: 15 },
-  [ABILITIES.NECROTIC_BLAST]: { type: 'damage', value: 10 },
-  [ABILITIES.DARK_BLAST]: { type: 'damage', value: 10 },
+  [ABILITIES.NECROTIC_BLAST]: { type: 'damage', value: 10, statusEffect: 'cursed' },
+  [ABILITIES.DARK_BLAST]: { type: 'damage', value: 10, statusEffect: 'cursed' },
   [ABILITIES.SUMMON_MINION]: { type: 'heal', value: 10 },
   [ABILITIES.SPEAR_THRUST]: { type: 'damage', value: 10 },
-  [ABILITIES.COMMAND]: { type: 'defense', value: 5 },
-  [ABILITIES.RALLY]: { type: 'heal', value: 10 },
+  [ABILITIES.COMMAND]: { type: 'defense', value: 5, statusEffect: 'blessed' },
+  [ABILITIES.RALLY]: { type: 'heal', value: 10, statusEffect: 'blessed' },
   [ABILITIES.RANGED_ATTACK]: { type: 'damage', value: 10 },
   [ABILITIES.CAMOUFLAGE]: { type: 'defense', value: 5 },
-  [ABILITIES.BURN]: { type: 'damage', value: 10 },
-  [ABILITIES.WATER_BLAST]: { type: 'damage', value: 10 },
+  [ABILITIES.BURN]: { type: 'damage', value: 10, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
+  [ABILITIES.WATER_BLAST]: { type: 'damage', value: 10, statusEffect: 'frozen' },
   [ABILITIES.ROCK_THROW]: { type: 'damage', value: 10 },
   [ABILITIES.GUST_OF_WIND]: { type: 'damage', value: 10 },
 };
 
 const formatAbility = ability => ability.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
+// Helper to apply status effects
+function applyStatusEffect(target, statusEffect, logFn) {
+  if (!statusEffect) return;
+  if (!target.statusEffects) target.statusEffects = [];
+  // Only add if not already present
+  if (!target.statusEffects.includes(statusEffect)) {
+    target.statusEffects.push(statusEffect);
+    // Log the status effect application
+    const effectName = statusEffect.charAt(0).toUpperCase() + statusEffect.slice(1);
+    logFn(`${target.name} is now ${effectName}!`);
+  }
+}
+
+// Helper to apply DoT (damage over time) effects
+function applyDoT(target, dotConfig, logFn) {
+  if (!dotConfig) return;
+  if (!target.dotEffects) target.dotEffects = [];
+  
+  // Add the DoT effect with remaining duration
+  target.dotEffects.push({
+    damage: dotConfig.damage,
+    remainingDuration: dotConfig.duration
+  });
+}
+
+// Process DoT damage at the start of each round
+function processDoTDamage(card, logFn) {
+  if (!card.dotEffects || card.dotEffects.length === 0) return 0;
+  
+  let totalDotDamage = 0;
+  const remainingDots = [];
+  
+  // Process each DoT effect
+  card.dotEffects.forEach(dot => {
+    totalDotDamage += dot.damage;
+    dot.remainingDuration -= 1;
+    
+    // Keep the DoT if it still has duration remaining
+    if (dot.remainingDuration > 0) {
+      remainingDots.push(dot);
+    }
+  });
+  
+  // Update the card's DoT effects
+  card.dotEffects = remainingDots;
+  
+  // Apply the damage
+  if (totalDotDamage > 0) {
+    card.currentHealth -= totalDotDamage;
+    logFn(`${card.name} takes ${totalDotDamage} damage from ongoing effects!`);
+  }
+  
+  return totalDotDamage;
+}
+
 // Ability resolution helper
 function resolveAbility(attacker, defender, ability, damage, logFn) {
-  if (!ability) return { damage, heal: 0 };
+  if (!ability) return { damage, heal: 0, abilityUsed: null };
   const effect = abilityEffects[ability];
   if (!effect) {
     logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
-    return { damage, heal: 0 };
+    return { damage, heal: 0, abilityUsed: ability };
   }
 
   switch (effect.type) {
     case 'damage':
       logFn(`${attacker.name} uses ${formatAbility(ability)} (+${effect.value} damage)!`);
-      return { damage: damage + effect.value, heal: 0 };
+      // Apply status effect to defender for damage abilities
+      if (effect.statusEffect) {
+        applyStatusEffect(defender, effect.statusEffect, logFn);
+      }
+      // Apply DoT effect if present
+      if (effect.dot) {
+        applyDoT(defender, effect.dot, logFn);
+      }
+      return { damage: damage + effect.value, heal: 0, abilityUsed: ability };
     case 'heal': {
       const healAmount = effect.value;
       attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + healAmount);
       logFn(`${attacker.name} uses ${formatAbility(ability)} and restores ${healAmount} HP!`);
-      return { damage, heal: healAmount };
+      // Apply status effect to attacker for heal/buff abilities
+      if (effect.statusEffect) {
+        applyStatusEffect(attacker, effect.statusEffect, logFn);
+      }
+      return { damage, heal: healAmount, abilityUsed: ability };
     }
     case 'defense':
       logFn(`${attacker.name} uses ${formatAbility(ability)} (-${effect.value} damage)!`);
-      return { damage: Math.max(0, damage - effect.value), heal: 0 };
+      // Apply status effect to attacker for defense abilities
+      if (effect.statusEffect) {
+        applyStatusEffect(attacker, effect.statusEffect, logFn);
+      }
+      return { damage: Math.max(0, damage - effect.value), heal: 0, abilityUsed: ability };
     case 'stun':
       defender.isStunned = true;
       logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`);
-      return { damage, heal: 0 };
+      return { damage, heal: 0, abilityUsed: ability };
     default:
       logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
-      return { damage, heal: 0 };
+      return { damage, heal: 0, abilityUsed: ability };
   }
 }
 
@@ -172,7 +243,8 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
       player2Heal: outcome1.attacker === player2card ? outcome1.heal : 0,
       // Objects are passed by reference, so player1card/player2card are already updated
       player1card: player1card,
-      player2card: player2card
+      player2card: player2card,
+      abilityUsed: outcome1.abilityUsed ? { ability: outcome1.abilityUsed, cardName: outcome1.attacker.name, side: outcome1.attacker === player1card ? 'p1' : 'p2' } : null
     };
   }
 
@@ -192,7 +264,9 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
       player2Heal: (outcome1.attacker === player2card ? outcome1.heal : 0) + (outcome2.attacker === player2card ? outcome2.heal : 0),
       // Objects are passed by reference, so player1card/player2card are already updated
       player1card: player1card,
-      player2card: player2card
+      player2card: player2card,
+      // Prefer the second ability if both were used, otherwise use whichever was used
+      abilityUsed: outcome2.abilityUsed ? { ability: outcome2.abilityUsed, cardName: outcome2.attacker.name, side: outcome2.attacker === player1card ? 'p1' : 'p2' } : (outcome1.abilityUsed ? { ability: outcome1.abilityUsed, cardName: outcome1.attacker.name, side: outcome1.attacker === player1card ? 'p1' : 'p2' } : null)
     };
   }
 
@@ -205,7 +279,9 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
     player1Heal: (outcome1.attacker === player1card ? outcome1.heal : 0) + (outcome2.attacker === player1card ? outcome2.heal : 0),
     player2Heal: (outcome1.attacker === player2card ? outcome1.heal : 0) + (outcome2.attacker === player2card ? outcome2.heal : 0),
     player1card: player1card,
-    player2card: player2card
+    player2card: player2card,
+    // Prefer the second ability if both were used, otherwise use whichever was used
+    abilityUsed: outcome2.abilityUsed ? { ability: outcome2.abilityUsed, cardName: outcome2.attacker.name, side: outcome2.attacker === player1card ? 'p1' : 'p2' } : (outcome1.abilityUsed ? { ability: outcome1.abilityUsed, cardName: outcome1.attacker.name, side: outcome1.attacker === player1card ? 'p1' : 'p2' } : null)
   };
 };
 
@@ -236,7 +312,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   let heal = 0;
 
   // Only trigger an ability if a random check passes (e.g., 50% chance)
-  if (Math.random() < 0.5) {
+  // Stunned creatures cannot use abilities (this should never happen due to early return, but safety check)
+  if (!attacker.isStunned && Math.random() < 0.5) {
     ability =
       attacker.selectedAbility ||
       (attacker.abilities &&
@@ -245,6 +322,7 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   const abilityResult = resolveAbility(attacker, defender, ability, damage, logFn);
   damage = abilityResult.damage;
   heal = abilityResult.heal;
+  const abilityUsed = abilityResult.abilityUsed;
 
   logFn(`Attacker: ${attacker.name} (${combatChoice})`);
   logFn(`Attack value: ${playerAttack}`);
@@ -273,7 +351,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
     damageDealt: actualDamage,
     heal,
     attacker,
-    defender
+    defender,
+    abilityUsed
   };
 }
 
@@ -309,6 +388,9 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   // Store damage events for flying text animations
   const [player1DamageEvents, setPlayer1DamageEvents] = useState([]);
   const [player2DamageEvents, setPlayer2DamageEvents] = useState([]);
+  
+  // Store ability usage for icon animations
+  const [abilityUsed, setAbilityUsed] = useState(null);
 
   const addLog = (message) => {
     setLogMessages(prev => [...prev, message]);
@@ -397,13 +479,52 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   const Fight = () => {
     addLog(`-------- Round ${round} --------`);
 
-    // Clear stun status at the start of each round (after it has been displayed)
-    // This ensures the visual effect shows between rounds
-    if (player1SelectedCard && player1SelectedCard.isStunned) {
-      player1SelectedCard.isStunned = false;
+    // Process DoT (damage over time) effects at the start of the round
+    const p1DotDamage = processDoTDamage(player1SelectedCard, addLog);
+    const p2DotDamage = processDoTDamage(player2SelectedCard, addLog);
+    
+    // Track DoT damage for visual effects
+    const dotDamageEvents = [];
+    if (p1DotDamage > 0) {
+      dotDamageEvents.push({ damage: p1DotDamage, type: 'damage', cardName: player1SelectedCard.name, side: 'p1' });
     }
-    if (player2SelectedCard && player2SelectedCard.isStunned) {
-      player2SelectedCard.isStunned = false;
+    if (p2DotDamage > 0) {
+      dotDamageEvents.push({ damage: p2DotDamage, type: 'damage', cardName: player2SelectedCard.name, side: 'p2' });
+    }
+    
+    // Show DoT damage visuals
+    if (dotDamageEvents.length > 0) {
+      const p1DotEvents = dotDamageEvents.filter(e => e.side === 'p1');
+      const p2DotEvents = dotDamageEvents.filter(e => e.side === 'p2');
+      setPlayer1DamageEvents(p1DotEvents);
+      setPlayer2DamageEvents(p2DotEvents);
+      
+      // Clear DoT damage events after animation
+      setTimeout(() => {
+        setPlayer1DamageEvents([]);
+        setPlayer2DamageEvents([]);
+      }, 1500);
+    }
+
+    // Clear stun status at the start of the round (BEFORE combat)
+    // If a creature was stunned in the previous round, they will skip their turn in THIS round
+    // Then the stun is cleared here, so they can act in the NEXT round
+    const wasPlayer1Stunned = player1SelectedCard && player1SelectedCard.isStunned;
+    const wasPlayer2Stunned = player2SelectedCard && player2SelectedCard.isStunned;
+    
+    if (wasPlayer1Stunned) {
+      addLog(`${player1SelectedCard.name} is recovering from stun...`);
+    }
+    if (wasPlayer2Stunned) {
+      addLog(`${player2SelectedCard.name} is recovering from stun...`);
+    }
+    
+    // Clear status effects at the start of each round (they last one round)
+    if (player1SelectedCard && player1SelectedCard.statusEffects) {
+      player1SelectedCard.statusEffects = [];
+    }
+    if (player2SelectedCard && player2SelectedCard.statusEffects) {
+      player2SelectedCard.statusEffects = [];
     }
 
     const outcome = handleCombatRound(
@@ -413,6 +534,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       player2Choice,
       addLog
     );
+    
+    // Clear stun AFTER combat (so the stunned creature skipped their turn this round)
+    if (wasPlayer1Stunned) {
+      player1SelectedCard.isStunned = false;
+    }
+    if (wasPlayer2Stunned) {
+      player2SelectedCard.isStunned = false;
+    }
 
     if (outcome.haveWinner) {
       setHaveWinner(true);
@@ -443,16 +572,25 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
 
     setPlayer1DamageEvents(p1DamageEvents);
     setPlayer2DamageEvents(p2DamageEvents);
+    
+    // Set ability used for icon animation
+    if (outcome.abilityUsed) {
+      setAbilityUsed(outcome.abilityUsed);
+    }
 
-    // Update hands with new health and status
+    // Update hands with new health and status (including isStunned from combat)
     setPlayer1Hand(prevHand => prevHand.map(card => card.name === outcome.player1card.name ? outcome.player1card : card));
     setPlayer2Hand(prevHand => prevHand.map(card => card.name === outcome.player2card.name ? outcome.player2card : card));
+    
+    // Note: Stun status will persist until the next round starts
+    // It will be cleared at the END of the next round's combat (after the stunned creature skips their turn)
 
     // Clear events after a delay
     setTimeout(() => {
       setPlayer1DamageEvents([]);
       setPlayer2DamageEvents([]);
-    }, 1000);
+      setAbilityUsed(null);
+    }, 2000);
 
     // Remove cards on zero HP
     if (player1SelectedCard.currentHealth <= 0) {
@@ -559,6 +697,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     isSelected={player1SelectedCard === card}
                     side="p1"
                     damageEvents={player1DamageEvents}
+                    abilityUsed={abilityUsed}
                   />
                 ))}
               </div>
@@ -605,6 +744,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     disabled={singlePlayer}
                     side="p2"
                     damageEvents={player2DamageEvents}
+                    abilityUsed={abilityUsed}
                   />
                 ))}
               </div>

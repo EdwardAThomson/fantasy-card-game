@@ -656,3 +656,176 @@ h1 {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
   z-index: 100;
 }
+
+/* Status effect badges container - centered and stacked */
+.status-badges {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+  width: 90%;
+}
+
+/* Individual status badge - large centered text */
+.status-badge {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+/* Burning effect - flickering orange/red */
+.status-badge.burning {
+  background: radial-gradient(circle, rgba(255, 100, 0, 0.85), rgba(255, 0, 0, 0.75));
+  color: #fff;
+  animation: flicker 0.8s ease-in-out infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Poisoned effect - bubbling green */
+.status-badge.poisoned {
+  background: radial-gradient(circle, rgba(0, 255, 100, 0.85), rgba(100, 255, 0, 0.75));
+  color: #fff;
+  animation: bubble 1.2s ease-in-out infinite;
+}
+
+@keyframes bubble {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.02); opacity: 1; }
+}
+
+/* Frozen effect - icy blue */
+.status-badge.frozen {
+  background: linear-gradient(135deg, rgba(100, 200, 255, 0.85), rgba(200, 230, 255, 0.75));
+  color: #003366;
+  animation: crystallize 2s ease-in-out infinite;
+}
+
+@keyframes crystallize {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+/* Blessed/Buffed effect - golden glow */
+.status-badge.blessed {
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.85), rgba(255, 255, 100, 0.75));
+  color: #664400;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.01); }
+}
+
+/* Cursed effect - dark purple */
+.status-badge.cursed {
+  background: radial-gradient(circle, rgba(100, 0, 150, 0.85), rgba(50, 0, 100, 0.75));
+  color: #e0c0ff;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+/* Bleeding effect - dark red drip */
+.status-badge.bleeding {
+  background: linear-gradient(180deg, rgba(139, 0, 0, 0.85), rgba(200, 0, 0, 0.75));
+  color: #fff;
+  animation: bleed 1.5s ease-in-out infinite;
+}
+
+@keyframes bleed {
+  0%, 100% { opacity: 0.85; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(2px); }
+}
+
+/* Card glow effects for buffs/debuffs */
+.card.buffed {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 20px rgba(34, 197, 94, 0.6);
+  animation: buffGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes buffGlow {
+  0%, 100% { box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 20px rgba(34, 197, 94, 0.6); }
+  50% { box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 30px rgba(34, 197, 94, 0.8); }
+}
+
+.card.debuffed {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 20px rgba(239, 68, 68, 0.6);
+  animation: debuffGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes debuffGlow {
+  0%, 100% { box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 20px rgba(239, 68, 68, 0.6); }
+  50% { box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 30px rgba(239, 68, 68, 0.8); }
+}
+
+/* Ability icon pop-up animation */
+.ability-icon {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4rem;
+  pointer-events: none;
+  z-index: 1001;
+  animation: abilityPop 2s ease-out forwards;
+  text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+@keyframes abilityPop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.5) rotate(-15deg);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px) scale(1.3) rotate(5deg);
+  }
+  25% {
+    transform: translateX(-50%) translateY(-15px) scale(1.2) rotate(-3deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-20px) scale(1.15) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px) scale(0.9) rotate(0deg);
+  }
+}
+
+/* Mobile optimized ability icons and status badges */
+@media (max-width: 768px) {
+  .ability-icon {
+    font-size: 3rem;
+  }
+  
+  .status-badge {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 5px 8px;
+  }
+}
