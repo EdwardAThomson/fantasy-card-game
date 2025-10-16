@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
 
-function FlyingText({ damage, type = 'damage', onComplete }) {
-  const [isVisible, setIsVisible] = useState(true);
+function FlyingText({ damage, type = 'damage', onComplete, delay = 0 }) {
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const showTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, delay);
+
+    const hideTimer = setTimeout(() => {
       setIsVisible(false);
       if (onComplete) {
         setTimeout(onComplete, 300); // Wait for fade out animation
       }
-    }, 1500);
+    }, 1500 + delay);
 
-    return () => clearTimeout(timer);
-  }, [onComplete]);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [onComplete, delay]);
 
   if (!isVisible) return null;
 

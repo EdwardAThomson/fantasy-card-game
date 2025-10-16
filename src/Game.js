@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import creatures, { ABILITIES } from './creatures';  // Import the creatures data and ability IDs
 import Card from './Card';  // Import the Card component
 import Modal from './Modal'; // Import the Modal component
+import Tabs from './Tabs'; // Import the Tabs component
 import { DECK_SIZE } from './constants';
 
 
@@ -82,31 +83,32 @@ const formatAbility = ability => ability.split('_').map(w => w.charAt(0).toUpper
 
 // Ability resolution helper
 function resolveAbility(attacker, defender, ability, damage, logFn) {
-  if (!ability) return damage;
+  if (!ability) return { damage, heal: 0 };
   const effect = abilityEffects[ability];
   if (!effect) {
     logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
-    return damage;
+    return { damage, heal: 0 };
   }
 
   switch (effect.type) {
     case 'damage':
       logFn(`${attacker.name} uses ${formatAbility(ability)} (+${effect.value} damage)!`);
-      return damage + effect.value;
+      return { damage: damage + effect.value, heal: 0 };
     case 'heal': {
-      attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + effect.value);
-      logFn(`${attacker.name} uses ${formatAbility(ability)} and restores ${effect.value} HP!`);
-      return damage;
+      const healAmount = effect.value;
+      attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + healAmount);
+      logFn(`${attacker.name} uses ${formatAbility(ability)} and restores ${healAmount} HP!`);
+      return { damage, heal: healAmount };
     }
     case 'defense':
       logFn(`${attacker.name} uses ${formatAbility(ability)} (-${effect.value} damage)!`);
-      return Math.max(0, damage - effect.value);
+      return { damage: Math.max(0, damage - effect.value), heal: 0 };
     case 'stun':
       defender.isStunned = true;
       logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`);
-      return damage;
+      return { damage, heal: 0 };
     default:
-      return damage;
+      return { damage, heal: 0 };
   }
 }
 
@@ -164,7 +166,9 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
     return {
       ...result1,
       player1Damage: outcome1.defender === player1card ? outcome1.damageDealt : 0,
-      player2Damage: outcome1.defender === player2card ? outcome1.damageDealt : 0
+      player2Damage: outcome1.defender === player2card ? outcome1.damageDealt : 0,
+      player1Heal: outcome1.attacker === player1card ? outcome1.heal : 0,
+      player2Heal: outcome1.attacker === player2card ? outcome1.heal : 0,
     };
   }
 
@@ -179,7 +183,9 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
     return {
       ...result2,
       player1Damage: (outcome1.defender === player1card ? outcome1.damageDealt : 0) + (outcome2.defender === player1card ? outcome2.damageDealt : 0),
-      player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0)
+      player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0),
+      player1Heal: (outcome1.attacker === player1card ? outcome1.heal : 0) + (outcome2.attacker === player1card ? outcome2.heal : 0),
+      player2Heal: (outcome1.attacker === player2card ? outcome1.heal : 0) + (outcome2.attacker === player2card ? outcome2.heal : 0),
     };
   }
 
@@ -187,7 +193,9 @@ const handleCombatRound = (player1card, player2card, player1Choice, player2Choic
   return {
     haveWinner: false,
     player1Damage: (outcome1.defender === player1card ? outcome1.damageDealt : 0) + (outcome2.defender === player1card ? outcome2.damageDealt : 0),
-    player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0)
+    player2Damage: (outcome1.defender === player2card ? outcome1.damageDealt : 0) + (outcome2.defender === player2card ? outcome2.damageDealt : 0),
+    player1Heal: (outcome1.attacker === player1card ? outcome1.heal : 0) + (outcome2.attacker === player1card ? outcome2.heal : 0),
+    player2Heal: (outcome1.attacker === player2card ? outcome1.heal : 0) + (outcome2.attacker === player2card ? outcome2.heal : 0),
   };
 };
 
@@ -210,6 +218,7 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   const defenseMod = defender.stats.defense / 2;
   let damage = Math.max(0, playerAttack - defenseMod);
   let ability = null;
+  let heal = 0;
 
   // Only trigger an ability if a random check passes (e.g., 25% chance)
   if (Math.random() < 0.25) {
@@ -218,7 +227,9 @@ function combatRound(attacker, defender, combatChoice, logFn) {
       (attacker.abilities &&
         attacker.abilities[Math.floor(Math.random() * attacker.abilities.length)]);
   }
-  damage = resolveAbility(attacker, defender, ability, damage, logFn);
+  const abilityResult = resolveAbility(attacker, defender, ability, damage, logFn);
+  damage = abilityResult.damage;
+  heal = abilityResult.heal;
 
   logFn(`Attacker: ${attacker.name} (${combatChoice})`);
   logFn(`Attack value: ${playerAttack}`);
@@ -245,6 +256,8 @@ function combatRound(attacker, defender, combatChoice, logFn) {
     playerAttack,
     opponentDamageTaken: damage,
     damageDealt: actualDamage,
+    heal,
+    attacker,
     defender: defender
   };
 }
@@ -389,13 +402,23 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     // Trigger damage events for flying text immediately (no delay)
     // Only show damage if the card is still alive
     if (outcome.player1Damage > 0 && player1SelectedCard.currentHealth > 0) {
-      setPlayer1DamageEvents([{ damage: outcome.player1Damage, type: 'damage' }]);
-      setTimeout(() => setPlayer1DamageEvents([]), 1000);
+      setPlayer1DamageEvents(prev => [...prev, { damage: outcome.player1Damage, type: 'damage' }]);
     }
     if (outcome.player2Damage > 0 && player2SelectedCard.currentHealth > 0) {
-      setPlayer2DamageEvents([{ damage: outcome.player2Damage, type: 'damage' }]);
-      setTimeout(() => setPlayer2DamageEvents([]), 1000);
+      setPlayer2DamageEvents(prev => [...prev, { damage: outcome.player2Damage, type: 'damage' }]);
     }
+    if (outcome.player1Heal > 0) {
+      setPlayer1DamageEvents(prev => [...prev, { damage: outcome.player1Heal, type: 'heal' }]);
+    }
+    if (outcome.player2Heal > 0) {
+      setPlayer2DamageEvents(prev => [...prev, { damage: outcome.player2Heal, type: 'heal' }]);
+    }
+
+    // Clear events after a delay
+    setTimeout(() => {
+      setPlayer1DamageEvents([]);
+      setPlayer2DamageEvents([]);
+    }, 1000);
 
     // Remove cards on zero HP
     if (player1SelectedCard.currentHealth <= 0) {
@@ -604,7 +627,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     </Modal>
     <Modal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)}>
       <h2>How to Play</h2>
-      <div style={{textAlign: 'left', marginTop: '20px'}}>
+      <Tabs>
+        <div label="Game Flow">
           <p><strong>Objective:</strong> Defeat all of your opponent's creatures to win the game!</p>
           <br/>
           <h4>Game Flow:</h4>
@@ -626,7 +650,33 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
               </li>
               <li>The round ends after both creatures have attacked. The player with the last creature standing wins the game.</li>
           </ol>
-      </div>
+        </div>
+        <div label="Combat">
+          <h4>Combat Styles:</h4>
+          <ul>
+              <li><strong>Melee (🗡️):</strong> Based on the creature's <strong>Strength</strong> stat.</li>
+              <li><strong>Ranged (🏹):</strong> Based on the creature's <strong>Agility</strong> stat.</li>
+              <li><strong>Magic (🪄):</strong> Based on the creature's <strong>Magic</strong> stat.</li>
+          </ul>
+          <br/>
+          <h4>Initiative:</h4>
+          <p>The creature with the higher initiative attacks first. Initiative is calculated based on a creature's Agility and Intelligence stats.</p>
+        </div>
+        <div label="Abilities">
+          <h4>Abilities:</h4>
+          <p>Creatures have a chance to use a special ability during combat. These can be powerful attacks, healing spells, or other effects.</p>
+          <ul>
+              <li><strong>Heal:</strong> Restores health to the creature.</li>
+              <li><strong>Stun:</strong> Causes the opponent to skip their next turn.</li>
+              <li><strong>Berserk:</strong> Increases the creature's attack power.</li>
+          </ul>
+          <br/>
+          <h4>Status Effects:</h4>
+          <ul>
+              <li><strong>Stunned:</strong> A stunned creature will skip its next turn.</li>
+          </ul>
+        </div>
+      </Tabs>
     </Modal>
     <button className="help-button" onClick={() => setIsHelpModalOpen(true)}>?</button>
     </>

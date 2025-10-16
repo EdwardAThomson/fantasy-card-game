@@ -66,15 +66,21 @@ function Card({ creature, onCardSelect, isSelected, disabled, side, damageEvents
         ))}
       </ul>
       
-      {activeDamageTexts.map(textEvent => (
+      {activeDamageTexts.map((textEvent, index) => (
         <FlyingText
           key={textEvent.id}
           damage={textEvent.damage}
           type={textEvent.type}
           onComplete={() => handleTextComplete(textEvent.id)}
+          delay={textEvent.type === 'heal' && activeDamageTexts.some(e => e.type === 'damage') ? 500 : 0}
         />
       ))}
 
+      {creature.isStunned && (
+        <div className="stunned-overlay">
+          <span>Stunned</span>
+        </div>
+      )}
     </div>
   );
 }

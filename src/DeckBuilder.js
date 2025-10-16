@@ -3,6 +3,8 @@ import creatures from './creatures';
 import { DECK_SIZE } from './constants';
 import Card from './Card';
 import { getRandomUniqueCards } from './Game';
+import Modal from './Modal';
+import Tabs from './Tabs';
 
 function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
   const [player1Deck, setPlayer1Deck] = useState([]);
@@ -10,6 +12,7 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
   const [error, setError] = useState('');
   const [page, setPage] = useState(0);
   const [player1Confirmed, setPlayer1Confirmed] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   const activePlayer = player1Confirmed ? 2 : 1;
 
@@ -137,10 +140,10 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
             );
           })}
         </div>
-        <div style={{display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem'}}>
-          <button onClick={prevPage}>Prev</button>
+        <div className="pagination-controls">
+          <button onClick={prevPage} className="btn btn-secondary">Prev</button>
           <span>Page {page + 1} of {totalPages}</span>
-          <button onClick={nextPage}>Next</button>
+          <button onClick={nextPage} className="btn btn-secondary">Next</button>
         </div>
       </div>
 
@@ -149,15 +152,70 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
       {/* Action Buttons */}
       <div className="deck-builder-actions">
         {singlePlayer && player1Deck.length === DECK_SIZE && (
-          <button onClick={finalizeDecks}>Start Game</button>
+          <button onClick={finalizeDecks} className="btn btn-primary">Start</button>
         )}
         {!singlePlayer && !player1Confirmed && player1Deck.length === DECK_SIZE && (
-          <button onClick={handleConfirmDeck}>Confirm Player 1 Deck</button>
+          <button onClick={handleConfirmDeck} className="btn btn-primary">Confirm Player 1 Deck</button>
         )}
         {!singlePlayer && player1Confirmed && player2Deck.length === DECK_SIZE && (
-          <button onClick={finalizeDecks}>Start Game</button>
+          <button onClick={finalizeDecks} className="btn btn-primary">Start</button>
         )}
       </div>
+
+      <Modal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)}>
+        <h2>How to Play</h2>
+        <Tabs>
+          <div label="Game Flow">
+            <p><strong>Objective:</strong> Defeat all of your opponent's creatures to win the game!</p>
+            <br/>
+            <h4>Game Flow:</h4>
+            <ol>
+                <li>Each player is dealt a hand of three unique creature cards.</li>
+                <li><strong>Selection Phase:</strong>
+                    <ul>
+                        <li>Select one of your creatures to send into combat by clicking on its card.</li>
+                        <li>Choose a combat style for that round: Melee, Ranged, or Magic.</li>
+                    </ul>
+                </li>
+                <li><strong>Combat Phase:</strong>
+                    <ul>
+                        <li>Once both players have made their selections, click the "Fight!" button.</li>
+                        <li>Creatures attack one by one, with the faster creature (based on Agility and Intelligence) striking first.</li>
+                        <li>Damage is calculated based on your chosen combat style vs. the opponent's defense.</li>
+                        <li>A creature is defeated and removed from the game when its HP reaches 0.</li>
+                    </ul>
+                </li>
+                <li>The round ends after both creatures have attacked. The player with the last creature standing wins the game.</li>
+            </ol>
+          </div>
+          <div label="Combat">
+            <h4>Combat Styles:</h4>
+            <ul>
+                <li><strong>Melee (🗡️):</strong> Based on the creature's <strong>Strength</strong> stat.</li>
+                <li><strong>Ranged (🏹):</strong> Based on the creature's <strong>Agility</strong> stat.</li>
+                <li><strong>Magic (🪄):</strong> Based on the creature's <strong>Magic</strong> stat.</li>
+            </ul>
+            <br/>
+            <h4>Initiative:</h4>
+            <p>The creature with the higher initiative attacks first. Initiative is calculated based on a creature's Agility and Intelligence stats.</p>
+          </div>
+          <div label="Abilities">
+            <h4>Abilities:</h4>
+            <p>Creatures have a chance to use a special ability during combat. These can be powerful attacks, healing spells, or other effects.</p>
+            <ul>
+                <li><strong>Heal:</strong> Restores health to the creature.</li>
+                <li><strong>Stun:</strong> Causes the opponent to skip their next turn.</li>
+                <li><strong>Berserk:</strong> Increases the creature's attack power.</li>
+            </ul>
+            <br/>
+            <h4>Status Effects:</h4>
+            <ul>
+                <li><strong>Stunned:</strong> A stunned creature will skip its next turn.</li>
+            </ul>
+          </div>
+        </Tabs>
+      </Modal>
+      <button className="help-button" onClick={() => setIsHelpModalOpen(true)}>?</button>
     </div>
   );
 }
