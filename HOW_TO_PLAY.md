@@ -3,6 +3,8 @@
 ## 🎯 Objective
 Defeat all of your opponent's creatures to win the game! Each player commands a deck of powerful creatures with unique abilities and stats. Use strategy, timing, and a bit of luck to emerge victorious.
 
+🎥 YouTube Tutorial: [How To Play](https://youtu.be/SeWWdGR7oGo)
+
 ---
 
 ## 🎮 Game Setup
