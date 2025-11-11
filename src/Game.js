@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import creatures, { ABILITIES } from './creatures';  // Import the creatures data and ability IDs
 import Card from './Card';  // Import the Card component
 import Modal from './Modal'; // Import the Modal component
@@ -402,15 +402,10 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
 
   // variables used in combat
-  const [result, setResult] = useState(''); // combat result
   const [round, setRound] = useState(1); // Track the number of rounds
 
-  // Setting the winner
-  const [haveWinner, setHaveWinner] = useState(false);
-  const [winner, setWinner] = useState(null);
-
   // AI decision logic
-  const makeAIDecision = () => {
+  const makeAIDecision = useCallback(() => {
     if (!singlePlayer) return;
     if (!player1SelectedCard || !player1Choice) return;
     if (player2Hand.length === 0) return;
@@ -433,11 +428,11 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       setPlayer2SelectedCard(best.card);
       setPlayer2Choice(best.choice);
     }
-  };
+  }, [singlePlayer, player1SelectedCard, player1Choice, player2Hand]);
 
   useEffect(() => {
     makeAIDecision();
-  }, [player1Choice, player1SelectedCard, player2Hand, singlePlayer]);
+  }, [makeAIDecision]);
 
   // Auto-select card if only one remains for player 1
   useEffect(() => {
@@ -558,8 +553,6 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     }
 
     if (outcome.haveWinner) {
-      setHaveWinner(true);
-      setWinner(outcome.winner);
       const winnerPlayer = outcome.winner === player1SelectedCard ? 'Player 1' : 'Player 2';
       setModalMessage(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
       setIsModalOpen(true);
