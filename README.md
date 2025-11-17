@@ -85,4 +85,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgements
 
-I used ChatGPT (mostly 4o) to generate the code and art. There was still some human brain power used to provide the ideation and fit everything together. 
+I used ChatGPT (mostly 4o) to generate the original code and art. However, I eventually switch to Cursor and then Windsurf to help me with the code. There was still some human brain power used to provide the ideation and fit everything together. 

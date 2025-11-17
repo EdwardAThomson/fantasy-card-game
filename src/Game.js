@@ -81,9 +81,24 @@ const abilityEffects = {
 
 const formatAbility = ability => ability.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
+const hasImmunity = (creature, effect) => {
+  if (!effect) return false;
+  return Array.isArray(creature?.immunities) && creature.immunities.includes(effect);
+};
+
+const getResistanceMultiplier = (creature, effect) => {
+  if (!effect) return 1;
+  return creature?.resistances?.[effect] ?? 1;
+};
+
 // Helper to apply status effects
 function applyStatusEffect(target, statusEffect, logFn) {
   if (!statusEffect) return;
+  if (hasImmunity(target, statusEffect)) {
+    const effectName = statusEffect.charAt(0).toUpperCase() + statusEffect.slice(1);
+    logFn(`${target.name} shrugs off ${effectName}!`);
+    return;
+  }
   if (!target.statusEffects) target.statusEffects = [];
   // Only add if not already present
   if (!target.statusEffects.includes(statusEffect)) {
@@ -95,14 +110,20 @@ function applyStatusEffect(target, statusEffect, logFn) {
 }
 
 // Helper to apply DoT (damage over time) effects
-function applyDoT(target, dotConfig, logFn) {
+function applyDoT(target, dotConfig, statusEffect, logFn) {
   if (!dotConfig) return;
+  if (statusEffect && hasImmunity(target, statusEffect)) {
+    const effectName = statusEffect.charAt(0).toUpperCase() + statusEffect.slice(1);
+    logFn(`${target.name} is immune to ${effectName}! Ongoing effect fails.`);
+    return;
+  }
   if (!target.dotEffects) target.dotEffects = [];
   
   // Add the DoT effect with remaining duration
   target.dotEffects.push({
     damage: dotConfig.damage,
-    remainingDuration: dotConfig.duration
+    remainingDuration: dotConfig.duration,
+    type: statusEffect
   });
 }
 
@@ -115,7 +136,27 @@ function processDoTDamage(card, logFn) {
   
   // Process each DoT effect
   card.dotEffects.forEach(dot => {
-    totalDotDamage += dot.damage;
+    const effectType = dot.type;
+    if (effectType && hasImmunity(card, effectType)) {
+      const effectName = effectType.charAt(0).toUpperCase() + effectType.slice(1);
+      logFn(`${card.name} is immune to ${effectName}! The effect fades.`);
+      return;
+    }
+
+    const resistance = effectType ? getResistanceMultiplier(card, effectType) : 1;
+    let appliedDamage = dot.damage;
+    if (resistance !== 1) {
+      appliedDamage = Math.max(0, Math.round(dot.damage * resistance));
+      if (appliedDamage === 0) {
+        const effectName = effectType ? effectType.charAt(0).toUpperCase() + effectType.slice(1) : 'effect';
+        logFn(`${card.name} completely resists ${effectName}!`);
+      } else if (resistance < 1) {
+        const effectName = effectType ? effectType.charAt(0).toUpperCase() + effectType.slice(1) : 'effect';
+        logFn(`${card.name} resists some of ${effectName}, taking ${appliedDamage} damage.`);
+      }
+    }
+
+    totalDotDamage += appliedDamage;
     dot.remainingDuration -= 1;
     
     // Keep the DoT if it still has duration remaining
@@ -154,7 +195,7 @@ function resolveAbility(attacker, defender, ability, damage, logFn) {
       }
       // Apply DoT effect if present
       if (effect.dot) {
-        applyDoT(defender, effect.dot, logFn);
+        applyDoT(defender, effect.dot, effect.statusEffect, logFn);
       }
       return { damage: damage + effect.value, heal: 0, abilityUsed: ability };
     case 'heal': {
@@ -174,10 +215,25 @@ function resolveAbility(attacker, defender, ability, damage, logFn) {
         applyStatusEffect(attacker, effect.statusEffect, logFn);
       }
       return { damage: Math.max(0, damage - effect.value), heal: 0, abilityUsed: ability };
-    case 'stun':
+    case 'stun': {
+      const effectName = 'stun';
+      if (hasImmunity(defender, effectName)) {
+        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is immune to stun.`);
+        return { damage, heal: 0, abilityUsed: ability };
+      }
+      const resistance = getResistanceMultiplier(defender, effectName);
+      if (resistance < 1) {
+        if (Math.random() > resistance) {
+          logFn(`${attacker.name} tries ${formatAbility(ability)}, but ${defender.name} resists the stun!`);
+          return { damage, heal: 0, abilityUsed: ability };
+        }
+        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name}'s resistance falters.`);
+      } else {
+        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`);
+      }
       defender.isStunned = true;
-      logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`);
       return { damage, heal: 0, abilityUsed: ability };
+    }
     default:
       logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
       return { damage, heal: 0, abilityUsed: ability };
@@ -329,6 +385,21 @@ function combatRound(attacker, defender, combatChoice, logFn) {
   if (defenseMod > 0) {
     logFn(`Defense modifier: -${defenseMod}`);
   }
+  const damageType = abilityResult?.abilityUsed ? abilityEffects[abilityResult.abilityUsed]?.statusEffect : null;
+  if (damageType && hasImmunity(defender, damageType)) {
+    logFn(`${defender.name} is immune to ${damageType}! Damage is negated.`);
+    damage = 0;
+  }
+
+  const resistance = damageType ? getResistanceMultiplier(defender, damageType) : 1;
+  if (resistance < 1 && damage > 0) {
+    const reduced = Math.max(0, Math.round(damage * resistance));
+    if (reduced < damage) {
+      logFn(`${defender.name} resists some of the ${damageType || 'attack'}, taking ${reduced} damage.`);
+      damage = reduced;
+    }
+  }
+
   logFn(`Damage dealt: ${damage}`);
 
   // Cap damage to remaining HP to prevent overflow
@@ -487,6 +558,24 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   // - Victory conditions (for a combat round) check
   const Fight = () => {
     addLog(`-------- Round ${round} --------`);
+
+    const logDefensiveProfile = (card, sideLabel) => {
+      if (!card) return;
+      const immunities = Array.isArray(card.immunities) && card.immunities.length > 0
+        ? card.immunities.join(', ')
+        : 'none';
+      const resistanceEntries = card.resistances
+        ? Object.entries(card.resistances).map(([effect, multiplier]) => {
+            const percent = Math.round(multiplier * 100);
+            return `${effect} (${percent}% effect)`;
+          })
+        : [];
+      const resistances = resistanceEntries.length > 0 ? resistanceEntries.join(', ') : 'none';
+      addLog(`${sideLabel} ${card.name} defenses → Immunities: ${immunities}; Resistances: ${resistances}`);
+    };
+
+    logDefensiveProfile(player1SelectedCard, 'Player 1');
+    logDefensiveProfile(player2SelectedCard, 'Player 2');
 
     // Process DoT (damage over time) effects at the start of the round
     const p1DotDamage = processDoTDamage(player1SelectedCard, addLog);
@@ -886,4 +975,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
 }
 
 export default Game;
-export { getRandomUniqueCards, combatRound, resolveAbility, abilityEffects };
+export {
+  hasImmunity,
+  getResistanceMultiplier,
+  applyStatusEffect,
+  applyDoT,
+  processDoTDamage,
+  resolveAbility,
+  combatRound,
+  getRandomUniqueCards,
+  abilityEffects,
+};

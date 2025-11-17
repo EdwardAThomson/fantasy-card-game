@@ -48,6 +48,7 @@ const creatures = [
     abilities: [ABILITIES.FIRE_BREATH, ABILITIES.FLY],
     currentHealth: 500,
     maxHealth: 500,
+    immunities: ['burning'],
     statusEffects: [],
     isStunned: false
   },
@@ -116,6 +117,7 @@ const creatures = [
     abilities: [ABILITIES.SOUL_REAP, ABILITIES.STUN],
     currentHealth: 450,
     maxHealth: 450,
+    immunities: ['bleeding', 'poisoned'],
     statusEffects: [],
     isStunned: false
   },
@@ -133,6 +135,7 @@ const creatures = [
     abilities: [ABILITIES.HEAL, ABILITIES.STUN],
     currentHealth: 350,
     maxHealth: 350,
+    immunities: ['poisoned'],
     statusEffects: [],
     isStunned: false
   },
@@ -150,6 +153,7 @@ const creatures = [
     abilities: [ABILITIES.BERSERK],
     currentHealth: 420,
     maxHealth: 420,
+    immunities: ['bleeding'],
     statusEffects: [],
     isStunned: false
   },
@@ -167,6 +171,7 @@ const creatures = [
     abilities: [ABILITIES.HEAL, ABILITIES.FIRE_BREATH],
     currentHealth: 380,
     maxHealth: 380,
+    immunities: ['burning'],
     statusEffects: [],
     isStunned: false
   },
@@ -184,6 +189,7 @@ const creatures = [
     abilities: [ABILITIES.HEAL, ABILITIES.STUN],
     currentHealth: 430,
     maxHealth: 430,
+    immunities: ['bleeding'],
     statusEffects: [],
     isStunned: false
   },
@@ -201,6 +207,7 @@ const creatures = [
     abilities: [ABILITIES.MANA_BOLT, ABILITIES.CURSE],
     currentHealth: 320,
     maxHealth: 320,
+    immunities: ['cursed'],
     statusEffects: [],
     isStunned: false
   },
@@ -218,6 +225,7 @@ const creatures = [
     abilities: [ABILITIES.BERSERK, ABILITIES.STUN],
     currentHealth: 410,
     maxHealth: 410,
+    immunities: ['bleeding'],
     statusEffects: [],
     isStunned: false
   },
@@ -252,6 +260,7 @@ const creatures = [
     abilities: [ABILITIES.SUMMON_UNDEAD, ABILITIES.DARK_SPELL],
     currentHealth: 290,
     maxHealth: 290,
+    immunities: ['cursed'],
     statusEffects: [],
     isStunned: false
   },
@@ -286,6 +295,7 @@ const creatures = [
     abilities: [ABILITIES.POISON_BITE, ABILITIES.STUN],
     currentHealth: 300,
     maxHealth: 300,
+    resistances: { poisoned: 0.5 },
     statusEffects: [],
     isStunned: false
   },
@@ -320,6 +330,7 @@ const creatures = [
     abilities: [ABILITIES.RAISE_DEAD, ABILITIES.NECROTIC_BLAST],
     currentHealth: 350,
     maxHealth: 350,
+    immunities: ['cursed'],
     statusEffects: [],
     isStunned: false
   },
@@ -337,6 +348,7 @@ const creatures = [
     abilities: [ABILITIES.DARK_BLAST, ABILITIES.SUMMON_MINION],
     currentHealth: 280,
     maxHealth: 280,
+    immunities: ['cursed'],
     statusEffects: [],
     isStunned: false
   },
@@ -405,6 +417,7 @@ const creatures = [
     abilities: [ABILITIES.FIRE_BREATH, ABILITIES.BURN],
     currentHealth: 320,
     maxHealth: 320,
+    immunities: ['burning'],
     statusEffects: [],
     isStunned: false
   },
@@ -422,6 +435,7 @@ const creatures = [
     abilities: [ABILITIES.WATER_BLAST, ABILITIES.HEAL],
     currentHealth: 300,
     maxHealth: 300,
+    immunities: ['burning', 'frozen'],
     statusEffects: [],
     isStunned: false
   },
@@ -439,6 +453,8 @@ const creatures = [
     abilities: [ABILITIES.ROCK_THROW, ABILITIES.SHIELD_WALL],
     currentHealth: 380,
     maxHealth: 380,
+    immunities: ['bleeding'],
+    resistances: { stun: 0.5 },
     statusEffects: [],
     isStunned: false
   },
@@ -456,6 +472,8 @@ const creatures = [
     abilities: [ABILITIES.GUST_OF_WIND, ABILITIES.STUN],
     currentHealth: 290,
     maxHealth: 290,
+    immunities: ['bleeding'],
+    resistances: { stun: 0.7 },
     statusEffects: [],
     isStunned: false
   },

@@ -93,7 +93,30 @@ function Card({ creature, onCardSelect, isSelected, disabled, side, damageEvents
           {displayHealth} / {creature.maxHealth}
         </span>
       </div>
-      <h2>{creature.name}</h2>
+      <div className="card-title-row">
+        <h2>{creature.name}</h2>
+        {(Array.isArray(creature.immunities) && creature.immunities.length > 0) || (creature.resistances && Object.keys(creature.resistances).length > 0) ? (
+          <div className="defense-tooltip" aria-label="Defensive traits" role="button" tabIndex={0}>
+            🛡️
+            <div className="defense-tooltip-content">
+              <p>
+                <strong>Immunities:</strong>{' '}
+                {Array.isArray(creature.immunities) && creature.immunities.length > 0
+                  ? creature.immunities.join(', ')
+                  : 'None'}
+              </p>
+              <p>
+                <strong>Resistances:</strong>{' '}
+                {creature.resistances && Object.keys(creature.resistances).length > 0
+                  ? Object.entries(creature.resistances)
+                      .map(([effect, multiplier]) => `${effect} (${Math.round(multiplier * 100)}%)`)
+                      .join(', ')
+                  : 'None'}
+              </p>
+            </div>
+          </div>
+        ) : null}
+      </div>
       <img src={creature.image} alt={creature.name} className="creature-image" />
 
       <ul>
