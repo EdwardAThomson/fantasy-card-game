@@ -1,4 +1,4 @@
-import { getRandomUniqueCards } from '../Game';
+import { getRandomUniqueCards } from '../gameEngine';
 import { DECK_SIZE } from '../constants';
 
 describe('getRandomUniqueCards', () => {

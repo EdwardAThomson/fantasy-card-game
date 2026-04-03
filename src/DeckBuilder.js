@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import creatures from './creatures';
 import { DECK_SIZE } from './constants';
 import Card from './Card';
-import { getRandomUniqueCards } from './Game';
+import { getRandomUniqueCards } from './gameEngine';
 import Modal from './Modal';
 import Tabs from './Tabs';
 

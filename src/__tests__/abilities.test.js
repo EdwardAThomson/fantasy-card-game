@@ -1,4 +1,4 @@
-import { combatRound, abilityEffects } from '../Game';
+import { combatRound, abilityEffects } from '../gameEngine';
 import { ABILITIES } from '../creatures';
 
 describe('ability interactions', () => {
