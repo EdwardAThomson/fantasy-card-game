@@ -48,6 +48,13 @@ function AbilityIcon({ ability, onComplete }) {
     water_blast: '💧',
     rock_throw: '🪨',
     gust_of_wind: '🌪️',
+    constrict: '🐙',
+    tidal_wave: '🌊',
+    thunder_strike: '⛈️',
+    chain_lightning: '⚡',
+    regenerate: '🌿',
+    natures_wrath: '🌾',
+    fortify: '🏰',
   };
 
   const icon = abilityIcons[ability] || '✨';

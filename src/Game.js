@@ -77,6 +77,13 @@ const abilityEffects = {
   [ABILITIES.WATER_BLAST]: { type: 'damage', value: 10, statusEffect: 'frozen' },
   [ABILITIES.ROCK_THROW]: { type: 'damage', value: 10 },
   [ABILITIES.GUST_OF_WIND]: { type: 'damage', value: 10 },
+  [ABILITIES.CONSTRICT]: { type: 'damage', value: 8 },
+  [ABILITIES.TIDAL_WAVE]: { type: 'damage', value: 10, statusEffect: 'frozen' },
+  [ABILITIES.THUNDER_STRIKE]: { type: 'damage', value: 12 },
+  [ABILITIES.CHAIN_LIGHTNING]: { type: 'damage', value: 8 },
+  [ABILITIES.REGENERATE]: { type: 'heal', value: 20, statusEffect: 'blessed' },
+  [ABILITIES.NATURES_WRATH]: { type: 'damage', value: 10, statusEffect: 'poisoned', dot: { damage: 4, duration: 3 } },
+  [ABILITIES.FORTIFY]: { type: 'defense', value: 12, statusEffect: 'blessed' },
 };
 
 const formatAbility = ability => ability.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');

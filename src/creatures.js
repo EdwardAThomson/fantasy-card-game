@@ -31,6 +31,13 @@ export const ABILITIES = {
   WATER_BLAST: 'water_blast',
   ROCK_THROW: 'rock_throw',
   GUST_OF_WIND: 'gust_of_wind',
+  CONSTRICT: 'constrict',
+  TIDAL_WAVE: 'tidal_wave',
+  THUNDER_STRIKE: 'thunder_strike',
+  CHAIN_LIGHTNING: 'chain_lightning',
+  REGENERATE: 'regenerate',
+  NATURES_WRATH: 'natures_wrath',
+  FORTIFY: 'fortify',
 };
 
 const creatures = [
@@ -493,9 +500,208 @@ const creatures = [
     maxHealth: 310,
     statusEffects: [],
     isStunned: false
-  }
+  },
 
-// add more
+  // --- Water creatures ---
+  {
+    name: 'Kraken',
+    element: 'water',
+    image: 'kraken.webp',
+    stats: {
+      strength: 85,
+      agility: 45,
+      intelligence: 55,
+      defense: 80,
+      magic: 60
+    },
+    abilities: [ABILITIES.CONSTRICT, ABILITIES.WATER_BLAST],
+    currentHealth: 460,
+    maxHealth: 460,
+    immunities: ['frozen'],
+    statusEffects: [],
+    isStunned: false
+  },
+  {
+    name: 'Sea Serpent',
+    element: 'water',
+    image: 'sea_serpent.webp',
+    stats: {
+      strength: 60,
+      agility: 85,
+      intelligence: 50,
+      defense: 45,
+      magic: 75
+    },
+    abilities: [ABILITIES.POISON_BITE, ABILITIES.TIDAL_WAVE],
+    currentHealth: 320,
+    maxHealth: 320,
+    immunities: ['poisoned'],
+    statusEffects: [],
+    isStunned: false
+  },
+  {
+    name: 'Tide Priestess',
+    element: 'water',
+    image: 'tide_priestess.webp',
+    stats: {
+      strength: 40,
+      agility: 60,
+      intelligence: 85,
+      defense: 50,
+      magic: 90
+    },
+    abilities: [ABILITIES.HEAL, ABILITIES.TIDAL_WAVE],
+    currentHealth: 300,
+    maxHealth: 300,
+    immunities: ['frozen'],
+    statusEffects: [],
+    isStunned: false
+  },
+  // --- Lightning creatures ---
+  {
+    name: 'Thunder Mage',
+    element: 'lightning',
+    image: 'thunder_mage.webp',
+    stats: {
+      strength: 45,
+      agility: 60,
+      intelligence: 90,
+      defense: 45,
+      magic: 95
+    },
+    abilities: [ABILITIES.CHAIN_LIGHTNING, ABILITIES.STUN],
+    currentHealth: 300,
+    maxHealth: 300,
+    statusEffects: [],
+    isStunned: false
+  },
+  {
+    name: 'Storm Elemental',
+    element: 'lightning',
+    image: 'storm_elemental.webp',
+    stats: {
+      strength: 60,
+      agility: 85,
+      intelligence: 75,
+      defense: 50,
+      magic: 80
+    },
+    abilities: [ABILITIES.THUNDER_STRIKE, ABILITIES.GUST_OF_WIND],
+    currentHealth: 330,
+    maxHealth: 330,
+    immunities: ['stun'],
+    statusEffects: [],
+    isStunned: false
+  },
+  // --- Air creatures ---
+  {
+    name: 'Storm Griffin',
+    element: 'air',
+    image: 'storm_griffin.webp',
+    stats: {
+      strength: 75,
+      agility: 85,
+      intelligence: 55,
+      defense: 60,
+      magic: 50
+    },
+    abilities: [ABILITIES.PRECISION_SHOT, ABILITIES.FLY],
+    currentHealth: 350,
+    maxHealth: 350,
+    statusEffects: [],
+    isStunned: false
+  },
+  {
+    name: 'Wind Dancer',
+    element: 'air',
+    image: 'wind_dancer.webp',
+    stats: {
+      strength: 45,
+      agility: 95,
+      intelligence: 70,
+      defense: 35,
+      magic: 65
+    },
+    abilities: [ABILITIES.EVASION, ABILITIES.GUST_OF_WIND],
+    currentHealth: 270,
+    maxHealth: 270,
+    statusEffects: [],
+    isStunned: false
+  },
+  // --- Nature creatures ---
+  {
+    name: 'Treant',
+    element: 'nature',
+    image: 'treant.webp',
+    stats: {
+      strength: 75,
+      agility: 30,
+      intelligence: 60,
+      defense: 85,
+      magic: 70
+    },
+    abilities: [ABILITIES.SHIELD_WALL, ABILITIES.REGENERATE],
+    currentHealth: 440,
+    maxHealth: 440,
+    immunities: ['bleeding'],
+    statusEffects: [],
+    isStunned: false
+  },
+  {
+    name: 'Druid',
+    element: 'nature',
+    image: 'druid.webp',
+    stats: {
+      strength: 45,
+      agility: 55,
+      intelligence: 85,
+      defense: 55,
+      magic: 85
+    },
+    abilities: [ABILITIES.HEAL, ABILITIES.NATURES_WRATH],
+    currentHealth: 310,
+    maxHealth: 310,
+    immunities: ['poisoned'],
+    statusEffects: [],
+    isStunned: false
+  },
+  // --- Light creature ---
+  {
+    name: 'Paladin',
+    element: 'light',
+    image: 'paladin.webp',
+    stats: {
+      strength: 75,
+      agility: 55,
+      intelligence: 70,
+      defense: 80,
+      magic: 65
+    },
+    abilities: [ABILITIES.FORTIFY, ABILITIES.LIGHT_BEAM],
+    currentHealth: 400,
+    maxHealth: 400,
+    statusEffects: [],
+    isStunned: false
+  },
+  // --- Fire creature ---
+  {
+    name: 'Salamander',
+    element: 'fire',
+    image: 'salamander.webp',
+    stats: {
+      strength: 70,
+      agility: 80,
+      intelligence: 45,
+      defense: 50,
+      magic: 60
+    },
+    abilities: [ABILITIES.FIRE_BREATH, ABILITIES.BURN],
+    currentHealth: 290,
+    maxHealth: 290,
+    immunities: ['burning'],
+    statusEffects: [],
+    isStunned: false
+  },
 ];
 
 
