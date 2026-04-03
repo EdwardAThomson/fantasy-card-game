@@ -89,11 +89,12 @@ describe('ability interactions', () => {
     jest
       .spyOn(Math, 'random')
       .mockReturnValueOnce(0) // attack roll
-      .mockReturnValueOnce(0.75); // ability selection
+      .mockReturnValueOnce(0.3) // ability trigger check (< 0.5 to pass)
+      .mockReturnValueOnce(0.75); // ability selection (index 1 = HEAL)
 
     combatRound(attacker, defender, 'Melee', logFn);
 
-    expect(attacker.currentHealth).toBe(90);
+    expect(attacker.currentHealth).toBe(100);
     expect(defender.currentHealth).toBe(50);
     expect(
       logFn.mock.calls.some(call => call[0].toLowerCase().includes('heal'))
