@@ -478,6 +478,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isCombatLogOpen, setIsCombatLogOpen] = useState(false);
+  const [dyingCards, setDyingCards] = useState([]);
 
   // variables used in combat
   const [round, setRound] = useState(1); // Track the number of rounds
@@ -695,26 +697,36 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       setAbilityUsed(null);
     }, 2000);
 
-    // Remove cards on zero HP
+    // Remove cards on zero HP (with death animation)
+    const deadCards = [];
     if (player1SelectedCard.currentHealth <= 0) {
-      // Clear damage events immediately for defeated card
       setPlayer1DamageEvents([]);
-      setPlayer1Hand(prevHand =>
-        prevHand.filter(card => card.name !== player1SelectedCard.name)
-      );
+      deadCards.push(player1SelectedCard.name);
+      addLog(`${player1SelectedCard.name} (Player 1) has been killed.`);
+      setTimeout(() => {
+        setPlayer1Hand(prevHand =>
+          prevHand.filter(card => card.name !== player1SelectedCard.name)
+        );
+        setDyingCards(prev => prev.filter(n => n !== player1SelectedCard.name));
+      }, 600);
       setPlayer1SelectedCard(null);
       setPlayer1Choice('');
-      addLog(`${player1SelectedCard.name} (Player 1) has been killed.`);
     }
     if (player2SelectedCard.currentHealth <= 0) {
-      // Clear damage events immediately for defeated card
       setPlayer2DamageEvents([]);
-      setPlayer2Hand(prevHand =>
-        prevHand.filter(card => card.name !== player2SelectedCard.name)
-      );
+      deadCards.push(player2SelectedCard.name);
+      addLog(`${player2SelectedCard.name} (Player 2) has been killed.`);
+      setTimeout(() => {
+        setPlayer2Hand(prevHand =>
+          prevHand.filter(card => card.name !== player2SelectedCard.name)
+        );
+        setDyingCards(prev => prev.filter(n => n !== player2SelectedCard.name));
+      }, 600);
       setPlayer2SelectedCard(null);
       setPlayer2Choice('');
-      addLog(`${player2SelectedCard.name} (Player 2) has been killed.`);
+    }
+    if (deadCards.length > 0) {
+      setDyingCards(prev => [...prev, ...deadCards]);
     }
 
     setRound(prev => prev + 1);
@@ -798,6 +810,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     creature={card}
                     onCardSelect={() => handlePlayer1CardSelect(card)}
                     isSelected={player1SelectedCard === card}
+                    isDying={dyingCards.includes(card.name)}
                     side="p1"
                     damageEvents={player1DamageEvents}
                     abilityUsed={abilityUsed}
@@ -844,6 +857,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
                     creature={card}
                     onCardSelect={() => handlePlayer2CardSelect(card)}
                     isSelected={player2SelectedCard === card}
+                    isDying={dyingCards.includes(card.name)}
                     disabled={singlePlayer}
                     side="p2"
                     damageEvents={player2DamageEvents}
@@ -891,12 +905,19 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
         </div>
       </div>
 
-      <div className="combat-log">
+      <div className={`combat-log${isCombatLogOpen ? ' open' : ''}`}>
         <h3>Combat Log</h3>
         {logMessages.map((msg, idx) => (
           <p key={idx}>{msg}</p>
         ))}
       </div>
+      <button
+        className="combat-log-toggle"
+        onClick={() => setIsCombatLogOpen(!isCombatLogOpen)}
+        title="Toggle combat log"
+      >
+        {isCombatLogOpen ? '✕' : '📜'}
+      </button>
     </div>
 
     <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>

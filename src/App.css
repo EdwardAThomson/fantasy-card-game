@@ -159,8 +159,9 @@ h1, h2, h3 {
 }
 
 .game-container {
-  flex: 1 1 980px; /* Flex-grow, flex-shrink, flex-basis */
+  flex: 1 1 auto;
   max-width: 1000px;
+  min-width: 0;
 }
 
 .game-main {
@@ -437,10 +438,12 @@ input[type="radio"]:checked + label {
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
+  gap: 16px;
 }
 
 .deck-display {
-  width: 45%;
+  flex: 1 1 45%;
+  min-width: 0;
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 10px;
@@ -468,15 +471,34 @@ input[type="radio"]:checked + label {
 }
 
 .combat-log {
-  flex: 0 0 300px; /* Don't grow, don't shrink, start at 300px */
+  flex: 0 0 300px;
   max-height: 85vh;
   overflow-y: auto;
   background-color: #f3f3f3;
   padding: 10px;
   text-align: left;
   border: 1px solid #ccc;
-  align-self: flex-start; /* Align to the top of the flex container */
+  align-self: flex-start;
 }
+
+/* Toggle button for combat log on smaller screens */
+.combat-log-toggle {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 1001;
+}
+.combat-log-toggle:hover { background-color: #2980b9; }
 
 /* Improve contrast for combat log on light background */
 .combat-log, .combat-log h3, .combat-log p { margin: 0 0 6px; font-size: 0.95rem; color: #0f172a; }
@@ -524,6 +546,31 @@ input[type="radio"]:checked + label {
   min-height: 1em; /* Ensures even empty paragraphs create space */
 }
 
+@media (max-width: 1200px) {
+  .combat-log {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    max-height: 100vh;
+    z-index: 1000;
+    border: none;
+    border-left: 1px solid #ccc;
+    box-shadow: -4px 0 12px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+  }
+  .combat-log.open {
+    display: block;
+  }
+  .combat-log-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .player-area {
     flex-direction: column;
@@ -533,6 +580,11 @@ input[type="radio"]:checked + label {
     flex-direction: row;
   }
 
+  .btn-choice {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
   .card {
     width: 180px;
   }
@@ -540,21 +592,54 @@ input[type="radio"]:checked + label {
     width: 180px !important;
     max-height: 180px;
   }
+
+  .player-decks-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .deck-display {
+    flex: 1 1 auto;
+    width: 90%;
+  }
+
+  .home-button,
+  .help-button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+  }
+  .home-button {
+    top: 10px;
+    left: 10px;
+  }
+  .help-button {
+    top: 60px;
+    left: 10px;
+  }
+
+  .app-wrapper {
+    padding: 10px;
+    gap: 10px;
+  }
 }
 
 @media (max-width: 480px) {
   .card {
-    width: 140px;
+    width: 28vw;
+    min-width: 100px;
   }
   .creature-image {
-    width: 140px !important;
-    max-height: 140px;
+    width: 100% !important;
+    max-height: 28vw;
   }
-}
-
-@media (max-width: 1200px) {
-  .combat-log {
-    display: none;
+  .card h2 {
+    font-size: 0.9em;
+  }
+  .card ul {
+    font-size: 0.75em;
+  }
+  .player-hand {
+    gap: 6px;
   }
 }
 
@@ -853,6 +938,18 @@ h1 {
   z-index: 1001;
   animation: abilityPop 2s ease-out forwards;
   text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+/* Card death animation */
+.card.dying {
+  animation: cardDeath 0.6s ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes cardDeath {
+  0% { opacity: 1; transform: scale(1); filter: grayscale(0); }
+  40% { opacity: 0.8; transform: scale(1.02); filter: grayscale(0.5); }
+  100% { opacity: 0; transform: scale(0.7) translateY(20px); filter: grayscale(1); }
 }
 
 @keyframes abilityPop {
