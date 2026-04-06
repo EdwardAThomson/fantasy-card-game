@@ -3,7 +3,7 @@ import {
   applyStatusEffect,
   applyDoT,
   processDoTDamage,
-} from '../Game';
+} from '../gameEngine';
 import creatures, { ABILITIES } from '../creatures';
 
 const cloneCreature = (name) => {

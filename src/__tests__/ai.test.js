@@ -39,10 +39,10 @@ test('AI selects highest stat card and style', async () => {
   );
 
   fireEvent.click(screen.getByText('Hero'));
-  fireEvent.click(screen.getAllByText('Melee')[0]);
+  fireEvent.click(screen.getAllByText(/Melee/)[0]);
 
   await waitFor(() => {
-    const aiMagicBtn = screen.getAllByText('Magic')[1].closest('button');
+    const aiMagicBtn = screen.getAllByText(/Magic/)[1].closest('button');
     expect(aiMagicBtn.classList.contains('selected')).toBe(true);
     const mageCard = screen.getByText('Mage').closest('.card');
     expect(mageCard.classList.contains('selected')).toBe(true);
@@ -74,10 +74,10 @@ test('AI does not act in two player mode', async () => {
   render(<Game player1Deck={player1Deck} player2Deck={player2Deck} />);
 
   fireEvent.click(screen.getByText('Hero'));
-  fireEvent.click(screen.getAllByText('Melee')[0]);
+  fireEvent.click(screen.getAllByText(/Melee/)[0]);
 
   await waitFor(() => {
-    const aiMagicBtn = screen.getAllByText('Magic')[1].closest('button');
+    const aiMagicBtn = screen.getAllByText(/Magic/)[1].closest('button');
     expect(aiMagicBtn.classList.contains('selected')).toBe(false);
     const fightBtn = screen.getByText(/Fight/i);
     expect(fightBtn.disabled).toBe(true);

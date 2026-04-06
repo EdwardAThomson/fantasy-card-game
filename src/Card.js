@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import FlyingText from './FlyingText';
 import AbilityIcon from './AbilityIcon';
 
-function Card({ creature, onCardSelect, isSelected, disabled, side, damageEvents = [], abilityUsed = null }) {
+function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, damageEvents = [], abilityUsed = null }) {
   const [displayHealth, setDisplayHealth] = useState(creature.currentHealth);
   const [activeDamageTexts, setActiveDamageTexts] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -67,10 +67,11 @@ function Card({ creature, onCardSelect, isSelected, disabled, side, damageEvents
     if (side === 'p1') classes.push('card-p1');
     if (side === 'p2') classes.push('card-p2');
     if (isShaking) classes.push('shake');
-    
+    if (isDying) classes.push('dying');
+
     // Add buff/debuff glow effects
     if (creature.statusEffects && creature.statusEffects.length > 0) {
-      const hasDebuff = creature.statusEffects.some(e => ['burning', 'poisoned', 'cursed', 'frozen', 'bleeding'].includes(e));
+      const hasDebuff = creature.statusEffects.some(e => ['burning', 'poisoned', 'cursed', 'frozen', 'bleeding', 'constricted'].includes(e));
       const hasBuff = creature.statusEffects.some(e => ['blessed', 'shielded'].includes(e));
       if (hasDebuff) classes.push('debuffed');
       if (hasBuff) classes.push('buffed');
