@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import FlyingText from './FlyingText';
 import AbilityIcon from './AbilityIcon';
+import { ELEMENTS } from './constants';
 
 function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, damageEvents = [], abilityUsed = null }) {
   const [displayHealth, setDisplayHealth] = useState(creature.currentHealth);
@@ -84,6 +85,7 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
     <div
       className={getCardClasses()}
       onClick={disabled ? undefined : onCardSelect}
+      style={{ '--element-color': ELEMENTS[creature.element]?.color }}
     >
       <div className="health-bar">
         <div
@@ -95,6 +97,14 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
         </span>
       </div>
       <div className="card-title-row">
+        {creature.element && ELEMENTS[creature.element] && (
+          <div className="element-badge" tabIndex={0} aria-label={`${creature.element} element`}>
+            <span>{ELEMENTS[creature.element].icon}</span>
+            <span className="element-badge-tooltip">
+              {creature.element.charAt(0).toUpperCase() + creature.element.slice(1)}
+            </span>
+          </div>
+        )}
         <h2>{creature.name}</h2>
         {(Array.isArray(creature.immunities) && creature.immunities.length > 0) || (creature.resistances && Object.keys(creature.resistances).length > 0) ? (
           <div className="defense-tooltip" aria-label="Defensive traits" role="button" tabIndex={0}>

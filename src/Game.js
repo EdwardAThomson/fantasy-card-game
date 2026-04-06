@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import creatures from './creatures';
 import Card from './Card';
 import Modal from './Modal';
+import CombatLog from './CombatLog';
 import Tabs from './Tabs';
-import { DECK_SIZE } from './constants';
+import { DECK_SIZE, eName } from './constants';
 import {
   getRandomUniqueCards,
   handleCombatRound,
@@ -47,8 +48,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   // Store ability usage for icon animations
   const [abilityUsed, setAbilityUsed] = useState(null);
 
-  const addLog = (message) => {
-    setLogMessages(prev => [...prev, message]);
+  const addLog = (message, type = 'info', style = null) => {
+    setLogMessages(prev => [...prev, { text: message, type, style }]);
   };
 
   // Modal state
@@ -118,11 +119,11 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     if (player1Hand.length === 0) {
       setModalMessage('Player 2 is the winner!');
       setIsModalOpen(true);
-      addLog('Player 2 is the winner!');
+      addLog('Player 2 is the winner!', 'victory');
     } else if (player2Hand.length === 0) {
       setModalMessage('Player 1 is the winner!');
       setIsModalOpen(true);
-      addLog('Player 1 is the winner!');
+      addLog('Player 1 is the winner!', 'victory');
     }
   }, [player1Hand, player2Hand]);  // This will trigger when player1Hand or player2Hand changes
 
@@ -130,7 +131,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
   // - Call combat functions
   // - Victory conditions (for a combat round) check
   const Fight = () => {
-    addLog(`-------- Round ${round} --------`);
+    addLog(`Round ${round}`, 'round-header');
 
     const logDefensiveProfile = (card, sideLabel) => {
       if (!card) return;
@@ -144,7 +145,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
           })
         : [];
       const resistances = resistanceEntries.length > 0 ? resistanceEntries.join(', ') : 'none';
-      addLog(`${sideLabel} ${card.name} defenses → Immunities: ${immunities}; Resistances: ${resistances}`);
+      addLog(`${sideLabel} ${card.name} defenses → Immunities: ${immunities}; Resistances: ${resistances}`, 'info');
     };
 
     logDefensiveProfile(player1SelectedCard, 'Player 1');
@@ -184,10 +185,10 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     const wasPlayer2Stunned = player2SelectedCard && player2SelectedCard.isStunned;
     
     if (wasPlayer1Stunned) {
-      addLog(`${player1SelectedCard.name} is recovering from stun...`);
+      addLog(`${player1SelectedCard.name} is recovering from stun...`, 'status');
     }
     if (wasPlayer2Stunned) {
-      addLog(`${player2SelectedCard.name} is recovering from stun...`);
+      addLog(`${player2SelectedCard.name} is recovering from stun...`, 'status');
     }
     
     // Clear status effects at the start of each round (they last one round)
@@ -218,7 +219,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       const winnerPlayer = outcome.winner === player1SelectedCard ? 'Player 1' : 'Player 2';
       setModalMessage(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
       setIsModalOpen(true);
-      addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
+      addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`, 'victory');
     }
     
     const p1DamageEvents = [];
@@ -266,7 +267,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     if (player1SelectedCard.currentHealth <= 0) {
       setPlayer1DamageEvents([]);
       deadCards.push(player1SelectedCard.name);
-      addLog(`${player1SelectedCard.name} (Player 1) has been killed.`);
+      addLog(`${player1SelectedCard.name} (Player 1) has been killed.`, 'death');
       setTimeout(() => {
         setPlayer1Hand(prevHand =>
           prevHand.filter(card => card.name !== player1SelectedCard.name)
@@ -279,7 +280,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     if (player2SelectedCard.currentHealth <= 0) {
       setPlayer2DamageEvents([]);
       deadCards.push(player2SelectedCard.name);
-      addLog(`${player2SelectedCard.name} (Player 2) has been killed.`);
+      addLog(`${player2SelectedCard.name} (Player 2) has been killed.`, 'death');
       setTimeout(() => {
         setPlayer2Hand(prevHand =>
           prevHand.filter(card => card.name !== player2SelectedCard.name)
@@ -383,6 +384,40 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
               </div>
             </div>
 
+            {/* Fight button */}
+            <div className="fight-cta">
+              <button
+                className={`btn btn-primary btn-lg ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
+                style={fightTint ? { '--choice': fightTint } : undefined}
+                onClick={Fight}
+                disabled={!isCombatReady}
+                aria-label="Start combat"
+              >
+                ⚔️ Fight!
+              </button>
+              <button
+                className="btn btn-ghost"
+                type="button"
+                onClick={resetSelections}
+                aria-label="Reset selections"
+              >
+                Reset selections
+              </button>
+            </div>
+
+            {/* New Game / Reset, only after game ends */}
+            {isGameOver && (
+              <div className="fight-cta" style={{ marginTop: 16 }}>
+                <button
+                  className="btn btn-primary btn-lg"
+                  onClick={resetGame}
+                  aria-label="Start a new game"
+                >
+                  🔁 New Game
+                </button>
+              </div>
+            )}
+
             {/* Player 2 Area */}
             <div className="player-area">
               <div className="player-info">
@@ -432,56 +467,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
             </div>
           </div>
 
-          {/* Fight button */}
-          <div className="fight-cta">
-            <button
-              className={`btn btn-primary btn-lg ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
-              style={fightTint ? { '--choice': fightTint } : undefined}
-              onClick={Fight}
-              disabled={!isCombatReady}
-              aria-label="Start combat"
-            >
-              ⚔️ Fight!
-            </button>
-            <button
-              className="btn btn-ghost"
-              type="button"
-              onClick={resetSelections}
-              aria-label="Reset selections"
-            >
-              Reset selections
-            </button>
-          </div>
-
-          {/* New Game / Reset, only after game ends */}
-          {isGameOver && (
-            <div className="fight-cta" style={{ marginTop: 16 }}>
-              <button
-                className="btn btn-primary btn-lg"
-                onClick={resetGame}
-                aria-label="Start a new game"
-              >
-                🔁 New Game
-              </button>
-            </div>
-          )}
-
         </div>
       </div>
 
-      <div className={`combat-log${isCombatLogOpen ? ' open' : ''}`}>
-        <h3>Combat Log</h3>
-        {logMessages.map((msg, idx) => (
-          <p key={idx}>{msg}</p>
-        ))}
-      </div>
-      <button
-        className="combat-log-toggle"
-        onClick={() => setIsCombatLogOpen(!isCombatLogOpen)}
-        title="Toggle combat log"
-      >
-        {isCombatLogOpen ? '✕' : '📜'}
-      </button>
+      <CombatLog
+        messages={logMessages}
+        isOpen={isCombatLogOpen}
+        onToggle={() => setIsCombatLogOpen(!isCombatLogOpen)}
+      />
     </div>
 
     <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -492,7 +485,6 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       <Tabs>
         <div label="Game Flow">
           <p><strong>Objective:</strong> Defeat all of your opponent's creatures to win the game!</p>
-          <br/>
           <h4>Game Flow:</h4>
           <ol>
               <li>Each player is dealt a hand of three unique creature cards.</li>
@@ -505,8 +497,9 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
               <li><strong>Combat Phase:</strong>
                   <ul>
                       <li>Once both players have made their selections, click the "Fight!" button.</li>
-                      <li>Creatures attack one by one, with the faster creature (based on Agility and Intelligence) striking first.</li>
-                      <li>Damage is calculated based on your chosen combat style vs. the opponent's defense.</li>
+                      <li>DoT damage is applied at the start of the round, before combat.</li>
+                      <li>Initiative determines attack order (based on Agility and Intelligence).</li>
+                      <li>The faster creature attacks first, then the slower one retaliates (if still alive).</li>
                       <li>A creature is defeated and removed from the game when its HP reaches 0.</li>
                   </ul>
               </li>
@@ -520,44 +513,49 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
               <li><strong>Ranged (🏹):</strong> Based on the creature's <strong>Agility</strong> stat.</li>
               <li><strong>Magic (🪄):</strong> Based on the creature's <strong>Magic</strong> stat.</li>
           </ul>
-          <br/>
+          <h4>Damage Formula:</h4>
+          <p>Base Attack = Combat Stat + Random(0–20), minus half of opponent's Defense.</p>
           <h4>Initiative:</h4>
-          <p>The creature with the higher initiative attacks first. Initiative is calculated based on a creature's Agility and Intelligence stats.</p>
+          <p>The creature with the higher initiative attacks first. Initiative is calculated from 40% Agility + 60% Intelligence, plus a random roll.</p>
         </div>
         <div label="Abilities">
           <h4>Abilities:</h4>
           <p>Creatures have a 50% chance to use a special ability during combat. Abilities can deal extra damage, heal, provide defense, or apply status effects.</p>
           <ul>
-              <li><strong>Damage Abilities:</strong> Deal bonus damage (e.g., Fire Breath, Berserk, Backstab).</li>
-              <li><strong>Heal Abilities:</strong> Restore health to the creature (e.g., Heal, Rally).</li>
-              <li><strong>Defense Abilities:</strong> Reduce incoming damage (e.g., Shield Wall, Evasion).</li>
-              <li><strong>Stun:</strong> Causes the opponent to skip their next turn (e.g., Stun, Constrict).</li>
+              <li><strong>Damage:</strong> Deal bonus damage (e.g., Fire Breath, Berserk, Backstab, Thunder Strike, Nature's Wrath).</li>
+              <li><strong>Heal:</strong> Restore health (e.g., Heal, Rally, Regenerate). Regenerate also heals over time.</li>
+              <li><strong>Defense:</strong> Reduce incoming damage (e.g., Shield Wall, Fortify, Evasion, Camouflage).</li>
+              <li><strong>Stun:</strong> Causes the opponent to skip their next turn (e.g., Stun, Constrict, Entangle).</li>
           </ul>
-          <br/>
-          <h4>Status Effects:</h4>
-          <p>Status effects appear as colored badges on creature cards and last for one round.</p>
+          <h4>Immunities &amp; Resistances:</h4>
+          <p>Many creatures have immunities that make them completely immune to certain status effects (e.g., a Fire creature immune to Burning). Some creatures also have resistances that reduce the effectiveness of specific effects.</p>
+        </div>
+        <div label="Status Effects">
+          <h4>Damage Over Time (DoT):</h4>
+          <p>DoT effects deal damage at the start of each round, before combat. Multiple DoTs can stack.</p>
           <ul>
-              <li><strong>🔥 Burning:</strong> Takes 5 damage per round for 2 rounds (Fire Breath, Burn).</li>
-              <li><strong>☠️ Poisoned:</strong> Takes 4 damage per round for 3 rounds (Poison Bite).</li>
-              <li><strong>🩸 Bleeding:</strong> Takes 3 damage per round for 3 rounds (Backstab).</li>
-              <li><strong>❄️ Frozen:</strong> Stuns the target for 1 round and deals 2 damage per round for 2 rounds (Water Blast, Tidal Wave).</li>
-              <li><strong>🦑 Constricted:</strong> Takes 3 damage per round for 2 rounds (Crushing Grip).</li>
-              <li><strong>✨ Blessed:</strong> Indicates a buff is active (Heal, Shield Wall).</li>
-              <li><strong>🌙 Cursed:</strong> Dark magic effect (Curse, Soul Reap).</li>
+              <li><strong>🔥 Burning:</strong> 5 damage/round for 2 rounds (Fire Breath, Burn).</li>
+              <li><strong>☠️ Poisoned:</strong> 4 damage/round for 3 rounds (Poison Bite, Nature's Wrath, Entangle).</li>
+              <li><strong>🩸 Bleeding:</strong> 3 damage/round for 3 rounds (Backstab).</li>
+              <li><strong>❄️ Frozen:</strong> Stuns for 1 round + 2 damage/round for 2 rounds (Water Blast, Tidal Wave).</li>
+              <li><strong>🦑 Constricted:</strong> 3 damage/round for 2 rounds (Crushing Grip).</li>
+          </ul>
+          <h4>Buffs &amp; Debuffs:</h4>
+          <ul>
+              <li><strong>✨ Blessed:</strong> Reduces incoming damage by 10% (Heal, Shield Wall, Fortify, Regenerate, Rally, Command).</li>
+              <li><strong>🌙 Cursed:</strong> Amplifies incoming damage by 10% (Curse, Soul Reap, Dark Spell, Necrotic Blast).</li>
               <li><strong>⭐ Stunned:</strong> Creature skips its next turn completely.</li>
           </ul>
-          <br/>
-          <h4>Damage Over Time (DoT):</h4>
-          <p>Some abilities apply DoT effects that deal damage at the start of each round. DoT damage is applied before combat begins and is shown in the combat log.</p>
         </div>
-        <div label="Visual Effects">
+        <div label="Visual Guide">
           <h4>Visual Feedback:</h4>
           <ul>
-              <li><strong>Flying Numbers:</strong> Damage and healing amounts fly up from cards.</li>
-              <li><strong>Ability Icons:</strong> Emoji icons pop up when abilities are used (🔥💚⚡🗡️ etc).</li>
-              <li><strong>Status Badges:</strong> Colored badges show active status effects in the center of cards.</li>
-              <li><strong>Card Glow:</strong> Cards glow green when buffed, red when debuffed.</li>
+              <li><strong>Flying Numbers:</strong> Damage (red) and healing (green) amounts fly up from cards.</li>
+              <li><strong>Ability Icons:</strong> Emoji icons pop up when abilities trigger (🔥💚⚡🗡️ etc).</li>
+              <li><strong>Status Badges:</strong> Colored badges show active status effects on cards.</li>
+              <li><strong>Card Glow:</strong> Green when Blessed, red when Cursed.</li>
               <li><strong>Shake Animation:</strong> Cards shake when taking damage.</li>
+              <li><strong>Combat Log:</strong> Detailed text log of all combat actions, scrollable history.</li>
           </ul>
         </div>
       </Tabs>

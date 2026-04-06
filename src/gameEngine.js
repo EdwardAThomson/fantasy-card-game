@@ -1,4 +1,5 @@
 import { ABILITIES } from './creatures';
+import { eName } from './constants';
 
 // Ability configuration — maps ability IDs to their effects
 export const abilityEffects = {
@@ -99,14 +100,14 @@ export function applyStatusEffect(target, statusEffect, logFn) {
   if (!statusEffect) return;
   if (hasImmunity(target, statusEffect)) {
     const effectName = statusEffect.charAt(0).toUpperCase() + statusEffect.slice(1);
-    logFn(`${target.name} shrugs off ${effectName}!`);
+    logFn(`${target.name} shrugs off ${effectName}!`, 'status');
     return;
   }
   if (!target.statusEffects) target.statusEffects = [];
   if (!target.statusEffects.includes(statusEffect)) {
     target.statusEffects.push(statusEffect);
     const effectName = statusEffect.charAt(0).toUpperCase() + statusEffect.slice(1);
-    logFn(`${target.name} is now ${effectName}!`);
+    logFn(`${target.name} is now ${effectName}!`, 'status');
   }
 }
 
@@ -114,7 +115,7 @@ export function applyDoT(target, dotConfig, statusEffect, logFn) {
   if (!dotConfig) return;
   if (statusEffect && hasImmunity(target, statusEffect)) {
     const effectName = statusEffect.charAt(0).toUpperCase() + statusEffect.slice(1);
-    logFn(`${target.name} is immune to ${effectName}! Ongoing effect fails.`);
+    logFn(`${target.name} is immune to ${effectName}! Ongoing effect fails.`, 'status');
     return;
   }
   if (!target.dotEffects) target.dotEffects = [];
@@ -136,7 +137,7 @@ export function processDoTDamage(card, logFn) {
     const effectType = dot.type;
     if (effectType && hasImmunity(card, effectType)) {
       const effectName = effectType.charAt(0).toUpperCase() + effectType.slice(1);
-      logFn(`${card.name} is immune to ${effectName}! The effect fades.`);
+      logFn(`${card.name} is immune to ${effectName}! The effect fades.`, 'status');
       return;
     }
 
@@ -146,10 +147,10 @@ export function processDoTDamage(card, logFn) {
       appliedDamage = Math.max(0, Math.round(dot.damage * resistance));
       if (appliedDamage === 0) {
         const effectName = effectType ? effectType.charAt(0).toUpperCase() + effectType.slice(1) : 'effect';
-        logFn(`${card.name} completely resists ${effectName}!`);
+        logFn(`${card.name} completely resists ${effectName}!`, 'status');
       } else if (resistance < 1) {
         const effectName = effectType ? effectType.charAt(0).toUpperCase() + effectType.slice(1) : 'effect';
-        logFn(`${card.name} resists some of ${effectName}, taking ${appliedDamage} damage.`);
+        logFn(`${card.name} resists some of ${effectName}, taking ${appliedDamage} damage.`, 'status');
       }
     }
 
@@ -165,12 +166,12 @@ export function processDoTDamage(card, logFn) {
 
   if (totalDotDamage > 0) {
     card.currentHealth -= totalDotDamage;
-    logFn(`${card.name} takes ${totalDotDamage} damage from ongoing effects!`);
+    logFn(`${card.name} takes ${totalDotDamage} damage from ongoing effects!`, 'damage');
   } else if (totalDotDamage < 0) {
     const healAmount = Math.min(-totalDotDamage, card.maxHealth - card.currentHealth);
     card.currentHealth += healAmount;
     if (healAmount > 0) {
-      logFn(`${card.name} regenerates ${healAmount} health!`);
+      logFn(`${card.name} regenerates ${healAmount} health!`, 'heal');
     }
   }
 
@@ -183,13 +184,13 @@ export function resolveAbility(attacker, defender, ability, damage, logFn) {
   if (!ability) return { damage, heal: 0, abilityUsed: null };
   const effect = abilityEffects[ability];
   if (!effect) {
-    logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
+    logFn(`${attacker.name} uses ${formatAbility(ability)}!`, 'ability');
     return { damage, heal: 0, abilityUsed: ability };
   }
 
   switch (effect.type) {
     case 'damage':
-      logFn(`${attacker.name} uses ${formatAbility(ability)} (+${effect.value} damage)!`);
+      logFn(`${attacker.name} uses ${formatAbility(ability)} (+${effect.value} damage)!`, 'ability');
       if (effect.statusEffect) {
         applyStatusEffect(defender, effect.statusEffect, logFn);
       }
@@ -200,27 +201,27 @@ export function resolveAbility(attacker, defender, ability, damage, logFn) {
         if (!hasImmunity(defender, 'stun')) {
           const resistance = getResistanceMultiplier(defender, 'stun');
           if (resistance < 1 && Math.random() > resistance) {
-            logFn(`${defender.name} resists being frozen in place!`);
+            logFn(`${defender.name} resists being frozen in place!`, 'status');
           } else {
             defender.isStunned = true;
-            logFn(`${defender.name} is frozen solid and cannot act next round!`);
+            logFn(`${defender.name} is frozen solid and cannot act next round!`, 'status');
           }
         } else {
-          logFn(`${defender.name} is immune to being frozen in place!`);
+          logFn(`${defender.name} is immune to being frozen in place!`, 'status');
         }
       }
       return { damage: damage + effect.value, heal: 0, abilityUsed: ability };
     case 'heal': {
       const healAmount = effect.value;
       attacker.currentHealth = Math.min(attacker.maxHealth, attacker.currentHealth + healAmount);
-      logFn(`${attacker.name} uses ${formatAbility(ability)} and restores ${healAmount} HP!`);
+      logFn(`${attacker.name} uses ${formatAbility(ability)} and restores ${healAmount} HP!`, 'ability');
       if (effect.statusEffect) {
         applyStatusEffect(attacker, effect.statusEffect, logFn);
       }
       return { damage, heal: healAmount, abilityUsed: ability };
     }
     case 'defense':
-      logFn(`${attacker.name} uses ${formatAbility(ability)} (-${effect.value} damage)!`);
+      logFn(`${attacker.name} uses ${formatAbility(ability)} (-${effect.value} damage)!`, 'ability');
       if (effect.statusEffect) {
         applyStatusEffect(attacker, effect.statusEffect, logFn);
       }
@@ -228,24 +229,24 @@ export function resolveAbility(attacker, defender, ability, damage, logFn) {
     case 'stun': {
       const effectName = 'stun';
       if (hasImmunity(defender, effectName)) {
-        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is immune to stun.`);
+        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is immune to stun.`, 'ability');
         return { damage, heal: 0, abilityUsed: ability };
       }
       const resistance = getResistanceMultiplier(defender, effectName);
       if (resistance < 1) {
         if (Math.random() > resistance) {
-          logFn(`${attacker.name} tries ${formatAbility(ability)}, but ${defender.name} resists the stun!`);
+          logFn(`${attacker.name} tries ${formatAbility(ability)}, but ${defender.name} resists the stun!`, 'ability');
           return { damage, heal: 0, abilityUsed: ability };
         }
-        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name}'s resistance falters.`);
+        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name}'s resistance falters.`, 'ability');
       } else {
-        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`);
+        logFn(`${attacker.name} uses ${formatAbility(ability)}! ${defender.name} is stunned.`, 'ability');
       }
       defender.isStunned = true;
       return { damage, heal: 0, abilityUsed: ability };
     }
     default:
-      logFn(`${attacker.name} uses ${formatAbility(ability)}!`);
+      logFn(`${attacker.name} uses ${formatAbility(ability)}!`, 'ability');
       return { damage, heal: 0, abilityUsed: ability };
   }
 }
@@ -254,7 +255,7 @@ export function resolveAbility(attacker, defender, ability, damage, logFn) {
 
 export function combatRound(attacker, defender, combatChoice, logFn) {
   if (attacker.isStunned) {
-    logFn(`${attacker.name} is stunned and cannot act!`);
+    logFn(`${attacker.name} is stunned and cannot act!`, 'status');
     return {
       player1Health: attacker.currentHealth,
       player2Health: defender.currentHealth,
@@ -284,14 +285,14 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
   heal = abilityResult.heal;
   const abilityUsed = abilityResult.abilityUsed;
 
-  logFn(`Attacker: ${attacker.name} (${combatChoice})`);
-  logFn(`Attack value: ${playerAttack}`);
+  logFn(`Attacker: ${attacker.name} (${combatChoice})`, 'info');
+  logFn(`Attack value: ${playerAttack}`, 'info');
   if (defenseMod > 0) {
-    logFn(`Defense modifier: -${defenseMod}`);
+    logFn(`Defense modifier: -${defenseMod}`, 'info');
   }
   const damageType = abilityResult?.abilityUsed ? abilityEffects[abilityResult.abilityUsed]?.statusEffect : null;
   if (damageType && hasImmunity(defender, damageType)) {
-    logFn(`${defender.name} is immune to ${damageType}! Damage is negated.`);
+    logFn(`${defender.name} is immune to ${damageType}! Damage is negated.`, 'status');
     damage = 0;
   }
 
@@ -299,32 +300,32 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
   if (resistance < 1 && damage > 0) {
     const reduced = Math.max(0, Math.round(damage * resistance));
     if (reduced < damage) {
-      logFn(`${defender.name} resists some of the ${damageType || 'attack'}, taking ${reduced} damage.`);
+      logFn(`${defender.name} resists some of the ${damageType || 'attack'}, taking ${reduced} damage.`, 'status');
       damage = reduced;
     }
   }
 
   if (damage > 0 && defender.statusEffects?.includes('blessed')) {
     const reduced = Math.round(damage * 0.9);
-    logFn(`${defender.name}'s blessing absorbs ${damage - reduced} damage!`);
+    logFn(`${defender.name}'s blessing absorbs ${damage - reduced} damage!`, 'status');
     damage = reduced;
   }
 
   if (damage > 0 && defender.statusEffects?.includes('cursed')) {
     const increased = Math.round(damage * 1.1);
-    logFn(`${defender.name}'s curse amplifies the damage by ${increased - damage}!`);
+    logFn(`${defender.name}'s curse amplifies the damage by ${increased - damage}!`, 'status');
     damage = increased;
   }
 
-  logFn(`Damage dealt: ${damage}`);
+  logFn(`Damage dealt: ${damage}`, 'damage', combatChoice);
 
   const actualDamage = Math.min(damage, defender.currentHealth);
   defender.currentHealth -= damage;
 
   const player1Health = attacker.currentHealth;
   const player2Health = defender.currentHealth;
-  logFn(`${attacker.name} HP: ${player1Health}`);
-  logFn(`${defender.name} HP: ${player2Health}`);
+  logFn(`${attacker.name} HP: ${player1Health}`, 'info');
+  logFn(`${defender.name} HP: ${player2Health}`, 'info');
 
   return {
     player1Health,
@@ -354,13 +355,13 @@ export const victoryCheck = (player1card, player2card) => {
 // --- Full combat round (initiative + both attacks) ---
 
 export const handleCombatRound = (player1card, player2card, player1Choice, player2Choice, logFn) => {
-  logFn('Starting combat round');
+  logFn('Starting combat round', 'info');
 
   const player1Initiative = player1card.stats.agility * 0.4 + player1card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21);
   const player2Initiative = player2card.stats.agility * 0.4 + player2card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21);
 
-  logFn(`${player1card.name} initiative: ${player1Initiative}`);
-  logFn(`${player2card.name} initiative: ${player2Initiative}`);
+  logFn(`${player1card.name} initiative: ${player1Initiative}`, 'info');
+  logFn(`${player2card.name} initiative: ${player2Initiative}`, 'info');
 
   let firstAttacker, secondAttacker;
   let firstChoice, secondChoice;
@@ -378,12 +379,12 @@ export const handleCombatRound = (player1card, player2card, player1Choice, playe
   }
 
   const firstAttackerPlayer = firstAttacker === player1card ? 'Player 1' : 'Player 2';
-  logFn(`${firstAttacker.name} (${firstAttackerPlayer}) goes first`);
-  logFn(' ');
+  logFn(`${firstAttacker.name} (${firstAttackerPlayer}) goes first`, 'info');
+  logFn(' ', 'separator');
 
   let outcome1 = combatRound(firstAttacker, secondAttacker, firstChoice, logFn);
 
-  logFn(' ');
+  logFn(' ', 'separator');
 
   const result1 = victoryCheck(player1card, player2card);
   if (result1.haveWinner) {
@@ -400,8 +401,8 @@ export const handleCombatRound = (player1card, player2card, player1Choice, playe
   }
 
   let outcome2 = combatRound(secondAttacker, firstAttacker, secondChoice, logFn);
-  logFn('');
-  logFn('');
+  logFn('', 'separator');
+  logFn('', 'separator');
 
   const result2 = victoryCheck(player1card, player2card);
   if (result2.haveWinner) {

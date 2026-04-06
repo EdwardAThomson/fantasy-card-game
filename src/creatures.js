@@ -63,7 +63,7 @@ const creatures = [
   },
   {
     name: 'Orc',
-    element: 'earth',
+    element: 'dark',
     image: 'orc.webp',
     stats: {
       strength: 85,
@@ -80,7 +80,7 @@ const creatures = [
   },
   {
     name: 'Wizard',
-    element: 'dark',
+    element: 'air',
     image: 'wizard.webp',
     stats: {
       strength: 50,
@@ -97,7 +97,7 @@ const creatures = [
   },
   {
     name: 'Elf Archer',
-    element: 'air',
+    element: 'nature',
     image: 'elf_archer.webp',
     stats: {
       strength: 60,
@@ -204,7 +204,7 @@ const creatures = [
   },
   {
     name: 'Sorceress',
-    element: 'dark',
+    element: 'lightning',
     image: 'sorceress.webp',
     stats: {
       strength: 55,
@@ -292,7 +292,7 @@ const creatures = [
   },
   {
     name: 'Giant Spider',
-    element: 'nature',
+    element: 'dark',
     image: 'giant_spider.webp',
     stats: {
       strength: 78,

@@ -167,7 +167,6 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
         <Tabs>
           <div label="Game Flow">
             <p><strong>Objective:</strong> Defeat all of your opponent's creatures to win the game!</p>
-            <br/>
             <h4>Game Flow:</h4>
             <ol>
                 <li>Each player is dealt a hand of three unique creature cards.</li>
@@ -180,8 +179,9 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
                 <li><strong>Combat Phase:</strong>
                     <ul>
                         <li>Once both players have made their selections, click the "Fight!" button.</li>
-                        <li>Creatures attack one by one, with the faster creature (based on Agility and Intelligence) striking first.</li>
-                        <li>Damage is calculated based on your chosen combat style vs. the opponent's defense.</li>
+                        <li>DoT damage is applied at the start of the round, before combat.</li>
+                        <li>Initiative determines attack order (based on Agility and Intelligence).</li>
+                        <li>The faster creature attacks first, then the slower one retaliates (if still alive).</li>
                         <li>A creature is defeated and removed from the game when its HP reaches 0.</li>
                     </ul>
                 </li>
@@ -195,22 +195,38 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
                 <li><strong>Ranged (🏹):</strong> Based on the creature's <strong>Agility</strong> stat.</li>
                 <li><strong>Magic (🪄):</strong> Based on the creature's <strong>Magic</strong> stat.</li>
             </ul>
-            <br/>
+            <h4>Damage Formula:</h4>
+            <p>Base Attack = Combat Stat + Random(0–20), minus half of opponent's Defense.</p>
             <h4>Initiative:</h4>
-            <p>The creature with the higher initiative attacks first. Initiative is calculated based on a creature's Agility and Intelligence stats.</p>
+            <p>The creature with the higher initiative attacks first. Initiative is calculated from 40% Agility + 60% Intelligence, plus a random roll.</p>
           </div>
           <div label="Abilities">
             <h4>Abilities:</h4>
-            <p>Creatures have a chance to use a special ability during combat. These can be powerful attacks, healing spells, or other effects.</p>
+            <p>Creatures have a 50% chance to use a special ability during combat. Abilities can deal extra damage, heal, provide defense, or apply status effects.</p>
             <ul>
-                <li><strong>Heal:</strong> Restores health to the creature.</li>
-                <li><strong>Stun:</strong> Causes the opponent to skip their next turn.</li>
-                <li><strong>Berserk:</strong> Increases the creature's attack power.</li>
+                <li><strong>Damage:</strong> Deal bonus damage (e.g., Fire Breath, Berserk, Backstab, Thunder Strike, Nature's Wrath).</li>
+                <li><strong>Heal:</strong> Restore health (e.g., Heal, Rally, Regenerate). Regenerate also heals over time.</li>
+                <li><strong>Defense:</strong> Reduce incoming damage (e.g., Shield Wall, Fortify, Evasion, Camouflage).</li>
+                <li><strong>Stun:</strong> Causes the opponent to skip their next turn (e.g., Stun, Constrict, Entangle).</li>
             </ul>
-            <br/>
-            <h4>Status Effects:</h4>
+            <h4>Immunities &amp; Resistances:</h4>
+            <p>Many creatures have immunities that make them completely immune to certain status effects. Some also have resistances that reduce their effectiveness.</p>
+          </div>
+          <div label="Status Effects">
+            <h4>Damage Over Time (DoT):</h4>
+            <p>DoT effects deal damage at the start of each round, before combat. Multiple DoTs can stack.</p>
             <ul>
-                <li><strong>Stunned:</strong> A stunned creature will skip its next turn.</li>
+                <li><strong>🔥 Burning:</strong> 5 damage/round for 2 rounds.</li>
+                <li><strong>☠️ Poisoned:</strong> 4 damage/round for 3 rounds.</li>
+                <li><strong>🩸 Bleeding:</strong> 3 damage/round for 3 rounds.</li>
+                <li><strong>❄️ Frozen:</strong> Stuns + 2 damage/round for 2 rounds.</li>
+                <li><strong>🦑 Constricted:</strong> 3 damage/round for 2 rounds.</li>
+            </ul>
+            <h4>Buffs &amp; Debuffs:</h4>
+            <ul>
+                <li><strong>✨ Blessed:</strong> Reduces incoming damage by 10%.</li>
+                <li><strong>🌙 Cursed:</strong> Amplifies incoming damage by 10%.</li>
+                <li><strong>⭐ Stunned:</strong> Creature skips its next turn completely.</li>
             </ul>
           </div>
         </Tabs>

@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,17 +18,18 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--surface-2, #1f2937);
   padding: 30px 40px;
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   position: relative;
   text-align: center;
   max-width: 700px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
-  color: #111827;
+  color: var(--text, #e5e7eb);
   animation: modalContentIn 0.3s ease-out;
 }
 
@@ -39,8 +40,40 @@
 
 .modal-content h1,
 .modal-content h2,
-.modal-content h3 { color: #111827; }
-.modal-content p { color: #374151; }
+.modal-content h3,
+.modal-content h4 {
+  color: var(--accent, #d4af37);
+}
+
+.modal-content h2 {
+  margin-bottom: 1rem;
+}
+
+.modal-content h4 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-content p {
+  color: var(--text, #e5e7eb);
+  line-height: 1.7;
+  margin-bottom: 0.75rem;
+}
+
+.modal-content ul,
+.modal-content ol {
+  text-align: left;
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+}
+
+.modal-content li {
+  margin-bottom: 0.4rem;
+}
+
+.modal-content strong {
+  color: #f3f4f6;
+}
 
 .modal-close {
   position: absolute;
@@ -50,9 +83,9 @@
   border: none;
   font-size: 2rem;
   cursor: pointer;
-  color: #aaa;
+  color: var(--muted, #9ca3af);
 }
 
 .modal-close:hover {
-    color: #111827;
+  color: var(--text, #e5e7eb);
 }

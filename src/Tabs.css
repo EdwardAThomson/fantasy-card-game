@@ -3,7 +3,7 @@
   padding: 0;
   margin: 0;
   display: flex;
-  border-bottom: 2px solid #ccc;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .tabs li {
@@ -11,6 +11,12 @@
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
+  color: var(--muted, #9ca3af);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tabs li:hover {
+  color: var(--text, #e5e7eb);
 }
 
 .tabs li.active {
@@ -20,9 +26,10 @@
 
 .tab-content {
   padding: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-top: none;
   position: relative;
+  text-align: left;
 }
 
 .tab-pane {
