@@ -4,7 +4,7 @@ import Card from './Card';
 import Modal from './Modal';
 import CombatLog from './CombatLog';
 import Tabs from './Tabs';
-import { DECK_SIZE, eName } from './constants';
+import { DECK_SIZE } from './constants';
 import {
   getRandomUniqueCards,
   handleCombatRound,

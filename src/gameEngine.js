@@ -1,5 +1,4 @@
 import { ABILITIES } from './creatures';
-import { eName } from './constants';
 
 // Ability configuration — maps ability IDs to their effects
 export const abilityEffects = {
