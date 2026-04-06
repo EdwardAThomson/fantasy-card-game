@@ -71,7 +71,7 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
 
     // Add buff/debuff glow effects
     if (creature.statusEffects && creature.statusEffects.length > 0) {
-      const hasDebuff = creature.statusEffects.some(e => ['burning', 'poisoned', 'cursed', 'frozen', 'bleeding'].includes(e));
+      const hasDebuff = creature.statusEffects.some(e => ['burning', 'poisoned', 'cursed', 'frozen', 'bleeding', 'constricted'].includes(e));
       const hasBuff = creature.statusEffects.some(e => ['blessed', 'shielded'].includes(e));
       if (hasDebuff) classes.push('debuffed');
       if (hasBuff) classes.push('buffed');

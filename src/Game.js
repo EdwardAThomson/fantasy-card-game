@@ -531,7 +531,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
               <li><strong>Damage Abilities:</strong> Deal bonus damage (e.g., Fire Breath, Berserk, Backstab).</li>
               <li><strong>Heal Abilities:</strong> Restore health to the creature (e.g., Heal, Rally).</li>
               <li><strong>Defense Abilities:</strong> Reduce incoming damage (e.g., Shield Wall, Evasion).</li>
-              <li><strong>Stun:</strong> Causes the opponent to skip their next turn.</li>
+              <li><strong>Stun:</strong> Causes the opponent to skip their next turn (e.g., Stun, Constrict).</li>
           </ul>
           <br/>
           <h4>Status Effects:</h4>
@@ -540,7 +540,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
               <li><strong>🔥 Burning:</strong> Takes 5 damage per round for 2 rounds (Fire Breath, Burn).</li>
               <li><strong>☠️ Poisoned:</strong> Takes 4 damage per round for 3 rounds (Poison Bite).</li>
               <li><strong>🩸 Bleeding:</strong> Takes 3 damage per round for 3 rounds (Backstab).</li>
-              <li><strong>❄️ Frozen:</strong> Visual effect from ice attacks (Water Blast).</li>
+              <li><strong>❄️ Frozen:</strong> Stuns the target for 1 round and deals 2 damage per round for 2 rounds (Water Blast, Tidal Wave).</li>
+              <li><strong>🦑 Constricted:</strong> Takes 3 damage per round for 2 rounds (Crushing Grip).</li>
               <li><strong>✨ Blessed:</strong> Indicates a buff is active (Heal, Shield Wall).</li>
               <li><strong>🌙 Cursed:</strong> Dark magic effect (Curse, Soul Reap).</li>
               <li><strong>⭐ Stunned:</strong> Creature skips its next turn completely.</li>

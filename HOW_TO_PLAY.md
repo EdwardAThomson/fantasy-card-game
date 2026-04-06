@@ -166,9 +166,15 @@ Status effects appear as colored badges on creature cards and provide visual fee
 
 #### ❄️ Frozen
 
-- **Effect**: Visual indicator only
-- **Applied by**: Water Blast
+- **Effect**: Stuns the target for 1 round and deals 2 damage per round for 2 rounds
+- **Applied by**: Water Blast, Tidal Wave
 - **Visual**: Icy blue crystalline badge
+
+#### 🦑 Constricted
+
+- **Effect**: 3 damage per round for 2 rounds
+- **Applied by**: Crushing Grip
+- **Visual**: Dark purple-blue squeezing badge
 
 #### ✨ Blessed
 
@@ -417,7 +423,8 @@ Each creature has the following stats:
 - 🔥 **Burning**: 5 dmg/round × 2 rounds
 - ☠️ **Poisoned**: 4 dmg/round × 3 rounds
 - 🩸 **Bleeding**: 3 dmg/round × 3 rounds
-- ❄️ **Frozen**: Visual only
+- ❄️ **Frozen**: Stun + 2 dmg/round × 2 rounds
+- 🦑 **Constricted**: 3 dmg/round × 2 rounds
 - ✨ **Blessed**: Buff indicator
 - 🌙 **Cursed**: Debuff indicator
 - ⭐ **Stunned**: Skip next turn

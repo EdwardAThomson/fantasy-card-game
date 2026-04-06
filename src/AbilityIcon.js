@@ -49,6 +49,7 @@ function AbilityIcon({ ability, onComplete }) {
     rock_throw: '🪨',
     gust_of_wind: '🌪️',
     constrict: '🐙',
+    crushing_grip: '🦑',
     tidal_wave: '🌊',
     thunder_strike: '⛈️',
     chain_lightning: '⚡',

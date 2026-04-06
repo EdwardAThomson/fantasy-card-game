@@ -29,18 +29,20 @@ export const abilityEffects = {
   [ABILITIES.COMMAND]: { type: 'defense', value: 5, statusEffect: 'blessed' },
   [ABILITIES.RALLY]: { type: 'heal', value: 10, statusEffect: 'blessed' },
   [ABILITIES.RANGED_ATTACK]: { type: 'damage', value: 10 },
-  [ABILITIES.CAMOUFLAGE]: { type: 'defense', value: 5 },
+  [ABILITIES.CAMOUFLAGE]: { type: 'defense', value: 8 },
   [ABILITIES.BURN]: { type: 'damage', value: 10, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
-  [ABILITIES.WATER_BLAST]: { type: 'damage', value: 10, statusEffect: 'frozen' },
+  [ABILITIES.WATER_BLAST]: { type: 'damage', value: 10, statusEffect: 'frozen', stuns: true, dot: { damage: 2, duration: 2 } },
   [ABILITIES.ROCK_THROW]: { type: 'damage', value: 10 },
   [ABILITIES.GUST_OF_WIND]: { type: 'damage', value: 10 },
-  [ABILITIES.CONSTRICT]: { type: 'damage', value: 8 },
-  [ABILITIES.TIDAL_WAVE]: { type: 'damage', value: 10, statusEffect: 'frozen' },
+  [ABILITIES.CONSTRICT]: { type: 'stun', value: 0 },
+  [ABILITIES.CRUSHING_GRIP]: { type: 'damage', value: 10, statusEffect: 'constricted', dot: { damage: 3, duration: 2 } },
+  [ABILITIES.TIDAL_WAVE]: { type: 'damage', value: 10, statusEffect: 'frozen', stuns: true, dot: { damage: 2, duration: 2 } },
   [ABILITIES.THUNDER_STRIKE]: { type: 'damage', value: 12 },
   [ABILITIES.CHAIN_LIGHTNING]: { type: 'damage', value: 8 },
-  [ABILITIES.REGENERATE]: { type: 'heal', value: 20, statusEffect: 'blessed' },
-  [ABILITIES.NATURES_WRATH]: { type: 'damage', value: 10, statusEffect: 'poisoned', dot: { damage: 4, duration: 3 } },
+  [ABILITIES.REGENERATE]: { type: 'heal', value: 25, statusEffect: 'blessed', dot: { damage: -5, duration: 3 } },
+  [ABILITIES.NATURES_WRATH]: { type: 'damage', value: 12, statusEffect: 'poisoned', dot: { damage: 5, duration: 3 } },
   [ABILITIES.FORTIFY]: { type: 'defense', value: 12, statusEffect: 'blessed' },
+  [ABILITIES.ENTANGLE]: { type: 'stun', value: 0, statusEffect: 'poisoned', dot: { damage: 3, duration: 3 } },
 };
 
 // --- Utility functions ---
@@ -140,7 +142,7 @@ export function processDoTDamage(card, logFn) {
 
     const resistance = effectType ? getResistanceMultiplier(card, effectType) : 1;
     let appliedDamage = dot.damage;
-    if (resistance !== 1) {
+    if (resistance !== 1 && appliedDamage > 0) {
       appliedDamage = Math.max(0, Math.round(dot.damage * resistance));
       if (appliedDamage === 0) {
         const effectName = effectType ? effectType.charAt(0).toUpperCase() + effectType.slice(1) : 'effect';
@@ -164,6 +166,12 @@ export function processDoTDamage(card, logFn) {
   if (totalDotDamage > 0) {
     card.currentHealth -= totalDotDamage;
     logFn(`${card.name} takes ${totalDotDamage} damage from ongoing effects!`);
+  } else if (totalDotDamage < 0) {
+    const healAmount = Math.min(-totalDotDamage, card.maxHealth - card.currentHealth);
+    card.currentHealth += healAmount;
+    if (healAmount > 0) {
+      logFn(`${card.name} regenerates ${healAmount} health!`);
+    }
   }
 
   return totalDotDamage;
@@ -187,6 +195,19 @@ export function resolveAbility(attacker, defender, ability, damage, logFn) {
       }
       if (effect.dot) {
         applyDoT(defender, effect.dot, effect.statusEffect, logFn);
+      }
+      if (effect.stuns) {
+        if (!hasImmunity(defender, 'stun')) {
+          const resistance = getResistanceMultiplier(defender, 'stun');
+          if (resistance < 1 && Math.random() > resistance) {
+            logFn(`${defender.name} resists being frozen in place!`);
+          } else {
+            defender.isStunned = true;
+            logFn(`${defender.name} is frozen solid and cannot act next round!`);
+          }
+        } else {
+          logFn(`${defender.name} is immune to being frozen in place!`);
+        }
       }
       return { damage: damage + effect.value, heal: 0, abilityUsed: ability };
     case 'heal': {
@@ -281,6 +302,18 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
       logFn(`${defender.name} resists some of the ${damageType || 'attack'}, taking ${reduced} damage.`);
       damage = reduced;
     }
+  }
+
+  if (damage > 0 && defender.statusEffects?.includes('blessed')) {
+    const reduced = Math.round(damage * 0.9);
+    logFn(`${defender.name}'s blessing absorbs ${damage - reduced} damage!`);
+    damage = reduced;
+  }
+
+  if (damage > 0 && defender.statusEffects?.includes('cursed')) {
+    const increased = Math.round(damage * 1.1);
+    logFn(`${defender.name}'s curse amplifies the damage by ${increased - damage}!`);
+    damage = increased;
   }
 
   logFn(`Damage dealt: ${damage}`);
