@@ -11,6 +11,20 @@ export const ELEMENTS = {
   dark:      { icon: '\uD83C\uDF11', color: '#a855f7' },
 };
 
+export const ELEMENT_ADVANTAGES = {
+  fire:      ['nature', 'air'],
+  water:     ['fire', 'lightning'],
+  nature:    ['water', 'earth'],
+  earth:     ['lightning', 'fire'],
+  air:       ['earth', 'nature'],
+  lightning: ['water', 'air'],
+  light:     ['dark', 'fire'],
+  dark:      ['lightning', 'nature'],
+};
+
+export const ADVANTAGE_MULTIPLIER = 1.15;
+export const DISADVANTAGE_MULTIPLIER = 0.85;
+
 export const eName = (creature) => {
   const el = ELEMENTS[creature?.element];
   return el ? `${el.icon} ${creature.name}` : creature?.name || '';

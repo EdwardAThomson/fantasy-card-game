@@ -40,6 +40,18 @@ export const ABILITIES = {
   FORTIFY: 'fortify',
   CRUSHING_GRIP: 'crushing_grip',
   ENTANGLE: 'entangle',
+  LIFESTEAL: 'lifesteal',
+  MORTAL_STRIKE: 'mortal_strike',
+  AMBUSH: 'ambush',
+  OVERCHARGE: 'overcharge',
+  SIPHON: 'siphon',
+  MARKED_SHOT: 'marked_shot',
+  DOUBLE_SHOT: 'double_shot',
+  FLAME_SURGE: 'flame_surge',
+  DIVEBOMB: 'divebomb',
+  HOLY_SMITE: 'holy_smite',
+  SCREECH: 'screech',
+  ENSNARE: 'ensnare',
 };
 
 const creatures = [
@@ -89,7 +101,7 @@ const creatures = [
       defense: 45,
       magic: 95
     },
-    abilities: [ABILITIES.CAST_SPELL, ABILITIES.TELEPORT],
+    abilities: [ABILITIES.CAST_SPELL, ABILITIES.SIPHON],
     currentHealth: 300,
     maxHealth: 300,
     statusEffects: [],
@@ -103,10 +115,10 @@ const creatures = [
       strength: 60,
       agility: 90,
       intelligence: 70,
-      defense: 50,
+      defense: 60,
       magic: 60
     },
-    abilities: [ABILITIES.PRECISION_SHOT, ABILITIES.EVASION],
+    abilities: [ABILITIES.PRECISION_SHOT, ABILITIES.DOUBLE_SHOT],
     currentHealth: 280,
     maxHealth: 280,
     statusEffects: [],
@@ -159,7 +171,7 @@ const creatures = [
       defense: 80,
       magic: 30
     },
-    abilities: [ABILITIES.BERSERK],
+    abilities: [ABILITIES.BERSERK, ABILITIES.ROCK_THROW],
     currentHealth: 420,
     maxHealth: 420,
     immunities: ['bleeding'],
@@ -281,10 +293,10 @@ const creatures = [
       strength: 65,
       agility: 95,
       intelligence: 60,
-      defense: 40,
+      defense: 50,
       magic: 50
     },
-    abilities: [ABILITIES.BACKSTAB, ABILITIES.SHADOW_STEP],
+    abilities: [ABILITIES.BACKSTAB, ABILITIES.AMBUSH],
     currentHealth: 250,
     maxHealth: 250,
     statusEffects: [],
@@ -298,7 +310,7 @@ const creatures = [
       strength: 78,
       agility: 80,
       intelligence: 35,
-      defense: 65,
+      defense: 75,
       magic: 30
     },
     abilities: [ABILITIES.POISON_BITE, ABILITIES.ENTANGLE],
@@ -316,12 +328,12 @@ const creatures = [
       strength: 100,
       agility: 80,
       intelligence: 85,
-      defense: 90,
-      magic: 110
+      defense: 80,
+      magic: 100
     },
     abilities: [ABILITIES.FIRE_BREATH, ABILITIES.FLY],
-    currentHealth: 550,
-    maxHealth: 550,
+    currentHealth: 500,
+    maxHealth: 500,
     statusEffects: [],
     isStunned: false
   },
@@ -369,12 +381,12 @@ const creatures = [
       strength: 70,
       agility: 75,
       intelligence: 65,
-      defense: 60,
+      defense: 70,
       magic: 50
     },
-    abilities: [ABILITIES.SPEAR_THRUST, ABILITIES.SHIELD_WALL],
-    currentHealth: 300,
-    maxHealth: 300,
+    abilities: [ABILITIES.HOLY_SMITE, ABILITIES.LIFESTEAL],
+    currentHealth: 340,
+    maxHealth: 340,
     statusEffects: [],
     isStunned: false
   },
@@ -383,15 +395,15 @@ const creatures = [
     element: 'earth',
     image: 'noble_lord.webp',
     stats: {
-      strength: 80,
+      strength: 88,
       agility: 55,
-      intelligence: 75,
-      defense: 70,
+      intelligence: 82,
+      defense: 78,
       magic: 65
     },
-    abilities: [ABILITIES.COMMAND, ABILITIES.RALLY],
-    currentHealth: 330,
-    maxHealth: 330,
+    abilities: [ABILITIES.MORTAL_STRIKE, ABILITIES.RALLY],
+    currentHealth: 370,
+    maxHealth: 370,
     statusEffects: [],
     isStunned: false
   },
@@ -403,12 +415,12 @@ const creatures = [
       strength: 65,
       agility: 80,
       intelligence: 60,
-      defense: 55,
+      defense: 65,
       magic: 45
     },
-    abilities: [ABILITIES.RANGED_ATTACK, ABILITIES.CAMOUFLAGE],
-    currentHealth: 290,
-    maxHealth: 290,
+    abilities: [ABILITIES.MARKED_SHOT, ABILITIES.AMBUSH],
+    currentHealth: 340,
+    maxHealth: 340,
     statusEffects: [],
     isStunned: false
   },
@@ -475,7 +487,7 @@ const creatures = [
       strength: 50,
       agility: 95,
       intelligence: 75,
-      defense: 40,
+      defense: 50,
       magic: 80
     },
     abilities: [ABILITIES.GUST_OF_WIND, ABILITIES.STUN],
@@ -492,12 +504,12 @@ const creatures = [
     image: 'lightning_elemental.webp',
     stats: {
       strength: 65,
-      agility: 90,
+      agility: 85,
       intelligence: 80,
       defense: 45,
-      magic: 85
+      magic: 90
     },
-    abilities: [ABILITIES.STUN],
+    abilities: [ABILITIES.STUN, ABILITIES.CHAIN_LIGHTNING],
     currentHealth: 310,
     maxHealth: 310,
     statusEffects: [],
@@ -531,7 +543,7 @@ const creatures = [
       strength: 60,
       agility: 85,
       intelligence: 50,
-      defense: 45,
+      defense: 55,
       magic: 75
     },
     abilities: [ABILITIES.POISON_BITE, ABILITIES.TIDAL_WAVE],
@@ -585,7 +597,7 @@ const creatures = [
       strength: 60,
       agility: 85,
       intelligence: 75,
-      defense: 50,
+      defense: 60,
       magic: 80
     },
     abilities: [ABILITIES.THUNDER_STRIKE, ABILITIES.GUST_OF_WIND],
@@ -604,10 +616,10 @@ const creatures = [
       strength: 75,
       agility: 85,
       intelligence: 55,
-      defense: 60,
+      defense: 70,
       magic: 50
     },
-    abilities: [ABILITIES.PRECISION_SHOT, ABILITIES.FLY],
+    abilities: [ABILITIES.PRECISION_SHOT, ABILITIES.AMBUSH],
     currentHealth: 350,
     maxHealth: 350,
     statusEffects: [],
@@ -621,12 +633,12 @@ const creatures = [
       strength: 45,
       agility: 95,
       intelligence: 70,
-      defense: 35,
+      defense: 45,
       magic: 65
     },
-    abilities: [ABILITIES.EVASION, ABILITIES.GUST_OF_WIND],
-    currentHealth: 270,
-    maxHealth: 270,
+    abilities: [ABILITIES.SIPHON, ABILITIES.EVASION],
+    currentHealth: 325,
+    maxHealth: 325,
     statusEffects: [],
     isStunned: false
   },
@@ -679,7 +691,7 @@ const creatures = [
       defense: 80,
       magic: 65
     },
-    abilities: [ABILITIES.FORTIFY, ABILITIES.LIGHT_BEAM],
+    abilities: [ABILITIES.LIFESTEAL, ABILITIES.LIGHT_BEAM],
     currentHealth: 400,
     maxHealth: 400,
     statusEffects: [],
@@ -694,12 +706,12 @@ const creatures = [
       strength: 70,
       agility: 80,
       intelligence: 45,
-      defense: 50,
+      defense: 60,
       magic: 60
     },
-    abilities: [ABILITIES.FIRE_BREATH, ABILITIES.BURN],
-    currentHealth: 290,
-    maxHealth: 290,
+    abilities: [ABILITIES.FLAME_SURGE, ABILITIES.SIPHON],
+    currentHealth: 330,
+    maxHealth: 330,
     immunities: ['burning'],
     statusEffects: [],
     isStunned: false
@@ -716,7 +728,7 @@ const creatures = [
       defense: 40,
       magic: 90
     },
-    abilities: [ABILITIES.EVASION, ABILITIES.CAST_SPELL],
+    abilities: [ABILITIES.CAST_SPELL, ABILITIES.SCREECH],
     currentHealth: 280,
     maxHealth: 280,
     statusEffects: [],
@@ -734,9 +746,9 @@ const creatures = [
       defense: 25,
       magic: 95
     },
-    abilities: [ABILITIES.TELEPORT, ABILITIES.THUNDER_STRIKE],
-    currentHealth: 220,
-    maxHealth: 220,
+    abilities: [ABILITIES.OVERCHARGE, ABILITIES.THUNDER_STRIKE],
+    currentHealth: 270,
+    maxHealth: 270,
     immunities: ['stun'],
     statusEffects: [],
     isStunned: false
@@ -752,7 +764,7 @@ const creatures = [
       defense: 75,
       magic: 70
     },
-    abilities: [ABILITIES.FLY, ABILITIES.CHAIN_LIGHTNING],
+    abilities: [ABILITIES.DIVEBOMB, ABILITIES.CHAIN_LIGHTNING],
     currentHealth: 400,
     maxHealth: 400,
     statusEffects: [],
@@ -766,10 +778,10 @@ const creatures = [
       strength: 70,
       agility: 75,
       intelligence: 55,
-      defense: 55,
+      defense: 65,
       magic: 70
     },
-    abilities: [ABILITIES.CONSTRICT, ABILITIES.CHAIN_LIGHTNING],
+    abilities: [ABILITIES.CONSTRICT, ABILITIES.SIPHON],
     currentHealth: 310,
     maxHealth: 310,
     statusEffects: [],
@@ -824,9 +836,9 @@ const creatures = [
       defense: 40,
       magic: 85
     },
-    abilities: [ABILITIES.HEAL, ABILITIES.GUST_OF_WIND],
-    currentHealth: 260,
-    maxHealth: 260,
+    abilities: [ABILITIES.HEAL, ABILITIES.SIPHON],
+    currentHealth: 310,
+    maxHealth: 310,
     statusEffects: [],
     isStunned: false
   },
@@ -838,10 +850,10 @@ const creatures = [
       strength: 65,
       agility: 90,
       intelligence: 45,
-      defense: 40,
+      defense: 50,
       magic: 50
     },
-    abilities: [ABILITIES.POISON_BITE, ABILITIES.FLY],
+    abilities: [ABILITIES.SCREECH, ABILITIES.FLY],
     currentHealth: 280,
     maxHealth: 280,
     statusEffects: [],
@@ -877,7 +889,7 @@ const creatures = [
       defense: 55,
       magic: 25
     },
-    abilities: [ABILITIES.BERSERK, ABILITIES.CAMOUFLAGE],
+    abilities: [ABILITIES.BERSERK, ABILITIES.LIFESTEAL],
     currentHealth: 340,
     maxHealth: 340,
     statusEffects: [],

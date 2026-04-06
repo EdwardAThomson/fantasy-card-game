@@ -20,6 +20,9 @@
 
 temp
 
+# simulation results
+scripts/results/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

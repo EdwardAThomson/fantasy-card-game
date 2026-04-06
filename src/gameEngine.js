@@ -1,49 +1,79 @@
 import { ABILITIES } from './creatures';
+import { ELEMENT_ADVANTAGES, ADVANTAGE_MULTIPLIER, DISADVANTAGE_MULTIPLIER } from './constants';
 
 // Ability configuration — maps ability IDs to their effects
 export const abilityEffects = {
-  [ABILITIES.FIRE_BREATH]: { type: 'damage', value: 10, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
-  [ABILITIES.HEAL]: { type: 'heal', value: 30, statusEffect: 'blessed' },
-  [ABILITIES.BERSERK]: { type: 'damage', value: 15 },
-  [ABILITIES.SHIELD_WALL]: { type: 'defense', value: 15, statusEffect: 'blessed' },
+  // Damage — with DoT/status
+  [ABILITIES.FIRE_BREATH]: { type: 'damage', value: 15, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
+  [ABILITIES.BURN]: { type: 'damage', value: 15, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
+  [ABILITIES.POISON_BITE]: { type: 'damage', value: 15, statusEffect: 'poisoned', dot: { damage: 4, duration: 3 } },
+  [ABILITIES.WATER_BLAST]: { type: 'damage', value: 15, statusEffect: 'frozen', stuns: true, dot: { damage: 2, duration: 2 } },
+  [ABILITIES.TIDAL_WAVE]: { type: 'damage', value: 15, statusEffect: 'frozen', stuns: true, dot: { damage: 2, duration: 2 } },
+  [ABILITIES.CRUSHING_GRIP]: { type: 'damage', value: 15, statusEffect: 'constricted', dot: { damage: 3, duration: 2 } },
+  [ABILITIES.SOUL_REAP]: { type: 'damage', value: 15, statusEffect: 'cursed' },
+  [ABILITIES.DARK_SPELL]: { type: 'damage', value: 15, statusEffect: 'cursed' },
+  [ABILITIES.NECROTIC_BLAST]: { type: 'damage', value: 15, statusEffect: 'cursed' },
+  [ABILITIES.DARK_BLAST]: { type: 'damage', value: 15, statusEffect: 'cursed' },
+  [ABILITIES.LIGHT_BEAM]: { type: 'damage', value: 15, statusEffect: 'blessed' },
+  [ABILITIES.NATURES_WRATH]: { type: 'damage', value: 18, statusEffect: 'poisoned', dot: { damage: 5, duration: 3 } },
+  [ABILITIES.BACKSTAB]: { type: 'damage', value: 25, statusEffect: 'bleeding', dot: { damage: 3, duration: 3 } },
+  // Damage — pure
+  [ABILITIES.MANA_BOLT]: { type: 'damage', value: 20 },
+  [ABILITIES.PRECISION_SHOT]: { type: 'damage', value: 20 },
+  [ABILITIES.SPEAR_THRUST]: { type: 'damage', value: 20 },
+  [ABILITIES.RANGED_ATTACK]: { type: 'damage', value: 20 },
+  [ABILITIES.ROCK_THROW]: { type: 'damage', value: 20 },
+  [ABILITIES.GUST_OF_WIND]: { type: 'damage', value: 20 },
+  [ABILITIES.CHAIN_LIGHTNING]: { type: 'damage', value: 18 },
+  [ABILITIES.THUNDER_STRIKE]: { type: 'damage', value: 22 },
+  [ABILITIES.CURSE]: { type: 'damage', value: 10, statusEffect: 'cursed' },
+  // Damage — heavy hitters
+  [ABILITIES.BERSERK]: { type: 'damage', value: 25 },
+  [ABILITIES.CAST_SPELL]: { type: 'damage', value: 30 },
+  // Damage — new abilities
+  [ABILITIES.LIFESTEAL]: { type: 'damage', value: 15, lifesteal: 0.4 },
+  [ABILITIES.MORTAL_STRIKE]: { type: 'damage', value: 20, statusEffect: 'wounded' },
+  [ABILITIES.AMBUSH]: { type: 'damage', value: 30 },
+  [ABILITIES.OVERCHARGE]: { type: 'damage', value: 40 },
+  [ABILITIES.SIPHON]: { type: 'damage', value: 15, lifesteal: 0.3 },
+  [ABILITIES.MARKED_SHOT]: { type: 'damage', value: 25, statusEffect: 'cursed' },
+  [ABILITIES.DOUBLE_SHOT]: { type: 'damage', value: 30 },
+  [ABILITIES.FLAME_SURGE]: { type: 'damage', value: 25, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
+  [ABILITIES.DIVEBOMB]: { type: 'damage', value: 35 },
+  [ABILITIES.HOLY_SMITE]: { type: 'damage', value: 25, selfBless: true },
+  // Heal
+  [ABILITIES.HEAL]: { type: 'heal', value: 28, statusEffect: 'blessed' },
+  [ABILITIES.REGENERATE]: { type: 'heal', value: 22, statusEffect: 'blessed', dot: { damage: -5, duration: 3 } },
+  [ABILITIES.RAISE_DEAD]: { type: 'heal', value: 20 },
+  [ABILITIES.RALLY]: { type: 'heal', value: 15, statusEffect: 'blessed' },
+  [ABILITIES.SUMMON_UNDEAD]: { type: 'heal', value: 15 },
+  [ABILITIES.SUMMON_MINION]: { type: 'heal', value: 15 },
+  // Defense
+  [ABILITIES.SHIELD_WALL]: { type: 'defense', value: 20, statusEffect: 'blessed' },
+  [ABILITIES.FORTIFY]: { type: 'defense', value: 18, statusEffect: 'blessed' },
+  [ABILITIES.CAMOUFLAGE]: { type: 'defense', value: 15 },
+  [ABILITIES.FLY]: { type: 'defense', value: 12 },
+  [ABILITIES.EVASION]: { type: 'defense', value: 12 },
+  [ABILITIES.TELEPORT]: { type: 'defense', value: 12 },
+  [ABILITIES.SHADOW_STEP]: { type: 'defense', value: 12 },
+  [ABILITIES.COMMAND]: { type: 'defense', value: 12, statusEffect: 'blessed' },
+  [ABILITIES.ENSNARE]: { type: 'defense', value: 10, statusEffect: 'poisoned', dot: { damage: 4, duration: 2 } },
+  // Stun
   [ABILITIES.STUN]: { type: 'stun', value: 0 },
-  [ABILITIES.FLY]: { type: 'defense', value: 5 },
-  [ABILITIES.CAST_SPELL]: { type: 'damage', value: 20 },
-  [ABILITIES.TELEPORT]: { type: 'defense', value: 5 },
-  [ABILITIES.PRECISION_SHOT]: { type: 'damage', value: 10 },
-  [ABILITIES.EVASION]: { type: 'defense', value: 5 },
-  [ABILITIES.SOUL_REAP]: { type: 'damage', value: 10, statusEffect: 'cursed' },
-  [ABILITIES.MANA_BOLT]: { type: 'damage', value: 10 },
-  [ABILITIES.CURSE]: { type: 'damage', value: 5, statusEffect: 'cursed' },
-  [ABILITIES.LIGHT_BEAM]: { type: 'damage', value: 10, statusEffect: 'blessed' },
-  [ABILITIES.SUMMON_UNDEAD]: { type: 'heal', value: 10 },
-  [ABILITIES.DARK_SPELL]: { type: 'damage', value: 10, statusEffect: 'cursed' },
-  [ABILITIES.BACKSTAB]: { type: 'damage', value: 15, statusEffect: 'bleeding', dot: { damage: 3, duration: 3 } },
-  [ABILITIES.SHADOW_STEP]: { type: 'defense', value: 5 },
-  [ABILITIES.POISON_BITE]: { type: 'damage', value: 10, statusEffect: 'poisoned', dot: { damage: 4, duration: 3 } },
-  [ABILITIES.RAISE_DEAD]: { type: 'heal', value: 15 },
-  [ABILITIES.NECROTIC_BLAST]: { type: 'damage', value: 10, statusEffect: 'cursed' },
-  [ABILITIES.DARK_BLAST]: { type: 'damage', value: 10, statusEffect: 'cursed' },
-  [ABILITIES.SUMMON_MINION]: { type: 'heal', value: 10 },
-  [ABILITIES.SPEAR_THRUST]: { type: 'damage', value: 10 },
-  [ABILITIES.COMMAND]: { type: 'defense', value: 5, statusEffect: 'blessed' },
-  [ABILITIES.RALLY]: { type: 'heal', value: 10, statusEffect: 'blessed' },
-  [ABILITIES.RANGED_ATTACK]: { type: 'damage', value: 10 },
-  [ABILITIES.CAMOUFLAGE]: { type: 'defense', value: 8 },
-  [ABILITIES.BURN]: { type: 'damage', value: 10, statusEffect: 'burning', dot: { damage: 5, duration: 2 } },
-  [ABILITIES.WATER_BLAST]: { type: 'damage', value: 10, statusEffect: 'frozen', stuns: true, dot: { damage: 2, duration: 2 } },
-  [ABILITIES.ROCK_THROW]: { type: 'damage', value: 10 },
-  [ABILITIES.GUST_OF_WIND]: { type: 'damage', value: 10 },
   [ABILITIES.CONSTRICT]: { type: 'stun', value: 0 },
-  [ABILITIES.CRUSHING_GRIP]: { type: 'damage', value: 10, statusEffect: 'constricted', dot: { damage: 3, duration: 2 } },
-  [ABILITIES.TIDAL_WAVE]: { type: 'damage', value: 10, statusEffect: 'frozen', stuns: true, dot: { damage: 2, duration: 2 } },
-  [ABILITIES.THUNDER_STRIKE]: { type: 'damage', value: 12 },
-  [ABILITIES.CHAIN_LIGHTNING]: { type: 'damage', value: 8 },
-  [ABILITIES.REGENERATE]: { type: 'heal', value: 25, statusEffect: 'blessed', dot: { damage: -5, duration: 3 } },
-  [ABILITIES.NATURES_WRATH]: { type: 'damage', value: 12, statusEffect: 'poisoned', dot: { damage: 5, duration: 3 } },
-  [ABILITIES.FORTIFY]: { type: 'defense', value: 12, statusEffect: 'blessed' },
   [ABILITIES.ENTANGLE]: { type: 'stun', value: 0, statusEffect: 'poisoned', dot: { damage: 3, duration: 3 } },
+  [ABILITIES.SCREECH]: { type: 'stun', value: 0, statusEffect: 'cursed' },
 };
+
+// --- Element advantage ---
+
+export function getElementMultiplier(attacker, defender) {
+  if (!attacker?.element || !defender?.element) return 1;
+  if (attacker.element === defender.element) return 1;
+  if (ELEMENT_ADVANTAGES[attacker.element]?.includes(defender.element)) return ADVANTAGE_MULTIPLIER;
+  if (ELEMENT_ADVANTAGES[defender.element]?.includes(attacker.element)) return DISADVANTAGE_MULTIPLIER;
+  return 1;
+}
 
 // --- Utility functions ---
 
@@ -270,10 +300,18 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
   const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice) + Math.floor(Math.random() * 21));
   const defenseMod = defender.stats.defense / 2;
   let damage = Math.max(0, playerAttack - defenseMod);
+  const elementMult = getElementMultiplier(attacker, defender);
+  damage = Math.round(damage * elementMult);
+  if (elementMult > 1) {
+    logFn(`${attacker.element} is strong against ${defender.element}! (${Math.round(elementMult * 100)}% damage)`, 'advantage');
+  } else if (elementMult < 1) {
+    logFn(`${attacker.element} is weak against ${defender.element}. (${Math.round(elementMult * 100)}% damage)`, 'disadvantage');
+  }
   let ability = null;
   let heal = 0;
 
-  if (!attacker.isStunned && Math.random() < 0.5) {
+  const triggerRate = combatChoice === 'Ranged' ? 0.6 : 0.5;
+  if (!attacker.isStunned && Math.random() < triggerRate) {
     ability =
       attacker.selectedAbility ||
       (attacker.abilities &&
@@ -321,6 +359,25 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
   const actualDamage = Math.min(damage, defender.currentHealth);
   defender.currentHealth -= damage;
 
+  // Lifesteal: heal attacker based on damage dealt
+  if (abilityUsed && abilityEffects[abilityUsed]?.lifesteal && actualDamage > 0) {
+    const lsHeal = Math.round(actualDamage * abilityEffects[abilityUsed].lifesteal);
+    const actualHeal = Math.min(lsHeal, attacker.maxHealth - attacker.currentHealth);
+    if (actualHeal > 0) {
+      attacker.currentHealth += actualHeal;
+      heal += actualHeal;
+      logFn(`${attacker.name} drains ${actualHeal} HP!`, 'heal');
+    }
+  }
+
+  // Self-bless: apply blessed to attacker
+  if (abilityUsed && abilityEffects[abilityUsed]?.selfBless) {
+    if (!attacker.statusEffects) attacker.statusEffects = [];
+    if (!attacker.statusEffects.includes('blessed')) {
+      attacker.statusEffects.push('blessed');
+    }
+  }
+
   const player1Health = attacker.currentHealth;
   const player2Health = defender.currentHealth;
   logFn(`${attacker.name} HP: ${player1Health}`, 'info');
@@ -356,8 +413,10 @@ export const victoryCheck = (player1card, player2card) => {
 export const handleCombatRound = (player1card, player2card, player1Choice, player2Choice, logFn) => {
   logFn('Starting combat round', 'info');
 
-  const player1Initiative = player1card.stats.agility * 0.4 + player1card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21);
-  const player2Initiative = player2card.stats.agility * 0.4 + player2card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21);
+  const rangedBonus1 = player1Choice === 'Ranged' ? 10 : 0;
+  const rangedBonus2 = player2Choice === 'Ranged' ? 10 : 0;
+  const player1Initiative = player1card.stats.agility * 0.4 + player1card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21) + rangedBonus1;
+  const player2Initiative = player2card.stats.agility * 0.4 + player2card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21) + rangedBonus2;
 
   logFn(`${player1card.name} initiative: ${player1Initiative}`, 'info');
   logFn(`${player2card.name} initiative: ${player2Initiative}`, 'info');
