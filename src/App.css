@@ -145,6 +145,15 @@ h1, h2, h3 {
 .select-panel {
   max-width: 500px;
   justify-self: center;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  padding: 16px 24px;
+  border-radius: var(--radius);
+  z-index: 2;
 }
 
 .select-panel h2 { margin-bottom: 8px; }
@@ -494,9 +503,19 @@ input[type="radio"]:checked + label {
 
 .player-decks-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   margin-bottom: 20px;
   gap: 16px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.player-decks-container.single-player {
+  max-width: 900px;
+}
+
+.player-decks-container.two-player {
+  max-width: 1600px;
 }
 
 .deck-display {
@@ -1040,6 +1059,14 @@ h1 {
   .game-title {
     position: static;
     background-color: transparent;
+    padding: 0;
+  }
+
+  .select-panel {
+    position: static;
+    transform: none;
+    background-color: transparent;
+    backdrop-filter: none;
     padding: 0;
   }
 }

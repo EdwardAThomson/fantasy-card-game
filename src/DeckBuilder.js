@@ -116,7 +116,7 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
       <p>{getInstruction()}</p>
 
       {/* Player Decks */}
-      <div className="player-decks-container">
+      <div className={`player-decks-container ${singlePlayer ? 'single-player' : 'two-player'}`}>
         {renderDeck(1, true)}
         {!singlePlayer && renderDeck(2, player1Confirmed)}
       </div>

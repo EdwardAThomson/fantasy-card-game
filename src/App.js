@@ -46,13 +46,13 @@ function App() {
         <div className="game-title-container">
           <h1 className="game-title">Fantasy Card Game</h1>
           <img src="/opening_image.png" alt="Fantasy Card Game" className="opening-image" />
-        </div>
-        <div className="select-panel panel">
-          <p className="subtitle">Choose a mode to begin.</p>
-          <div className="cta-group">
-            <button className="btn btn-primary" onClick={() => setGameMode('sp_random')}>Single Player (Quick)</button>
-            <button className="btn btn-primary" onClick={() => setGameMode('sp_builder')}>Single Player (Advanced)</button>
-            <button className="btn btn-secondary" onClick={() => setGameMode('mp_builder')}>Two Players (Local)</button>
+          <div className="select-panel panel">
+            <p className="subtitle">Choose a mode to begin.</p>
+            <div className="cta-group">
+              <button className="btn btn-primary" onClick={() => setGameMode('sp_random')}>Single Player (Quick)</button>
+              <button className="btn btn-primary" onClick={() => setGameMode('sp_builder')}>Single Player (Advanced)</button>
+              <button className="btn btn-secondary" onClick={() => setGameMode('mp_builder')}>Two Players (Local)</button>
+            </div>
           </div>
         </div>
       </div>
