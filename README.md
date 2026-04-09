@@ -25,7 +25,7 @@ Welcome to the Fantasy Combat Card Game, a strategic two-player game where each 
 
 ## Screenshot
 
-![Fantasy Combat Card Game screenshot](./Screenshot_20251023.png)
+![Fantasy Combat Card Game screenshot](./Screenshot_20260409.png)
 
 ## Game Rules / How To Play
 1. **Deal**: Each player is dealt a hand of 3 unique creatures, each with its own stats (Strength, Agility, Intelligence, Defense, Magic).
