@@ -97,6 +97,7 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
               creature={creature}
               onCardSelect={() => handleRemoveCreature(player, creature)}
               disabled={player !== activePlayer}
+              compact
             />
           ))}
         </div>

@@ -3,7 +3,7 @@ import FlyingText from './FlyingText';
 import AbilityIcon from './AbilityIcon';
 import { ELEMENTS } from './constants';
 
-function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, damageEvents = [], abilityUsed = null }) {
+function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, damageEvents = [], abilityUsed = null, compact = false }) {
   const [displayHealth, setDisplayHealth] = useState(creature.currentHealth);
   const [activeDamageTexts, setActiveDamageTexts] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -63,6 +63,7 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
   // Determine card class modifiers based on status effects
   const getCardClasses = () => {
     const classes = ['card'];
+    if (compact) classes.push('compact');
     if (isSelected) classes.push('selected');
     if (disabled) classes.push('disabled');
     if (side === 'p1') classes.push('card-p1');
@@ -80,6 +81,42 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
     
     return classes.join(' ');
   };
+
+  if (compact) {
+    return (
+      <div
+        className={getCardClasses()}
+        onClick={disabled ? undefined : onCardSelect}
+        style={{ '--element-color': ELEMENTS[creature.element]?.color }}
+      >
+        <div className="health-bar">
+          <div
+            className="health-bar-fill"
+            style={{ width: `${healthPercent}%`, backgroundColor: barColor }}
+          ></div>
+          <span className="health-bar-text">
+            {displayHealth} / {creature.maxHealth}
+          </span>
+        </div>
+        <div className="card-title-row">
+          {creature.element && ELEMENTS[creature.element] && (
+            <div className="element-badge" aria-label={`${creature.element} element`}>
+              <span>{ELEMENTS[creature.element].icon}</span>
+            </div>
+          )}
+          <h2>{creature.name}</h2>
+        </div>
+        <img src={creature.image} alt={creature.name} className="creature-image" />
+        <ul>
+          {Object.keys(creature.stats).map(stat => (
+            <li key={stat}>
+              {stat}: {creature.stats[stat]}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   return (
     <div
