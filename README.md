@@ -1,6 +1,6 @@
-# Fantasy Combat Card Game
+# Fantasy Card Game
 
-Welcome to the Fantasy Combat Card Game, a strategic two-player game where each player controls a hand of fantasy creatures with unique stats. Players engage in combat rounds, choosing between different combat styles like melee, ranged, or magic, and battle until one player runs out of cards.
+Welcome to the Fantasy Card Game, a strategic two-player game where each player controls a hand of fantasy creatures with unique stats. Players engage in combat rounds, choosing between different combat styles like melee, ranged, or magic, and battle until one player runs out of cards.
 
  🎥 YouTube Tutorial: [How To Play](https://youtu.be/SeWWdGR7oGo)
 
