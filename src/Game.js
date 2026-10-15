@@ -9,10 +9,13 @@ import MatchupHint from './MatchupHint';
 import AttackPicker from './AttackPicker';
 import { HomeIcon, HelpIcon, ScrollIcon, CrossedSwordsIcon } from './GameIcons';
 import './GameScreen.css';
+import TutorialOverlay from './tutorial/TutorialOverlay';
 import { DECK_SIZE } from './constants';
+import { setRandomSource, seededRandom } from './rng';
 import {
   abilityEffects,
   getRandomUniqueCards,
+  getElementMultiplier,
   handleCombatRound,
   processDoTDamage,
   makeAIDecision,
@@ -20,16 +23,31 @@ import {
 
 
 // Main Game function
-function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
+function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null, onTutorialFinish, onHome }) {
+
+  // Tutorial mode plays a fixed, seeded match (see tutorial/tutorialScript.js)
+  const [tutorialDecks] = useState(() => (tutorial ? tutorial.buildDecks() : null));
+  const [tutorialEvents, setTutorialEvents] = useState([]);
+  const emitTutorial = (type, payload) => {
+    if (tutorial) setTutorialEvents(prev => [...prev, { type, payload }]);
+  };
+
+  useEffect(() => {
+    if (!tutorial) return undefined;
+    setRandomSource(seededRandom(tutorial.seed));
+    return () => setRandomSource(null);
+  }, [tutorial]);
 
   // Initialize player hands using useState
   const [player1Hand, setPlayer1Hand] = useState(() => {
+    if (tutorialDecks) return tutorialDecks.player;
     if (player1Deck && player1Deck.length === DECK_SIZE) {
       return player1Deck.map(card => JSON.parse(JSON.stringify(card)));
     }
     return getRandomUniqueCards(creatures, DECK_SIZE);
   });
   const [player2Hand, setPlayer2Hand] = useState(() => {
+    if (tutorialDecks) return tutorialDecks.opponent;
     if (player2Deck && player2Deck.length === DECK_SIZE) {
       return player2Deck.map(card => JSON.parse(JSON.stringify(card)));
     }
@@ -70,7 +88,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
 
   // AI decision logic
   const runAIDecision = useCallback(() => {
-    if (!singlePlayer) return;
+    if (!singlePlayer || tutorial) return;
     if (!player1SelectedCard || !player1Choice) return;
     if (player2Hand.length === 0) return;
 
@@ -79,11 +97,20 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
       setPlayer2SelectedCard(best.card);
       setPlayer2Choice(best.choice);
     }
-  }, [singlePlayer, player1SelectedCard, player1Choice, player2Hand]);
+  }, [singlePlayer, tutorial, player1SelectedCard, player1Choice, player2Hand]);
 
   useEffect(() => {
     runAIDecision();
   }, [runAIDecision]);
+
+  // Tutorial opponent commits first, following its script, so the player can counter-pick
+  useEffect(() => {
+    if (!tutorial || player2SelectedCard) return;
+    const next = player2Hand.find(card => card.currentHealth > 0);
+    if (!next) return;
+    setPlayer2SelectedCard(next);
+    setPlayer2Choice(tutorial.opponentPlan[next.name] || makeAIDecision([next]).choice);
+  }, [tutorial, player2Hand, player2SelectedCard]);
 
   // Auto-select card if only one remains for player 1
   useEffect(() => {
@@ -102,11 +129,13 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
  // Handle card selection for Player 1
   const handlePlayer1CardSelect = (card) => {
     setPlayer1SelectedCard(card); // Set the card as selected
+    emitTutorial('cardSelected', { side: 'p1', name: card.name });
   };
 
   // Handle combat choice for Player 1
   const handlePlayer1ChoiceSelect = (choice) => {
     setPlayer1Choice(choice);     // Set the chosen action
+    emitTutorial('styleSelected', { side: 'p1', choice });
   };
 
   // Handle card selection for Player 2
@@ -123,14 +152,17 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
   // Check for victory (overall) when hands change
   useEffect(() => {
     if (player1Hand.length === 0) {
+      addLog('Player 2 is the winner!', 'victory');
+      if (tutorial) return emitTutorial('gameOver', { winner: 'p2' });
       setModalMessage('Player 2 is the winner!');
       setIsModalOpen(true);
-      addLog('Player 2 is the winner!', 'victory');
     } else if (player2Hand.length === 0) {
+      addLog('Player 1 is the winner!', 'victory');
+      if (tutorial) return emitTutorial('gameOver', { winner: 'p1' });
       setModalMessage('Player 1 is the winner!');
       setIsModalOpen(true);
-      addLog('Player 1 is the winner!', 'victory');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player1Hand, player2Hand]);  // This will trigger when player1Hand or player2Hand changes
 
   // Fight logic
@@ -223,8 +255,11 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
 
     if (outcome.haveWinner) {
       const winnerPlayer = outcome.winner === player1SelectedCard ? 'Player 1' : 'Player 2';
-      setModalMessage(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
-      setIsModalOpen(true);
+      // The tutorial explains defeats with its own tips instead
+      if (!tutorial) {
+        setModalMessage(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
+        setIsModalOpen(true);
+      }
       addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`, 'victory');
     }
     
@@ -309,6 +344,16 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
       setDyingCards(prev => [...prev, ...deadCards]);
     }
 
+    emitTutorial('roundResolved', {
+      round,
+      p1Multiplier: getElementMultiplier(player1SelectedCard, player2SelectedCard),
+      p2Multiplier: getElementMultiplier(player2SelectedCard, player1SelectedCard),
+      abilityUsed: outcome.abilityUsed,
+      newStatuses: [...(player1SelectedCard.statusEffects || []), ...(player2SelectedCard.statusEffects || [])],
+      stunned: !!(player1SelectedCard.isStunned || player2SelectedCard.isStunned),
+      deaths: deadCards,
+    });
+
     setRound(prev => prev + 1);
   } // ends Fight function
 
@@ -366,7 +411,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
     const status = getPlayerStatus(selectedCard, choice, isAI);
 
     return (
-      <section className={`player-area${isAI ? ' is-ai' : ''}`} aria-label={name}>
+      <section className={`player-area${isAI ? ' is-ai' : ''}`} aria-label={name} data-tutorial={`${side}-area`}>
         <div className="player-info">
           <div className="player-nameplate">
             <h2>{name}</h2>
@@ -381,9 +426,10 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
             card={selectedCard}
             readOnly={isAI}
             label={`${name} attack style`}
+            tutorialId={`${side}-style`}
           />
         </div>
-        <div className="player-hand">
+        <div className="player-hand" data-tutorial={`${side}-hand`}>
           {hand.map((card, index) => (
             <Card
               key={index}
@@ -408,7 +454,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
     <header className="game-hud">
       <div className="game-hud-side">
         {onHome && (
-          <button type="button" className="hud-btn" onClick={onHome} aria-label="Home">
+          <button type="button" className="hud-btn" onClick={onHome} aria-label="Home" data-tutorial="home">
             <HomeIcon />
             <span className="hud-btn-label">Home</span>
           </button>
@@ -424,6 +470,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
           onClick={() => setIsCombatLogOpen(!isCombatLogOpen)}
           aria-label="Combat log"
           aria-expanded={isCombatLogOpen}
+          data-tutorial="combat-log-toggle"
         >
           <ScrollIcon />
           <span className="hud-btn-label">Log</span>
@@ -450,7 +497,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
             />
 
             <div className="battle-strip">
-              {isGameOver ? (
+              {isGameOver ? (!tutorial && (
                 <button
                   className="btn btn-primary btn-lg"
                   onClick={resetGame}
@@ -458,13 +505,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
                 >
                   New Game
                 </button>
-              ) : (
+              )) : (
                 <>
                   <button
                     className={`btn btn-primary btn-lg btn-fight ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
                     style={fightTint ? { '--choice': fightTint } : undefined}
                     onClick={Fight}
                     disabled={!isCombatReady}
+                    data-tutorial="fight"
                     aria-label="Start combat"
                   >
                     <CrossedSwordsIcon size={22} />
@@ -582,6 +630,9 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
         </div>
       </Tabs>
     </Modal>
+    {tutorial && (
+      <TutorialOverlay script={tutorial} events={tutorialEvents} onFinish={onTutorialFinish} />
+    )}
     </>
   );
 }

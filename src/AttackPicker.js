@@ -11,7 +11,7 @@ export const ATTACKS = [
 // Melee / Ranged / Magic selector. Shows the selected creature's stat for each
 // style so the player can see which attack suits it. `readOnly` is used for
 // the AI side in single player: it shows the AI's pick without being clickable.
-function AttackPicker({ choice, onSelect, card, readOnly = false, label }) {
+function AttackPicker({ choice, onSelect, card, readOnly = false, label, tutorialId }) {
   return (
     <div
       className={`attack-picker${readOnly ? ' is-readonly' : ''}`}
@@ -30,6 +30,7 @@ function AttackPicker({ choice, onSelect, card, readOnly = false, label }) {
             aria-disabled={readOnly || undefined}
             tabIndex={readOnly ? -1 : undefined}
             className={`attack-option ${className}${selected ? ' selected' : ''}`}
+            data-tutorial={tutorialId ? `${tutorialId}-${c}` : undefined}
             onClick={readOnly ? undefined : () => onSelect(c)}
           >
             <span className="attack-option-icon"><Icon size={22} /></span>

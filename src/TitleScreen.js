@@ -39,6 +39,13 @@ const DuelIcon = () => (
   </svg>
 );
 
+const BookIcon = () => (
+  <svg {...svgProps}>
+    <path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5Z" />
+    <path d="M12 6v14" />
+  </svg>
+);
+
 const MODES = [
   {
     id: 'sp_random',
@@ -59,9 +66,16 @@ const MODES = [
     detail: 'Draft and duel on one screen',
     Icon: DuelIcon,
   },
+  {
+    id: 'tutorial',
+    title: 'How to Play',
+    detail: 'A short guided first battle',
+    newPlayerDetail: 'New here? Start with a guided battle',
+    Icon: BookIcon,
+  },
 ];
 
-function TitleScreen({ onSelectMode }) {
+function TitleScreen({ onSelectMode, tutorialDone = true }) {
   const year = new Date().getFullYear();
   const years = year > FIRST_YEAR ? `${FIRST_YEAR}–${year}` : `${FIRST_YEAR}`;
   const elementCount = Object.keys(ELEMENTS).length;
@@ -97,7 +111,9 @@ function TitleScreen({ onSelectMode }) {
               <span className="title-menu-icon" aria-hidden="true"><mode.Icon /></span>
               <span className="title-menu-text">
                 <span className="title-menu-label">{mode.title}</span>
-                <span className="title-menu-detail">{mode.detail}</span>
+                <span className="title-menu-detail">
+                  {!tutorialDone && mode.newPlayerDetail ? mode.newPlayerDetail : mode.detail}
+                </span>
               </span>
               <span className="title-menu-chevron" aria-hidden="true">›</span>
             </button>
