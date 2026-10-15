@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Game from './Game';
 import DeckBuilder from './DeckBuilder';
 import { DECK_SIZE } from './constants';
+import { HomeIcon } from './GameIcons';
 import './App.css';
 
 function App() {
@@ -20,25 +21,34 @@ function App() {
     setPlayer2Deck([]);
   };
 
+  // The game screen draws its own Home button in its top bar; the deck
+  // builder gets this floating one.
+  const homeButton = (
+    <button type="button" className="hud-btn home-button" onClick={handleReset} aria-label="Home">
+      <HomeIcon />
+      <span className="hud-btn-label">Home</span>
+    </button>
+  );
+
   const renderContent = () => {
     if (gameMode === 'mp_builder' && (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE)) {
-      return <DeckBuilder onDecksSelected={handleDecksSelected} />;
+      return <>{homeButton}<DeckBuilder onDecksSelected={handleDecksSelected} /></>;
     }
 
     if (gameMode === 'sp_builder' && player1Deck.length !== DECK_SIZE) {
-      return <DeckBuilder onDecksSelected={handleDecksSelected} singlePlayer />;
+      return <>{homeButton}<DeckBuilder onDecksSelected={handleDecksSelected} singlePlayer /></>;
     }
 
     if (gameMode === 'sp_random') {
-      return <Game singlePlayer />;
+      return <Game singlePlayer onHome={handleReset} />;
     }
 
     if (gameMode === 'sp_builder' && player1Deck.length === DECK_SIZE) {
-      return <Game player1Deck={player1Deck} singlePlayer />;
+      return <Game player1Deck={player1Deck} singlePlayer onHome={handleReset} />;
     }
 
     if (gameMode === 'mp_builder' && player1Deck.length === DECK_SIZE && player2Deck.length === DECK_SIZE) {
-      return <Game player1Deck={player1Deck} player2Deck={player2Deck} />;
+      return <Game player1Deck={player1Deck} player2Deck={player2Deck} onHome={handleReset} />;
     }
 
     return (
@@ -61,7 +71,6 @@ function App() {
 
   return (
     <div className="App">
-      {gameMode !== null && <button className="home-button" onClick={handleReset}>🏠</button>}
       {renderContent()}
     </div>
   );

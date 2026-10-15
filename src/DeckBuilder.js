@@ -5,6 +5,7 @@ import Card from './Card';
 import { getRandomUniqueCards } from './gameEngine';
 import Modal from './Modal';
 import Tabs from './Tabs';
+import { HelpIcon } from './GameIcons';
 
 function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
   const [player1Deck, setPlayer1Deck] = useState([]);
@@ -232,7 +233,10 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
           </div>
         </Tabs>
       </Modal>
-      <button className="help-button" onClick={() => setIsHelpModalOpen(true)}>?</button>
+      <button type="button" className="hud-btn help-button" onClick={() => setIsHelpModalOpen(true)} aria-label="How to play">
+        <HelpIcon />
+        <span className="hud-btn-label">Help</span>
+      </button>
     </div>
   );
 }
