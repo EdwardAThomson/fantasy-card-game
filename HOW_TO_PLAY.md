@@ -93,17 +93,18 @@ Every creature belongs to one of eight elements, shown by the icon next to its n
 - Attacking an element you are **strong** against deals **115%** damage.
 - Attacking an element that is strong against yours deals **85%** damage.
 - Every other pairing, including same-element fights, is neutral (100%).
+- Each element is strong against exactly two others and weak against exactly two.
 
 | Element | Strong vs (115%) | Weak vs (85%) |
 |---------|------------------|---------------|
-| 🔥 Fire | 🌿 Nature, 🌪️ Air | 🌊 Water, 🪨 Earth, ✨ Light |
-| 🌊 Water | 🔥 Fire, ⚡ Lightning | 🌿 Nature |
-| 🌿 Nature | 🌊 Water, 🪨 Earth | 🔥 Fire, 🌪️ Air, 🌑 Dark |
-| 🪨 Earth | 🔥 Fire, ⚡ Lightning | 🌿 Nature, 🌪️ Air |
-| 🌪️ Air | 🌿 Nature, 🪨 Earth | 🔥 Fire, ⚡ Lightning |
-| ⚡ Lightning | 🌪️ Air, ✨ Light | 🌊 Water, 🪨 Earth, 🌑 Dark |
-| ✨ Light | 🔥 Fire, 🌑 Dark | ⚡ Lightning |
-| 🌑 Dark | 🌿 Nature, ⚡ Lightning | ✨ Light |
+| 🔥 Fire | 🌿 Nature, 🌪️ Air | 🌊 Water, ✨ Light |
+| 🌊 Water | 🔥 Fire, ✨ Light | 🌿 Nature, 🪨 Earth |
+| 🌿 Nature | 🌊 Water, 🪨 Earth | 🔥 Fire, 🌑 Dark |
+| 🪨 Earth | ⚡ Lightning, 🌊 Water | 🌿 Nature, 🌪️ Air |
+| 🌪️ Air | 🪨 Earth, 🌑 Dark | 🔥 Fire, ⚡ Lightning |
+| ⚡ Lightning | 🌪️ Air, ✨ Light | 🪨 Earth, 🌑 Dark |
+| ✨ Light | 🔥 Fire, 🌑 Dark | 🌊 Water, ⚡ Lightning |
+| 🌑 Dark | ⚡ Lightning, 🌿 Nature | ✨ Light, 🌪️ Air |
 
 **In the game:** hover or tap a card's element icon to see its matchups. Once you pick a creature, the panel above the Fight button shows how it fares against each enemy creature, and once both creatures are chosen it shows the matchup in both directions. The full chart is in the in-game Help under **Elements**.
 

@@ -32,14 +32,16 @@ Matches `ELEMENT_ADVANTAGES` in `src/constants.js`. Strong = 1.15x damage, weak 
 
 | Attacker    | Strong Against (1.15x)  | Weak Against (0.85x)    |
 |-------------|-------------------------|-------------------------|
-| Fire        | Nature, Air             | Water, Earth, Light     |
-| Water       | Fire, Lightning         | Nature                  |
-| Nature      | Water, Earth            | Fire, Air, Dark         |
-| Earth       | Lightning, Fire         | Nature, Air             |
-| Air         | Earth, Nature           | Fire, Lightning         |
-| Lightning   | Air, Light              | Water, Earth, Dark      |
-| Light       | Dark, Fire              | Lightning               |
-| Dark        | Lightning, Nature       | Light                   |
+| Fire        | Nature, Air             | Water, Light            |
+| Water       | Fire, Light             | Nature, Earth           |
+| Nature      | Water, Earth            | Fire, Dark              |
+| Earth       | Lightning, Water        | Nature, Air             |
+| Air         | Earth, Dark             | Fire, Lightning         |
+| Lightning   | Air, Light              | Earth, Dark             |
+| Light       | Dark, Fire              | Water, Lightning        |
+| Dark        | Lightning, Nature       | Light, Air              |
+
+Every element is strong against exactly two and weak against exactly two, and no pair is mutually strong.
 
 ### Design Rationale
 
@@ -48,13 +50,13 @@ Each pairing has a thematic justification:
 - **Fire > Nature** — fire burns forests
 - **Fire > Air** — fire feeds on oxygen, superheats air
 - **Water > Fire** — water extinguishes flame
-- **Water > Lightning** — water conducts and grounds electricity
+- **Water > Light** — mist and rain dim the sun
 - **Nature > Water** — plants absorb and control water
 - **Nature > Earth** — roots break stone, life reclaims land
 - **Earth > Lightning** — earth grounds electrical charge
-- **Earth > Fire** — earth smothers flame
+- **Earth > Water** — earth dams and drinks up water
 - **Air > Earth** — wind erodes rock
-- **Air > Nature** — storms uproot trees
+- **Air > Dark** — wind scatters shadow and smoke
 - **Lightning > Light** — storm clouds blot out the sun
 - **Lightning > Air** — lightning splits the sky
 - **Light > Dark** — light banishes shadow
@@ -102,10 +104,10 @@ Add to `constants.js`:
 // Element advantage web — each element lists what it is strong against
 export const ELEMENT_ADVANTAGES = {
   fire:      ['nature', 'air'],
-  water:     ['fire', 'lightning'],
+  water:     ['fire', 'light'],
   nature:    ['water', 'earth'],
-  earth:     ['lightning', 'fire'],
-  air:       ['earth', 'nature'],
+  earth:     ['lightning', 'water'],
+  air:       ['earth', 'dark'],
   lightning: ['air', 'light'],
   light:     ['dark', 'fire'],
   dark:      ['lightning', 'nature'],
