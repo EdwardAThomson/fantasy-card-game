@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import FlyingText from './FlyingText';
-import AbilityIcon from './AbilityIcon';
+import AbilityEffect from './AbilityEffect';
 import { ELEMENTS } from './constants';
+import { getElementMatchups } from './gameEngine';
 
 function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, damageEvents = [], abilityUsed = null, compact = false }) {
   const [displayHealth, setDisplayHealth] = useState(creature.currentHealth);
@@ -49,13 +50,13 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
     setActiveAbilityIcon(null);
   };
 
-  // Show ability icon when ability is used (with delay to avoid overlap with damage numbers)
+  // Play the ability effect on this card (the target for attacks, the user for heals/defence)
   useEffect(() => {
     if (abilityUsed && abilityUsed.cardName === creature.name && abilityUsed.side === side) {
-      // Delay the ability icon so it appears after damage numbers start
+      // Short delay so the effect lands with the hit rather than before it
       const timer = setTimeout(() => {
         setActiveAbilityIcon(abilityUsed.ability);
-      }, 400);
+      }, 150);
       return () => clearTimeout(timer);
     }
   }, [abilityUsed, creature.name, side]);
@@ -139,6 +140,11 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
             <span>{ELEMENTS[creature.element].icon}</span>
             <span className="element-badge-tooltip">
               {creature.element.charAt(0).toUpperCase() + creature.element.slice(1)}
+              <span className="tooltip-matchups">
+                Strong vs {getElementMatchups(creature.element).strong.map(e => ELEMENTS[e].icon).join(' ') || '–'}
+                {' · '}
+                Weak vs {getElementMatchups(creature.element).weak.map(e => ELEMENTS[e].icon).join(' ') || '–'}
+              </span>
             </span>
           </div>
         )}
@@ -202,9 +208,9 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
         </div>
       )}
 
-      {/* Ability icon pop-up */}
+      {/* Ability special effect */}
       {activeAbilityIcon && (
-        <AbilityIcon ability={activeAbilityIcon} onComplete={handleAbilityIconComplete} />
+        <AbilityEffect ability={activeAbilityIcon} onComplete={handleAbilityIconComplete} />
       )}
     </div>
   );

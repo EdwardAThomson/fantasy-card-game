@@ -1,0 +1,458 @@
+/* Ability special effects: CSS particle bursts layered over a card.
+   Each family sets --c1 (core colour) and --c2 (glow colour) and picks a
+   particle motion; AbilityEffect.js supplies per-particle --x/--y/--a/--r. */
+
+.fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1001;
+  --c1: #e9d5ff;
+  --c2: #8b5cf6;
+  --origin-y: 48%;
+}
+
+/* Soft colour flash behind everything */
+.fx-flash {
+  position: absolute;
+  left: 50%;
+  top: var(--origin-y);
+  width: 220px;
+  height: 220px;
+  margin: -110px 0 0 -110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklab, var(--c1) 85%, transparent) 0%, color-mix(in oklab, var(--c2) 45%, transparent) 35%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: fxFlash 900ms ease-out forwards;
+}
+
+.fx-particles,
+.fx-feature {
+  position: absolute;
+  left: 50%;
+  top: var(--origin-y);
+  width: 0;
+  height: 0;
+}
+
+.fx-p {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, var(--c1) 40%, var(--c2) 100%);
+  box-shadow: 0 0 8px var(--c2), 0 0 2px var(--c1);
+  opacity: 0;
+  animation: fxBurst 1000ms ease-out var(--delay, 0ms) forwards;
+}
+
+/* Ability name banner */
+.fx-label {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  transform: translateX(-50%);
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-family: Cinzel, Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.78));
+  border: 1px solid color-mix(in oklab, var(--c2) 70%, transparent);
+  box-shadow: 0 0 14px color-mix(in oklab, var(--c2) 60%, transparent), 0 4px 10px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 0 8px var(--c2);
+  opacity: 0;
+  animation: fxLabel 1600ms ease-out forwards;
+}
+
+/* ---------- Shared motions ---------- */
+
+@keyframes fxFlash {
+  0% { opacity: 0; transform: scale(0.4); }
+  25% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.25); }
+}
+
+@keyframes fxLabel {
+  0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.7); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.08); }
+  25% { transform: translateX(-50%) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(1); }
+}
+
+/* Radial burst outward */
+@keyframes fxBurst {
+  0% { opacity: 1; transform: translate(0, 0) scale(var(--s)); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0.2); }
+}
+
+/* Embers / motes rising with sideways drift */
+@keyframes fxRise {
+  0% { opacity: 0; transform: translate(calc(var(--sx) * 0.3), 40px) scale(var(--s)); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--sx), -110px) scale(0.15); }
+}
+
+/* Thrown up then falling (rocks) */
+@keyframes fxArc {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(var(--s)); }
+  45% { transform: translate(calc(var(--x) * 0.8), calc(var(--y) * 0.6 - 50px)) rotate(calc(var(--r) * 0.5)) scale(var(--s)); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x), 90px) rotate(var(--r)) scale(var(--s)); }
+}
+
+/* Swirl outward (leaves, wind) */
+@keyframes fxSwirl {
+  0% { opacity: 0; transform: rotate(var(--a)) translateX(8px) rotate(0deg) scale(var(--s)); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(calc(var(--a) + 220deg)) translateX(95px) rotate(var(--r)) scale(var(--s)); }
+}
+
+/* Pulled inward (dark energy) */
+@keyframes fxImplode {
+  0% { opacity: 0; transform: translate(calc(var(--x) * 1.3), calc(var(--y) * 1.3)) scale(2); }
+  30% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+}
+
+/* Orbit (stun stars) */
+@keyframes fxOrbit {
+  0% { opacity: 0; transform: rotate(var(--a)) translateX(46px) rotate(calc(-1 * var(--a))) scaleY(1); }
+  12% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(calc(var(--a) + 540deg)) translateX(46px) rotate(calc(-1 * var(--a) - 540deg)); }
+}
+
+/* Streak flying outward along its own angle (rays, sparks, wind lines) */
+@keyframes fxStreak {
+  0% { opacity: 0; transform: rotate(var(--a)) translateX(10px) scaleX(0.2); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(100px) scaleX(1); }
+}
+
+/* ---------- Families ---------- */
+
+/* Fire: rising embers from a hot core */
+.fx-fire { --c1: #ffd166; --c2: #ff4d00; --origin-y: 52%; }
+.fx-fire .fx-p {
+  width: 12px;
+  height: 16px;
+  margin: -8px 0 0 -6px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(ellipse at 50% 70%, #fff7d6 0%, #ffb020 35%, #ff4d00 75%, transparent 100%);
+  animation-name: fxRise;
+  animation-duration: 1200ms;
+}
+
+/* Frost: crystalline shards bursting outward */
+.fx-frost { --c1: #e0f7ff; --c2: #38bdf8; }
+.fx-frost .fx-p {
+  width: 6px;
+  height: 18px;
+  margin: -9px 0 0 -3px;
+  border-radius: 0;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: linear-gradient(180deg, #ffffff, #7dd3fc 60%, #0ea5e9);
+  box-shadow: none;
+  filter: drop-shadow(0 0 4px #38bdf8);
+  animation-name: fxShard;
+}
+@keyframes fxShard {
+  0% { opacity: 1; transform: translate(0, 0) rotate(var(--r)) scale(var(--s)); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(calc(var(--r) * 2)) scale(0.4); }
+}
+
+/* Lightning: a jagged bolt with flicker plus sparks */
+.fx-lightning { --c1: #fef9c3; --c2: #facc15; }
+.fx-bolt {
+  position: absolute;
+  width: 60px;
+  height: 170px;
+  left: -30px;
+  top: -120px;
+  overflow: visible;
+  fill: #fffbe6;
+  stroke: #facc15;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 6px #facc15) drop-shadow(0 0 14px #fde047);
+  opacity: 0;
+  animation: fxBoltFlicker 700ms steps(1, end) forwards;
+}
+@keyframes fxBoltFlicker {
+  0% { opacity: 1; }
+  12% { opacity: 0.2; }
+  22% { opacity: 1; }
+  40% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.fx-lightning .fx-p {
+  width: 3px;
+  height: 14px;
+  margin: -7px 0 0 -1.5px;
+  border-radius: 2px;
+  background: #fffbe6;
+  animation-name: fxStreak;
+  animation-duration: 600ms;
+}
+.fx-lightning .fx-flash { animation-duration: 500ms; }
+
+/* Nature / poison: leaves swirling out */
+.fx-nature { --c1: #bbf7d0; --c2: #16a34a; }
+.fx-nature .fx-p {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 0 100% 0 100%;
+  background: linear-gradient(135deg, #86efac, #16a34a);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+  animation-name: fxSwirl;
+  animation-duration: 1300ms;
+}
+
+/* Earth: rock chunks thrown up and falling */
+.fx-earth { --c1: #d6b38a; --c2: #78350f; }
+.fx-earth .fx-p {
+  width: 12px;
+  height: 10px;
+  margin: -5px 0 0 -6px;
+  border-radius: 3px 5px 2px 6px;
+  background: linear-gradient(135deg, #c8a06a, #6b4423);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  animation-name: fxArc;
+  animation-duration: 1100ms;
+  animation-timing-function: cubic-bezier(0.3, 0.6, 0.6, 1);
+}
+
+/* Wind: curved gust arcs spinning out */
+.fx-wind { --c1: #ecfeff; --c2: #67e8f9; }
+.fx-wind .fx-p {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  background: none;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: rgba(236, 254, 255, 0.95);
+  box-shadow: none;
+  filter: drop-shadow(0 0 4px #67e8f9);
+  animation-name: fxSwirl;
+  animation-duration: 1100ms;
+}
+
+/* Heal: green motes rising with a soft glow */
+.fx-heal { --c1: #dcfce7; --c2: #22c55e; }
+.fx-heal .fx-p {
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  animation-name: fxRise;
+  animation-duration: 1400ms;
+}
+.fx-heal .fx-p:nth-child(3n) {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: #4ade80;
+  clip-path: polygon(35% 0, 65% 0, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0 65%, 0 35%, 35% 35%);
+}
+
+/* Shield: protective dome ring with sparkles */
+.fx-shield { --c1: #dbeafe; --c2: #3b82f6; }
+.fx-ring {
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  left: -85px;
+  top: -85px;
+  border-radius: 50%;
+  border: 3px solid var(--c1);
+  box-shadow: 0 0 18px var(--c2), inset 0 0 26px color-mix(in oklab, var(--c2) 70%, transparent);
+  background: radial-gradient(circle, transparent 55%, color-mix(in oklab, var(--c2) 25%, transparent) 100%);
+  opacity: 0;
+  animation: fxDome 1400ms ease-out forwards;
+}
+@keyframes fxDome {
+  0% { opacity: 0; transform: scale(0.3); }
+  25% { opacity: 1; transform: scale(1.05); }
+  35% { transform: scale(1); }
+  75% { opacity: 0.9; }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+.fx-shield .fx-p {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  animation-name: fxBurst;
+  animation-duration: 1100ms;
+}
+
+/* Stun: stars orbiting above the card */
+.fx-stun { --c1: #fef08a; --c2: #f59e0b; --origin-y: 30%; }
+.fx-stun .fx-p {
+  /* drawn tall: the orbit container is squashed to 35% height */
+  width: 24px;
+  height: 68px;
+  margin: -34px 0 0 -12px;
+  border-radius: 0;
+  background: linear-gradient(180deg, #fef9c3, #facc15);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  box-shadow: none;
+  filter: drop-shadow(0 0 4px #f59e0b);
+  animation-name: fxOrbit;
+  animation-duration: 1500ms;
+  animation-timing-function: linear;
+  animation-delay: 0ms;
+}
+.fx-stun .fx-particles { transform: scaleY(0.35); }
+
+/* Dark: shadowy wisps drawn inward */
+.fx-dark { --c1: #c084fc; --c2: #4c1d95; }
+.fx-dark .fx-flash {
+  background: radial-gradient(circle, rgba(76, 29, 149, 0.75) 0%, rgba(30, 10, 60, 0.55) 40%, transparent 70%);
+  mix-blend-mode: normal;
+}
+.fx-dark .fx-p {
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.9), rgba(76, 29, 149, 0.6) 55%, transparent 75%);
+  box-shadow: none;
+  filter: blur(1.5px);
+  animation-name: fxImplode;
+  animation-duration: 1200ms;
+}
+
+/* Arcane: rotating rune ring and violet sparks */
+.fx-arcane { --c1: #f3e8ff; --c2: #8b5cf6; }
+.fx-arcane .fx-ring {
+  width: 130px;
+  height: 130px;
+  left: -65px;
+  top: -65px;
+  border: 2px dashed var(--c1);
+  background: none;
+  animation: fxRune 1300ms ease-out forwards;
+}
+@keyframes fxRune {
+  0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+  25% { opacity: 1; transform: scale(1) rotate(60deg); }
+  100% { opacity: 0; transform: scale(1.2) rotate(220deg); }
+}
+.fx-arcane .fx-p {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+}
+
+/* Light: a vertical beam with radiating rays */
+.fx-light { --c1: #fffbeb; --c2: #fbbf24; }
+.fx-beam {
+  position: absolute;
+  width: 56px;
+  height: 220px;
+  left: -28px;
+  top: -180px;
+  background: linear-gradient(90deg, transparent, rgba(255, 251, 235, 0.95) 35%, #fff 50%, rgba(255, 251, 235, 0.95) 65%, transparent);
+  filter: drop-shadow(0 0 12px #fbbf24);
+  transform-origin: 50% 100%;
+  opacity: 0;
+  animation: fxBeam 1000ms ease-out forwards;
+}
+@keyframes fxBeam {
+  0% { opacity: 0; transform: scaleX(0.1) scaleY(0.2); }
+  20% { opacity: 1; transform: scaleX(1) scaleY(1); }
+  70% { opacity: 0.8; transform: scaleX(0.6) scaleY(1); }
+  100% { opacity: 0; transform: scaleX(0.05) scaleY(1); }
+}
+.fx-light .fx-p {
+  width: 30px;
+  height: 3px;
+  margin: -1.5px 0 0 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #fff, #fbbf24);
+  transform-origin: 0 50%;
+  animation-name: fxStreak;
+  animation-duration: 900ms;
+}
+
+/* Slash: quick claw/blade strokes and red sparks */
+.fx-slash { --c1: #fee2e2; --c2: #dc2626; }
+.fx-cut {
+  position: absolute;
+  width: 170px;
+  height: 4px;
+  left: -85px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, #fff 45%, #fca5a5 70%, transparent);
+  box-shadow: 0 0 10px #dc2626;
+  transform: rotate(-35deg) scaleX(0);
+  transform-origin: 0 50%;
+  opacity: 0;
+  animation: fxSlash 520ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.fx-cut:nth-child(1) { top: -22px; }
+.fx-cut:nth-child(2) { top: 0; animation-delay: 90ms; }
+.fx-cut:nth-child(3) { top: 22px; animation-delay: 180ms; }
+@keyframes fxSlash {
+  0% { opacity: 1; transform: rotate(-35deg) scaleX(0); }
+  45% { opacity: 1; transform: rotate(-35deg) scaleX(1); }
+  100% { opacity: 0; transform: rotate(-35deg) scaleX(1) translateX(20px); }
+}
+.fx-slash .fx-p {
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  animation-duration: 700ms;
+}
+
+/* Shot: impact ring and sparks */
+.fx-shot { --c1: #fef3c7; --c2: #d97706; }
+.fx-shot .fx-ring {
+  width: 70px;
+  height: 70px;
+  left: -35px;
+  top: -35px;
+  border-width: 2px;
+  background: none;
+  animation: fxImpact 700ms ease-out forwards;
+}
+@keyframes fxImpact {
+  0% { opacity: 1; transform: scale(0.2); }
+  100% { opacity: 0; transform: scale(2); }
+}
+.fx-shot .fx-p {
+  width: 18px;
+  height: 2px;
+  margin: -1px 0 0 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #fff, var(--c2));
+  transform-origin: 0 50%;
+  animation-name: fxStreak;
+  animation-duration: 550ms;
+}
+
+/* ---------- Responsive and accessibility ---------- */
+
+@media (max-width: 768px) {
+  .fx-label { font-size: 0.75rem; padding: 3px 10px; letter-spacing: 0.05em; }
+  .fx-particles, .fx-feature { transform: scale(0.7); }
+  .fx-stun .fx-particles { transform: scale(0.7) scaleY(0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-particles, .fx-feature { display: none; }
+  .fx-flash { animation-duration: 1200ms; }
+  .fx-label { animation-name: fxLabelCalm; }
+  @keyframes fxLabelCalm {
+    0%, 100% { opacity: 0; transform: translateX(-50%); }
+    15%, 80% { opacity: 1; transform: translateX(-50%); }
+  }
+}

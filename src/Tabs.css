@@ -3,11 +3,12 @@
   padding: 0;
   margin: 0;
   display: flex;
+  flex-wrap: wrap;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .tabs li {
-  padding: 10px 20px;
+  padding: 10px 16px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
@@ -46,4 +47,9 @@
   top: auto;
   left: auto;
   right: auto;
+}
+
+@media (max-width: 560px) {
+  .tabs li { padding: 8px 10px; font-size: 0.85rem; }
+  .tab-content { padding: 12px; }
 }
