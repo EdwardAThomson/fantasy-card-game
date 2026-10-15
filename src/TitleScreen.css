@@ -325,12 +325,28 @@
 
 /* Short or narrow screens: keep the art behind the title and the menu in reach */
 @media (max-width: 600px) {
+  /* Show the art at a fixed zoom from the top, so both figures stay in frame on a
+     narrow portrait screen instead of cropping to the gap between them */
   .title-backdrop-image {
-    object-position: 46% 20%;
+    inset: 0 auto auto 50%;
+    width: 185vw;
+    height: auto;
+    margin-left: -83vw;
+    -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
   }
 
   .title-content {
     padding-top: 48px;
+  }
+
+  .title-kicker {
+    letter-spacing: 0.2em;
+  }
+
+  .title-footer {
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
   }
 
   .title-menu-item {
@@ -378,6 +394,12 @@
   .title-menu-item {
     padding-top: 10px;
     padding-bottom: 10px;
+  }
+}
+
+@media (max-width: 600px) and (max-height: 700px) {
+  .title-kicker {
+    display: none;
   }
 }
 
