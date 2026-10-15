@@ -1,0 +1,83 @@
+/* Tutorial overlay. Visuals are deliberately plain for now and lean on the
+   app's theme tokens; final styling follows the front page, card and game
+   screen redesigns. */
+
+.tutorial-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.tutorial-dim {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.7);
+}
+
+.tutorial-spotlight {
+  position: fixed;
+  border-radius: var(--radius, 14px);
+  box-shadow: 0 0 0 3px var(--accent, #d4af37), 0 0 24px 4px var(--ring, rgba(212, 175, 55, 0.6));
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+
+.tutorial-spotlight.is-dim {
+  box-shadow: 0 0 0 3px var(--accent, #d4af37), 0 0 24px 4px var(--ring, rgba(212, 175, 55, 0.6)),
+    0 0 0 9999px rgba(3, 7, 18, 0.7);
+}
+
+.tutorial-panel {
+  position: fixed;
+  pointer-events: auto;
+  width: min(360px, calc(100vw - 32px));
+  padding: 16px 18px;
+  text-align: left;
+  color: var(--text, #e5e7eb);
+  background: var(--surface-2, #1f2937);
+  border: 1px solid color-mix(in oklab, var(--accent, #d4af37) 45%, transparent);
+  border-radius: var(--radius, 14px);
+  box-shadow: var(--shadow, 0 10px 30px rgba(0, 0, 0, 0.35));
+}
+
+.tutorial-panel h3 { margin: 0 0 6px; color: var(--accent, #d4af37); font-size: 1.1rem; }
+.tutorial-panel p { margin: 0 0 14px; line-height: 1.45; }
+
+.tutorial-progress {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted, #9ca3af);
+  margin-bottom: 4px;
+}
+
+.tutorial-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.tutorial-skip { margin-right: auto; }
+
+.tutorial-panel.placement-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.tutorial-panel.placement-below,
+.tutorial-panel.placement-above { transform: translateX(-50%); }
+.tutorial-panel.placement-corner { right: 16px; bottom: 16px; }
+
+/* Phones: the panel becomes a sheet on whichever half the target isn't. */
+@media (max-width: 640px) {
+  .tutorial-panel.placement-below,
+  .tutorial-panel.placement-above,
+  .tutorial-panel.placement-corner {
+    top: auto !important;
+    bottom: 16px !important;
+    left: 16px !important;
+    right: 16px;
+    width: auto;
+    transform: none;
+  }
+
+  .tutorial-panel.sheet-top {
+    top: 16px !important;
+    bottom: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-spotlight { transition: none; }
+}

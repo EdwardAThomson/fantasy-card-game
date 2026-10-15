@@ -1,5 +1,6 @@
 import { ABILITIES } from './creatures';
 import { ELEMENT_ADVANTAGES, ADVANTAGE_MULTIPLIER, DISADVANTAGE_MULTIPLIER } from './constants';
+import { random } from './rng';
 
 // Ability configuration — maps ability IDs to their effects
 export const abilityEffects = {
@@ -97,7 +98,7 @@ export const getRandomUniqueCards = (creaturesList, count) => {
   const selectedCards = [];
 
   while (selectedIndices.size < count) {
-    const randomIndex = Math.floor(Math.random() * creaturesList.length);
+    const randomIndex = Math.floor(random() * creaturesList.length);
     if (!selectedIndices.has(randomIndex)) {
       selectedIndices.add(randomIndex);
       const creatureCopy = JSON.parse(JSON.stringify(creaturesList[randomIndex]));
@@ -229,7 +230,7 @@ export function resolveAbility(attacker, defender, ability, damage, logFn) {
       if (effect.stuns) {
         if (!hasImmunity(defender, 'stun')) {
           const resistance = getResistanceMultiplier(defender, 'stun');
-          if (resistance < 1 && Math.random() > resistance) {
+          if (resistance < 1 && random() > resistance) {
             logFn(`${defender.name} resists being frozen in place!`, 'status');
           } else {
             defender.isStunned = true;
@@ -263,7 +264,7 @@ export function resolveAbility(attacker, defender, ability, damage, logFn) {
       }
       const resistance = getResistanceMultiplier(defender, effectName);
       if (resistance < 1) {
-        if (Math.random() > resistance) {
+        if (random() > resistance) {
           logFn(`${attacker.name} tries ${formatAbility(ability)}, but ${defender.name} resists the stun!`, 'ability');
           return { damage, heal: 0, abilityUsed: ability };
         }
@@ -297,7 +298,7 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
     };
   }
 
-  const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice) + Math.floor(Math.random() * 21));
+  const playerAttack = Math.max(0, getCombatStat(attacker, combatChoice) + Math.floor(random() * 21));
   const defenseMod = defender.stats.defense / 2;
   let damage = Math.max(0, playerAttack - defenseMod);
   const elementMult = getElementMultiplier(attacker, defender);
@@ -311,11 +312,11 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
   let heal = 0;
 
   const triggerRate = combatChoice === 'Ranged' ? 0.6 : 0.5;
-  if (!attacker.isStunned && Math.random() < triggerRate) {
+  if (!attacker.isStunned && random() < triggerRate) {
     ability =
       attacker.selectedAbility ||
       (attacker.abilities &&
-        attacker.abilities[Math.floor(Math.random() * attacker.abilities.length)]);
+        attacker.abilities[Math.floor(random() * attacker.abilities.length)]);
   }
   const abilityResult = resolveAbility(attacker, defender, ability, damage, logFn);
   damage = abilityResult.damage;
@@ -415,8 +416,8 @@ export const handleCombatRound = (player1card, player2card, player1Choice, playe
 
   const rangedBonus1 = player1Choice === 'Ranged' ? 10 : 0;
   const rangedBonus2 = player2Choice === 'Ranged' ? 10 : 0;
-  const player1Initiative = player1card.stats.agility * 0.4 + player1card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21) + rangedBonus1;
-  const player2Initiative = player2card.stats.agility * 0.4 + player2card.stats.intelligence * 0.6 + Math.floor(Math.random() * 21) + rangedBonus2;
+  const player1Initiative = player1card.stats.agility * 0.4 + player1card.stats.intelligence * 0.6 + Math.floor(random() * 21) + rangedBonus1;
+  const player2Initiative = player2card.stats.agility * 0.4 + player2card.stats.intelligence * 0.6 + Math.floor(random() * 21) + rangedBonus2;
 
   logFn(`${player1card.name} initiative: ${player1Initiative}`, 'info');
   logFn(`${player2card.name} initiative: ${player2Initiative}`, 'info');

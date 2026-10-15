@@ -87,6 +87,7 @@ function CombatLog({ messages, isOpen, onClose }) {
   return (
     <div
       className={`combat-log${isOpen ? ' open' : ''}`}
+      data-tutorial="combat-log"
       ref={containerRef}
       onScroll={handleScroll}
     >

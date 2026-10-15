@@ -150,13 +150,14 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
   return (
     <div
       className={getCardClasses()}
+      data-tutorial={`card-${creature.name}`}
       onClick={disabled ? undefined : onCardSelect}
       style={{ '--element-color': element?.color }}
     >
       <div className="card-inner">
         <div className="card-head">
           {element ? (
-            <div className="element-badge" tabIndex={compact ? undefined : 0} aria-label={`${creature.element} element`}>
+            <div className="element-badge" data-tutorial="card-element" tabIndex={compact ? undefined : 0} aria-label={`${creature.element} element`}>
               <span aria-hidden="true">{element.icon}</span>
               {!compact && <span className="element-badge-tooltip">{elementLabel}</span>}
             </div>
@@ -187,7 +188,7 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
 
         <div className="card-art">
           <img src={creature.image} alt={creature.name} className="creature-image" />
-          <div className={`health-bar ${hpClass}`}>
+          <div className={`health-bar ${hpClass}`} data-tutorial="card-health">
             <div className="health-bar-fill" style={{ width: `${healthPercent}%` }}></div>
             <span className="health-bar-text">
               {displayHealth} / {creature.maxHealth}
@@ -195,7 +196,7 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
           </div>
         </div>
 
-        <ul className="card-stats">
+        <ul className="card-stats" data-tutorial="card-stats">
           {STAT_ORDER.filter(stat => creature.stats[stat] !== undefined).map(stat => (
             <li key={stat} title={`${STAT_META[stat].label}: ${creature.stats[stat]}`}>
               <StatIcon stat={stat} />
