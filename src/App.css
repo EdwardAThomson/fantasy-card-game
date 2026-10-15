@@ -199,241 +199,12 @@ input[type="radio"]:checked + label {
   background-color: #ddd; /* Highlight selected stat */
 }
 
-.creature-image {
-  width: 220px !important; /* Resized to make cards shorter */
-  max-height: 220px;
-  object-fit: contain;
-  border: 2px solid #333; /* Added a dark border */
-  border-radius: 5px; /* Added rounded corners for a softer look */
-  box-sizing: border-box; /* Ensures border is included in the element's total width */
-}
-
-
 .player-hand {
   display: flex;        /* Use Flexbox layout */
   flex-direction: row;  /* Arrange children in a row */
   justify-content: space-around; /* Space the cards evenly */
   gap: 10px;            /* Optional: Add some space between cards */
   position: relative;
-}
-
-.card {
-  border: 2px solid color-mix(in oklab, var(--element-color, #ccc) 70%, #ccc);
-  border-radius: 10px;
-  padding: 10px; /* Reduced padding */
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 12px -2px var(--element-color, transparent);
-  transition: all 0.2s ease-in-out;
-  display: flex; /* Using flexbox for better internal alignment */
-  flex-direction: column;
-  text-align: center;
-  position: relative;
-  width: 220px;
-  max-width: 100%;
-}
-
-.card.compact {
-  width: 140px;
-  padding: 6px;
-  overflow: hidden;
-}
-
-.card.compact h2 {
-  font-size: 0.85em;
-  margin: 0 0 4px 0;
-}
-
-.card.compact .creature-image {
-  width: 100%;
-  max-height: 100px;
-  align-self: center;
-}
-
-.card.compact .health-bar-text {
-  font-size: 0.7em;
-}
-
-.card.compact ul {
-  font-size: 0.65em;
-  margin: 4px 0 0 0;
-  line-height: 1.3;
-}
-
-/* Improve contrast on light card surface */
-.card, .card h2 { color: #111827; }
-.card ul { color: #374151; }
-
-.card h2 {
-  margin: 0 0 10px 0; /* Reduced margins */
-  font-size: 1.2em; /* Slightly smaller title */
-}
-
-.card-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-/* Element badge */
-.element-badge {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-size: 16px;
-  cursor: default;
-  background: rgba(15, 23, 42, 0.75);
-  transition: background 0.2s ease;
-}
-.element-badge:hover,
-.element-badge:focus-visible {
-  background: rgba(15, 23, 42, 0.85);
-}
-
-.element-badge-tooltip {
-  position: absolute;
-  top: 110%;
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: rgba(17, 24, 39, 0.95);
-  color: var(--element-color, #f9fafb);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
-  z-index: 5;
-  pointer-events: none;
-}
-.element-badge-tooltip::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
-  width: 10px;
-  height: 10px;
-  background: inherit;
-  border-radius: 2px;
-}
-.element-badge:hover .element-badge-tooltip,
-.element-badge:focus-visible .element-badge-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-
-.defense-tooltip {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  background: rgba(15, 23, 42, 0.08);
-  transition: background 0.2s ease;
-}
-
-.defense-tooltip:hover,
-.defense-tooltip:focus-visible,
-.defense-tooltip:focus-within {
-  background: rgba(15, 23, 42, 0.18);
-}
-
-.defense-tooltip-content {
-  position: absolute;
-  top: 110%;
-  right: 0;
-  width: 200px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: rgba(17, 24, 39, 0.95);
-  color: #f9fafb;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.35);
-  font-size: 0.75rem;
-  line-height: 1.4;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(4px);
-  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
-  z-index: 5;
-}
-
-.defense-tooltip-content::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  right: 10px;
-  width: 12px;
-  height: 12px;
-  background: inherit;
-  transform: rotate(45deg);
-  border-radius: 2px;
-}
-
-.defense-tooltip:focus-visible .defense-tooltip-content,
-.defense-tooltip:focus-within .defense-tooltip-content,
-.defense-tooltip:hover .defense-tooltip-content {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.card ul {
-  margin: 10px 0 0 0; /* Reduced margins */
-  padding: 0;
-  font-size: 0.9em; /* Smaller font for stats */
-  list-style-type: none; /* remove bullet points */
-}
-
-.health-bar {
-  position: relative;
-  width: 100%;
-  height: 14px;
-  background-color: #ddd;
-  border-radius: 7px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.health-bar-fill {
-  height: 100%;
-  transition: width 0.8s ease;
-}
-
-.health-bar-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 0.75em;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 0 3px #000;
-  white-space: nowrap;
-}
-
-/* Card side theming */
-.card-p1 { --card-glow: rgba(245, 158, 11, 0.45); --card-border: #f59e0b; } /* gold */
-.card-p2 { --card-glow: rgba(99, 102, 241, 0.45); --card-border: #6366f1; }   /* indigo */
-
-/* when a card is selected */
-.card.selected {
-  border-color: var(--card-border, #2cce7d);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.18), 0 0 0 4px var(--card-glow, rgba(44, 206, 125, 0.35));
-  transform: translateY(-5px); /* Lift the card slightly */
 }
 
 .players-container {
@@ -490,11 +261,6 @@ input[type="radio"]:checked + label {
 /* Add 2px border on selection */
 .combat-button.selected {
   border: 4px solid black;
-}
-
-.card.disabled {
-  opacity: 0.5;
-  pointer-events: none;
 }
 
 .deck-builder {
@@ -798,14 +564,6 @@ input[type="radio"]:checked + label {
     min-width: 44px;
   }
 
-  .card {
-    width: 180px;
-  }
-  .creature-image {
-    width: 180px !important;
-    max-height: 180px;
-  }
-
   .player-decks-container {
     flex-direction: row;
     gap: 8px;
@@ -820,26 +578,6 @@ input[type="radio"]:checked + label {
   .deck-display .player-cards {
     gap: 6px;
   }
-  .deck-display .card {
-    width: 100px;
-    padding: 6px;
-    font-size: 0.75em;
-  }
-  .deck-display .card h2 {
-    font-size: 0.85em;
-    margin: 0 0 4px 0;
-  }
-  .deck-display .card ul {
-    display: none;
-  }
-  .deck-display .creature-image {
-    width: 90px !important;
-    max-height: 90px;
-  }
-  .deck-display .health-bar {
-    height: 10px;
-  }
-
   /* Creature pool: horizontal swipe on mobile */
   .creature-pool .player-cards {
     flex-wrap: nowrap;
@@ -850,15 +588,6 @@ input[type="radio"]:checked + label {
     gap: 10px;
     justify-content: flex-start;
   }
-  .creature-pool .card {
-    flex: 0 0 160px;
-    scroll-snap-align: start;
-  }
-  .creature-pool .creature-image {
-    width: 150px !important;
-    max-height: 150px;
-  }
-
   .home-button,
   .help-button {
     width: 40px;
@@ -881,43 +610,10 @@ input[type="radio"]:checked + label {
 }
 
 @media (max-width: 480px) {
-  .card {
-    width: 28vw;
-    min-width: 100px;
-  }
-  .creature-image {
-    width: 100% !important;
-    max-height: 28vw;
-  }
-  .card h2 {
-    font-size: 0.9em;
-  }
-  .card ul {
-    font-size: 0.75em;
-  }
   .player-hand {
     gap: 6px;
   }
 
-  .deck-display .card {
-    width: 80px;
-    padding: 4px;
-  }
-  .deck-display .card h2 {
-    font-size: 0.75em;
-  }
-  .deck-display .creature-image {
-    width: 70px !important;
-    max-height: 70px;
-  }
-
-  .creature-pool .card {
-    flex: 0 0 130px;
-  }
-  .creature-pool .creature-image {
-    width: 120px !important;
-    max-height: 120px;
-  }
 }
 
 h1 {
