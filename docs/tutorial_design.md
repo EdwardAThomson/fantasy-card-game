@@ -9,11 +9,12 @@ reference. The tutorial only teaches enough to play a first match.
 
 ## Status
 
-The flow and step mechanism are built. Visual styling is deliberately plain
-(it uses the existing theme tokens) and is finalised **after** the front page,
-card and game screen redesigns land, so the tutorial teaches the finished
-screens. Step targets use `data-tutorial` attributes rather than class names
-so those redesigns can restyle freely without breaking the tutorial.
+Built and styled. The overlay matches the redesigned title screen, cards and
+game screen: a navy glass panel with gold hairlines and Cinzel headings, a
+gold spotlight ring that gently pulses, progress dots, and a pointer from the
+panel to its target. The welcome and the finale are centred with a crest.
+Step targets use `data-tutorial` attributes rather than class names so future
+restyles do not break the tutorial.
 
 ## The journey
 
@@ -76,9 +77,10 @@ not touch game state:
   the step's `allow` list (default: the target only), so the player cannot
   wander off-script mid-lesson. The panel, home button and modals are always
   clickable. Free-play steps lift the gate.
-- **Placement.** The panel sits below or above the target on desktop. On
-  phones it becomes a sheet pinned to whichever half of the screen the target
-  is not on.
+- **Placement.** On desktop the panel is measured and placed on the first
+  side of the target (below, above, right, left) where it fits whole, then
+  clamped on screen, with a pointer aimed at the target. On phones it becomes
+  a sheet pinned to whichever half of the screen the target is not on.
 
 Adding or changing a lesson is a data change: add a step with a `target`
 (a `data-tutorial` selector), text, and an `advance` rule.
@@ -86,15 +88,13 @@ Adding or changing a lesson is a data change: add a step with a `target`
 ### Hooks in the game screen
 
 `data-tutorial` attributes: `p1-area`, `p1-hand`, `p2-hand`,
-`p1-style-{Melee|Ranged|Magic}`, `fight`, `combat-log`, `combat-log-toggle`,
+`p1-style-{Melee|Ranged|Magic}` (via `AttackPicker`'s `tutorialId`), `fight`,
+`home`, `combat-log`, `combat-log-toggle` (the top-bar Log button),
 and on each card `card-{name}` with `card-health`, `card-stats`,
 `card-element` inside it. Redesigns should keep these on the equivalent
 elements.
 
-## Left for the visual pass
+## Possible follow-ups
 
-- Panel, spotlight and tip styling to match the redesigned screens (fonts,
-  ornament, arrow pointing at the target, entrance animation).
-- An element chart step once the elements explainer exists, linking to it.
+- An element chart step once an elements explainer exists, linking to it.
 - A "Replay tutorial" entry in the in-game help.
-- Re-check copy against the final card layout (e.g. if stats become icons).

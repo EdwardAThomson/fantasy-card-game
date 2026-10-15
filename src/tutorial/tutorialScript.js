@@ -90,7 +90,7 @@ export const TUTORIAL_STEPS = [
     target: card('Water Elemental', 'stats'),
     allow: [],
     title: 'Stats',
-    body: 'Strength powers Melee, Agility powers Ranged and Magic powers Magic attacks. Defense softens hits, and Agility plus Intelligence decide who strikes first.',
+    body: 'STR powers Melee, AGI powers Ranged and MAG powers Magic attacks. DEF softens hits, and AGI plus INT decide who strikes first.',
     advance: 'next',
   },
   {
@@ -120,7 +120,7 @@ export const TUTORIAL_STEPS = [
     id: 'select-style',
     target: t('p1-style-Magic'),
     title: 'Choose how to attack',
-    body: 'Water Elemental\'s best stat is Magic (90), so choose Magic.',
+    body: 'Each attack button shows the stat it uses for your creature. Water Elemental\'s Magic is 90, its best, so choose Magic.',
     advance: { event: 'styleSelected', match: p => p.side === 'p1' && p.choice === 'Magic' },
   },
   {
