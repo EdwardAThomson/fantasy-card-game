@@ -267,8 +267,7 @@
   .combat-log { height: 100vh; height: 100dvh; }
 }
 
-/* Narrow desktop and tablet: picker moves above the hand, and cards may
-   shrink so three always fit. */
+/* Narrow desktop and tablet: picker moves above the hand. */
 @media (max-width: 1100px) {
   .player-area {
     grid-template-columns: minmax(0, 1fr);
@@ -284,8 +283,6 @@
     margin: 0 auto;
   }
   .player-hand { justify-content: center; }
-  .player-hand > .card { flex-shrink: 1; min-width: 0; }
-  .player-hand > .card .creature-image { max-width: 100%; }
 }
 
 /* Tablet and phone */
@@ -325,19 +322,19 @@
   .attack-option-name { grid-row: 2; justify-self: center; }
   .attack-option-stat { grid-column: 1; }
 
-  /* Three cards always fit across the screen */
-  .player-hand { gap: 6px; }
-  .player-hand > .card {
-    box-sizing: border-box;
-    flex: 0 1 calc((100% - 12px) / 3);
-    width: auto;
-    min-width: 0;
-    padding: 6px;
-  }
-  .player-hand > .card .creature-image {
-    width: 100% !important;
-    max-height: none;
-    aspect-ratio: 1;
-  }
   .btn-fight { min-width: 140px; }
+}
+
+/* Smallest phones: give the three hand cards the full width */
+@media (max-width: 480px) {
+  body .app-wrapper { padding: 10px 4px; }
+  .player-hand { gap: 4px; }
+}
+@media (max-width: 360px) {
+  .player-area {
+    padding: 10px 0;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
 }
