@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Game from './Game';
 import DeckBuilder from './DeckBuilder';
+import TitleScreen from './TitleScreen';
 import { DECK_SIZE } from './constants';
 import './App.css';
 
@@ -41,22 +42,7 @@ function App() {
       return <Game player1Deck={player1Deck} player2Deck={player2Deck} />;
     }
 
-    return (
-      <div className="entry-screen">
-        <div className="game-title-container">
-          <h1 className="game-title">Fantasy Card Game</h1>
-          <img src="/opening_image.png" alt="Fantasy Card Game" className="opening-image" />
-          <div className="select-panel panel">
-            <p className="subtitle">Choose a mode to begin.</p>
-            <div className="cta-group">
-              <button className="btn btn-primary" onClick={() => setGameMode('sp_random')}>Single Player (Quick)</button>
-              <button className="btn btn-primary" onClick={() => setGameMode('sp_builder')}>Single Player (Advanced)</button>
-              <button className="btn btn-secondary" onClick={() => setGameMode('mp_builder')}>Two Players (Local)</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <TitleScreen onSelectMode={setGameMode} />;
   };
 
   return (
