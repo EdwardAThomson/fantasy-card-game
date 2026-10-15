@@ -89,3 +89,18 @@ export const CrossedSwordsIcon = (props) => (
     <path d="m5 14 4 4M7 17l-3 3M3 19l2 2" />
   </Icon>
 );
+
+export const TrophyIcon = (props) => (
+  <Icon {...props}>
+    <path d="M7 4h10v5a5 5 0 0 1-10 0z" />
+    <path d="M7 6H4.5v1.5A3 3 0 0 0 7.5 10.5M17 6h2.5v1.5a3 3 0 0 1-3 3" />
+    <path d="M12 14v3.5M8.5 20.5h7M9.5 20.5l.5-3h4l.5 3" />
+  </Icon>
+);
+
+export const BrokenShieldIcon = (props) => (
+  <Icon {...props}>
+    <path d="M12 3 5 5.5V11c0 4.4 2.9 8.2 7 9.5 4.1-1.3 7-5.1 7-9.5V5.5z" />
+    <path d="m12 3-1.5 5 3 3-2 4 .5 5.5" />
+  </Icon>
+);
