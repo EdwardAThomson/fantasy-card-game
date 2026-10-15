@@ -4,6 +4,9 @@ import Card from './Card';
 import Modal from './Modal';
 import CombatLog from './CombatLog';
 import Tabs from './Tabs';
+import AttackPicker from './AttackPicker';
+import { HomeIcon, HelpIcon, ScrollIcon, CrossedSwordsIcon } from './GameIcons';
+import './GameScreen.css';
 import { DECK_SIZE } from './constants';
 import {
   getRandomUniqueCards,
@@ -14,7 +17,7 @@ import {
 
 
 // Main Game function
-function Game({ player1Deck, player2Deck, singlePlayer = false }) {
+function Game({ player1Deck, player2Deck, singlePlayer = false, onHome }) {
 
   // Initialize player hands using useState
   const [player1Hand, setPlayer1Hand] = useState(() => {
@@ -330,141 +333,137 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
     setPlayer2Choice('');
   };
 
-  // <h1>Fantasy Card Combat Game</h1>
-  
+  // Short prompt under each player's name saying what they still need to do
+  const getPlayerStatus = (card, choice, isAI) => {
+    if (isGameOver) return '';
+    if (card && choice) return 'Ready';
+    if (isAI) return 'Waiting for your move';
+    if (!card) return 'Choose a creature';
+    return 'Choose an attack';
+  };
+
+  const renderPlayerArea = (side) => {
+    const isP1 = side === 'p1';
+    const isAI = !isP1 && singlePlayer;
+    const hand = isP1 ? player1Hand : player2Hand;
+    const selectedCard = isP1 ? player1SelectedCard : player2SelectedCard;
+    const choice = isP1 ? player1Choice : player2Choice;
+    const onCardSelect = isP1 ? handlePlayer1CardSelect : handlePlayer2CardSelect;
+    const onChoiceSelect = isP1 ? handlePlayer1ChoiceSelect : handlePlayer2ChoiceSelect;
+    const name = isP1 ? 'Player 1' : 'Player 2';
+    const status = getPlayerStatus(selectedCard, choice, isAI);
+
+    return (
+      <section className={`player-area${isAI ? ' is-ai' : ''}`} aria-label={name}>
+        <div className="player-info">
+          <div className="player-nameplate">
+            <h2>{name}</h2>
+            {singlePlayer && <span className="player-tag">{isAI ? 'AI' : 'You'}</span>}
+          </div>
+          {status && (
+            <p className={`player-status${status === 'Ready' ? ' is-ready' : ''}`}>{status}</p>
+          )}
+          <AttackPicker
+            choice={choice}
+            onSelect={onChoiceSelect}
+            card={selectedCard}
+            readOnly={isAI}
+            label={`${name} attack style`}
+          />
+        </div>
+        <div className="player-hand">
+          {hand.map((card, index) => (
+            <Card
+              key={index}
+              creature={card}
+              onCardSelect={() => onCardSelect(card)}
+              isSelected={selectedCard === card}
+              isDying={dyingCards.includes(card.name)}
+              disabled={isAI}
+              side={side}
+              damageEvents={isP1 ? player1DamageEvents : player2DamageEvents}
+              abilityUsed={abilityUsed}
+            />
+          ))}
+        </div>
+      </section>
+    );
+  };
+
   return (
     <>
-    
+
+    <header className="game-hud">
+      <div className="game-hud-side">
+        {onHome && (
+          <button type="button" className="hud-btn" onClick={onHome} aria-label="Home">
+            <HomeIcon />
+            <span className="hud-btn-label">Home</span>
+          </button>
+        )}
+      </div>
+      <div className="game-hud-round" aria-live="polite">
+        {isGameOver ? 'Battle over' : `Round ${round}`}
+      </div>
+      <div className="game-hud-side is-end">
+        <button
+          type="button"
+          className="hud-btn hud-btn-log"
+          onClick={() => setIsCombatLogOpen(!isCombatLogOpen)}
+          aria-label="Combat log"
+          aria-expanded={isCombatLogOpen}
+        >
+          <ScrollIcon />
+          <span className="hud-btn-label">Log</span>
+        </button>
+        <button type="button" className="hud-btn" onClick={() => setIsHelpModalOpen(true)} aria-label="How to play">
+          <HelpIcon />
+          <span className="hud-btn-label">Help</span>
+        </button>
+      </div>
+    </header>
+
     <div className="app-wrapper">
       <div className="game-container">
         <div className="game-main">
 
           <div className="players-container">
-            {/* Player 1 Area */}
-            <div className="player-area">
-              <div className="player-info">
-                <h2>Player 1</h2>
-                <div className="combat-buttons">
-                  <button
-                    className={`btn-choice is-melee ${player1Choice === 'Melee' ? 'selected' : ''}`}
-                    onClick={() => handlePlayer1ChoiceSelect('Melee')}
-                    aria-pressed={player1Choice === 'Melee'}
-                  >
-                    🗡️ Melee
-                  </button>
-                  <button
-                    className={`btn-choice is-ranged ${player1Choice === 'Ranged' ? 'selected' : ''}`}
-                    onClick={() => handlePlayer1ChoiceSelect('Ranged')}
-                    aria-pressed={player1Choice === 'Ranged'}
-                  >
-                    🏹 Ranged
-                  </button>
-                  <button
-                    className={`btn-choice is-magic ${player1Choice === 'Magic' ? 'selected' : ''}`}
-                    onClick={() => handlePlayer1ChoiceSelect('Magic')}
-                    aria-pressed={player1Choice === 'Magic'}
-                  >
-                    🪄 Magic
-                  </button>
-                </div>
-              </div>
-              <div className="player-hand">
-                {player1Hand.map((card, index) => (
-                  <Card
-                    key={index}
-                    creature={card}
-                    onCardSelect={() => handlePlayer1CardSelect(card)}
-                    isSelected={player1SelectedCard === card}
-                    isDying={dyingCards.includes(card.name)}
-                    side="p1"
-                    damageEvents={player1DamageEvents}
-                    abilityUsed={abilityUsed}
-                  />
-                ))}
-              </div>
-            </div>
+            {renderPlayerArea('p1')}
 
-            {/* Fight button */}
-            <div className="fight-cta">
-              <button
-                className={`btn btn-primary btn-lg ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
-                style={fightTint ? { '--choice': fightTint } : undefined}
-                onClick={Fight}
-                disabled={!isCombatReady}
-                aria-label="Start combat"
-              >
-                ⚔️ Fight!
-              </button>
-              <button
-                className="btn btn-ghost"
-                type="button"
-                onClick={resetSelections}
-                aria-label="Reset selections"
-              >
-                Reset selections
-              </button>
-            </div>
-
-            {/* New Game / Reset, only after game ends */}
-            {isGameOver && (
-              <div className="fight-cta" style={{ marginTop: 16 }}>
+            <div className="battle-strip">
+              {isGameOver ? (
                 <button
                   className="btn btn-primary btn-lg"
                   onClick={resetGame}
                   aria-label="Start a new game"
                 >
-                  🔁 New Game
+                  New Game
                 </button>
-              </div>
-            )}
-
-            {/* Player 2 Area */}
-            <div className="player-area">
-              <div className="player-info">
-                <h2>Player 2</h2>
-                <div className="combat-buttons">
+              ) : (
+                <>
                   <button
-                    className={`btn-choice is-melee ${player2Choice === 'Melee' ? 'selected' : ''}`}
-                    onClick={() => handlePlayer2ChoiceSelect('Melee')}
-                    aria-pressed={player2Choice === 'Melee'}
-                    disabled={singlePlayer}
+                    className={`btn btn-primary btn-lg btn-fight ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
+                    style={fightTint ? { '--choice': fightTint } : undefined}
+                    onClick={Fight}
+                    disabled={!isCombatReady}
+                    aria-label="Start combat"
                   >
-                    🗡️ Melee
+                    <CrossedSwordsIcon size={22} />
+                    Fight!
                   </button>
                   <button
-                    className={`btn-choice is-ranged ${player2Choice === 'Ranged' ? 'selected' : ''}`}
-                    onClick={() => handlePlayer2ChoiceSelect('Ranged')}
-                    aria-pressed={player2Choice === 'Ranged'}
-                    disabled={singlePlayer}
+                    className="btn btn-ghost btn-reset"
+                    type="button"
+                    onClick={resetSelections}
+                    aria-label="Reset selections"
                   >
-                    🏹 Ranged
+                    Reset
                   </button>
-                  <button
-                    className={`btn-choice is-magic ${player2Choice === 'Magic' ? 'selected' : ''}`}
-                    onClick={() => handlePlayer2ChoiceSelect('Magic')}
-                    aria-pressed={player2Choice === 'Magic'}
-                    disabled={singlePlayer}
-                  >
-                    🪄 Magic
-                  </button>
-                </div>
-              </div>
-              <div className="player-hand">
-                {player2Hand.map((card, index) => (
-                  <Card
-                    key={index}
-                    creature={card}
-                    onCardSelect={() => handlePlayer2CardSelect(card)}
-                    isSelected={player2SelectedCard === card}
-                    isDying={dyingCards.includes(card.name)}
-                    disabled={singlePlayer}
-                    side="p2"
-                    damageEvents={player2DamageEvents}
-                    abilityUsed={abilityUsed}
-                  />
-                ))}
-              </div>
+                </>
+              )}
             </div>
+
+            {renderPlayerArea('p2')}
           </div>
 
         </div>
@@ -473,7 +472,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
       <CombatLog
         messages={logMessages}
         isOpen={isCombatLogOpen}
-        onToggle={() => setIsCombatLogOpen(!isCombatLogOpen)}
+        onClose={() => setIsCombatLogOpen(false)}
       />
     </div>
 
@@ -560,7 +559,6 @@ function Game({ player1Deck, player2Deck, singlePlayer = false }) {
         </div>
       </Tabs>
     </Modal>
-    <button className="help-button" onClick={() => setIsHelpModalOpen(true)}>?</button>
     </>
   );
 }

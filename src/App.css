@@ -100,6 +100,78 @@ h1, h2, h3 {
 }
 .btn-lg { padding: 1rem 1.4rem; font-size: 1.1rem; }
 
+/* HUD button: themed icon + label button for screen chrome (Home, Help, Log).
+   Dark lacquer face with a gold hairline frame; collapses to a round icon
+   button on narrow screens. */
+.hud-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  min-width: 44px;
+  padding: 0 1rem 0 0.8rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 55%, transparent);
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(212, 175, 55, 0.16), transparent 60%),
+    linear-gradient(180deg, #1c2438 0%, #111827 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 16px rgba(0, 0, 0, 0.35);
+  color: var(--accent);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .2s ease, color .2s ease, border-color .2s ease;
+}
+.hud-btn svg { flex-shrink: 0; }
+.hud-btn:hover {
+  color: #f6e3a1;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 3px rgba(212, 175, 55, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.4);
+}
+.hud-btn:active { transform: translateY(0); }
+.hud-btn:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--ring); }
+.hud-btn[aria-expanded="true"] { color: #f6e3a1; border-color: var(--accent); }
+
+@media (max-width: 640px) {
+  .hud-btn { padding: 0; width: 44px; }
+  .hud-btn-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* Floating Home / Help on the deck builder */
+.home-button,
+.help-button {
+  position: fixed;
+  left: 20px;
+  z-index: 999;
+}
+.home-button { top: 20px; }
+.help-button { top: 74px; }
+@media (max-width: 768px) {
+  .home-button,
+  .help-button { left: 10px; }
+  .home-button { top: 10px; }
+  .help-button { top: 60px; }
+}
+
 /* Ready-state glow */
 @keyframes pulseGlow {
   0% { box-shadow: 0 0 0 0 var(--glow-base, rgba(245, 158, 11, 0.5)); }
@@ -111,9 +183,6 @@ h1, h2, h3 {
 /* Glow color utilities */
 .glow-player { --glow-base: rgba(245, 158, 11, 0.5); } /* gold */
 .glow-ai { --glow-base: rgba(99, 102, 241, 0.5); }     /* indigo */
-
-/* Fight CTA container */
-.fight-cta { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
 
 /* Panels */
 .panel {
@@ -207,61 +276,6 @@ input[type="radio"]:checked + label {
   position: relative;
 }
 
-.players-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.player-area {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 20px;
-}
-
-.player-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-width: 120px;
-}
-
-/* combat buttons */
-.combat-buttons {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-}
-
-.combat-button {
-  cursor: pointer;
-  border: 1px solid transparent;
-  text-align: center;
-}
-
-.combat-button.melee {
-  background-color: green;
-  color: white;
-}
-
-.combat-button.ranged {
-  background-color: blue;
-  color: white;
-}
-
-.combat-button.magic {
-  background-color: red;
-  color: white;
-}
-
-/* Add 2px border on selection */
-.combat-button.selected {
-  border: 4px solid black;
-}
 
 .deck-builder {
   max-width: 1200px;
@@ -318,11 +332,6 @@ input[type="radio"]:checked + label {
   gap: 1rem;
   margin-top: 1rem;
   align-items: center;
-}
-
-/* Remove margin on the last button */
-.combat-button:last-child {
-  margin-right: 0;
 }
 
 /* ── Combat Log ── */
@@ -465,63 +474,6 @@ input[type="radio"]:checked + label {
 }
 .log-scroll-btn:hover { background: rgba(212, 175, 55, 0.12); }
 
-/* Combat log toggle button */
-.combat-log-toggle {
-  display: none;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(180deg, var(--accent), var(--accent-2));
-  color: #1f2937;
-  border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  z-index: 1001;
-}
-.combat-log-toggle:hover { transform: scale(1.05); }
-
-/* Combat choice buttons */
-.combat-buttons { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.btn-choice {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0.5rem 0.9rem;
-  border-radius: calc(var(--radius) - 2px);
-  border: 1px solid #374151;
-  background: rgba(255,255,255,0.02);
-  color: var(--text);
-  transition: background 180ms ease, transform 120ms ease, box-shadow 120ms ease, color 120ms ease, border-color 180ms ease;
-}
-.btn-choice:hover { background: rgba(255,255,255,0.06); transform: translateY(-1px); }
-.btn-choice:active { transform: translateY(0); }
-.btn-choice:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--ring); }
-.btn-choice:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-/* Color modifiers */
-.btn-choice.is-melee { --choice: #22c55e; }
-.btn-choice.is-ranged { --choice: #3b82f6; }
-.btn-choice.is-magic { --choice: #ef4444; }
-
-/* Selected state: fill with gradient using the modifier color */
-.btn-choice.selected {
-  color: #1f2937;
-  border-color: transparent;
-  background: linear-gradient(180deg, var(--choice), color-mix(in oklab, var(--choice) 75%, #111827));
-  box-shadow: 0 8px 16px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.15);
-}
-.btn-choice.selected:hover { transform: translateY(-1px); }
-
-/* Subtle colored border when not selected */
-.btn-choice.is-melee:not(.selected) { border-color: color-mix(in oklab, var(--choice) 35%, #374151); }
-.btn-choice.is-ranged:not(.selected) { border-color: color-mix(in oklab, var(--choice) 35%, #374151); }
-.btn-choice.is-magic:not(.selected) { border-color: color-mix(in oklab, var(--choice) 35%, #374151); }
-
 /* combat-log entry spacing handled by .log-entry */
 
 @media (max-width: 1200px) {
@@ -543,26 +495,9 @@ input[type="radio"]:checked + label {
   .combat-log.open {
     display: block;
   }
-  .combat-log-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 }
 
 @media (max-width: 768px) {
-  .player-area {
-    flex-direction: column;
-  }
-
-  .combat-buttons {
-    flex-direction: row;
-  }
-
-  .btn-choice {
-    min-height: 44px;
-    min-width: 44px;
-  }
 
   .player-decks-container {
     flex-direction: row;
@@ -588,20 +523,6 @@ input[type="radio"]:checked + label {
     gap: 10px;
     justify-content: flex-start;
   }
-  .home-button,
-  .help-button {
-    width: 40px;
-    height: 40px;
-    font-size: 1.4rem;
-  }
-  .home-button {
-    top: 10px;
-    left: 10px;
-  }
-  .help-button {
-    top: 60px;
-    left: 10px;
-  }
 
   .app-wrapper {
     padding: 10px;
@@ -618,48 +539,6 @@ input[type="radio"]:checked + label {
 
 h1 {
   text-align: center;
-}
-
-.home-button {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  font-size: 1.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  z-index: 1000;
-}
-
-.home-button:hover {
-  background-color: #2980b9;
-}
-
-.help-button {
-  position: fixed;
-  top: 80px;
-  left: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  font-size: 1.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  z-index: 999;
-}
-
-.help-button:hover {
-  background-color: #2980b9;
 }
 
 /* Card shake animation */
