@@ -131,7 +131,7 @@ h1, h2, h3 {
 }
 .hud-btn svg { flex-shrink: 0; }
 .hud-btn:hover {
-  color: #f3d77a;
+  color: #f6e3a1;
   border-color: var(--accent);
   transform: translateY(-1px);
   box-shadow:
@@ -142,7 +142,7 @@ h1, h2, h3 {
 }
 .hud-btn:active { transform: translateY(0); }
 .hud-btn:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--ring); }
-.hud-btn[aria-expanded="true"] { color: #f3d77a; border-color: var(--accent); }
+.hud-btn[aria-expanded="true"] { color: #f6e3a1; border-color: var(--accent); }
 
 @media (max-width: 640px) {
   .hud-btn { padding: 0; width: 44px; }
