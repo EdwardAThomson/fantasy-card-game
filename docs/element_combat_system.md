@@ -28,16 +28,18 @@ The multipliers are intentionally modest — element matchups should influence d
 
 ### Matchup Table
 
-| Attacker    | Strong Against (1.25x)  | Weak Against (0.75x)    |
+Matches `ELEMENT_ADVANTAGES` in `src/constants.js`. Strong = 1.15x damage, weak = 0.85x.
+
+| Attacker    | Strong Against (1.15x)  | Weak Against (0.85x)    |
 |-------------|-------------------------|-------------------------|
-| Fire        | Nature, Air             | Water, Earth            |
-| Water       | Fire, Lightning         | Nature, Air             |
-| Nature      | Water, Earth            | Fire, Dark              |
-| Earth       | Lightning, Fire         | Nature, Water           |
+| Fire        | Nature, Air             | Water, Earth, Light     |
+| Water       | Fire, Lightning         | Nature                  |
+| Nature      | Water, Earth            | Fire, Air, Dark         |
+| Earth       | Lightning, Fire         | Nature, Air             |
 | Air         | Earth, Nature           | Fire, Lightning         |
-| Lightning   | Water, Air              | Earth, Dark             |
-| Light       | Dark, Fire              | Lightning, Nature       |
-| Dark        | Lightning, Nature       | Light, Water            |
+| Lightning   | Air, Light              | Water, Earth, Dark      |
+| Light       | Dark, Fire              | Lightning               |
+| Dark        | Lightning, Nature       | Light                   |
 
 ### Design Rationale
 
@@ -53,7 +55,7 @@ Each pairing has a thematic justification:
 - **Earth > Fire** — earth smothers flame
 - **Air > Earth** — wind erodes rock
 - **Air > Nature** — storms uproot trees
-- **Lightning > Water** — electricity devastates through water
+- **Lightning > Light** — storm clouds blot out the sun
 - **Lightning > Air** — lightning splits the sky
 - **Light > Dark** — light banishes shadow
 - **Light > Fire** — divine light outshines mundane flame
@@ -72,6 +74,8 @@ No element is strictly better positioned than another.
 ---
 
 ## Proposed Multipliers
+
+> **Shipped values:** the game uses **1.15x / 0.85x** (`src/constants.js`). The 1.25x / 0.75x figures below were the original proposal.
 
 | Matchup      | Damage Multiplier |
 |--------------|-------------------|
@@ -102,13 +106,13 @@ export const ELEMENT_ADVANTAGES = {
   nature:    ['water', 'earth'],
   earth:     ['lightning', 'fire'],
   air:       ['earth', 'nature'],
-  lightning: ['water', 'air'],
+  lightning: ['air', 'light'],
   light:     ['dark', 'fire'],
   dark:      ['lightning', 'nature'],
 };
 
-export const ADVANTAGE_MULTIPLIER = 1.25;
-export const DISADVANTAGE_MULTIPLIER = 0.75;
+export const ADVANTAGE_MULTIPLIER = 1.15;
+export const DISADVANTAGE_MULTIPLIER = 0.85;
 ```
 
 ### 2. Add a lookup function

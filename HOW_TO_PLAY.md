@@ -101,11 +101,9 @@ Every creature belongs to one of eight elements, shown by the icon next to its n
 | 🌿 Nature | 🌊 Water, 🪨 Earth | 🔥 Fire, 🌪️ Air, 🌑 Dark |
 | 🪨 Earth | 🔥 Fire, ⚡ Lightning | 🌿 Nature, 🌪️ Air |
 | 🌪️ Air | 🌿 Nature, 🪨 Earth | 🔥 Fire, ⚡ Lightning |
-| ⚡ Lightning | 🌊 Water, 🌪️ Air | 🪨 Earth, 🌑 Dark |
-| ✨ Light | 🔥 Fire, 🌑 Dark | None |
+| ⚡ Lightning | 🌪️ Air, ✨ Light | 🌊 Water, 🪨 Earth, 🌑 Dark |
+| ✨ Light | 🔥 Fire, 🌑 Dark | ⚡ Lightning |
 | 🌑 Dark | 🌿 Nature, ⚡ Lightning | ✨ Light |
-
-Water and Lightning are each strong against the other, so both deal 115% in that fight.
 
 **In the game:** hover or tap a card's element icon to see its matchups. Once you pick a creature, the panel above the Fight button shows how it fares against each enemy creature, and once both creatures are chosen it shows the matchup in both directions. The full chart is in the in-game Help under **Elements**.
 

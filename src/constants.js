@@ -17,7 +17,7 @@ export const ELEMENT_ADVANTAGES = {
   nature:    ['water', 'earth'],
   earth:     ['lightning', 'fire'],
   air:       ['earth', 'nature'],
-  lightning: ['water', 'air'],
+  lightning: ['air', 'light'],
   light:     ['dark', 'fire'],
   dark:      ['lightning', 'nature'],
 };
