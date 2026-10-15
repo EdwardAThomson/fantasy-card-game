@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { CloseIcon } from './GameIcons';
 
 const MESSAGE_ICONS = {
   damage: '\u2694\uFE0F',
@@ -15,7 +16,7 @@ const STYLE_ICONS = {
   Magic: '\uD83E\uDE84',
 };
 
-function CombatLog({ messages, isOpen, onToggle }) {
+function CombatLog({ messages, isOpen, onClose }) {
   const logEndRef = useRef(null);
   const containerRef = useRef(null);
   const [userScrolled, setUserScrolled] = useState(false);
@@ -84,65 +85,66 @@ function CombatLog({ messages, isOpen, onToggle }) {
   };
 
   return (
-    <>
-      <div
-        className={`combat-log${isOpen ? ' open' : ''}`}
-        ref={containerRef}
-        onScroll={handleScroll}
-      >
-        <h3>Combat Log</h3>
+    <div
+      className={`combat-log${isOpen ? ' open' : ''}`}
+      ref={containerRef}
+      onScroll={handleScroll}
+    >
+      <h3>
+        Combat Log
+        <button
+          type="button"
+          className="combat-log-close"
+          onClick={onClose}
+          aria-label="Close combat log"
+        >
+          <CloseIcon size={18} />
+        </button>
+      </h3>
 
-        {roundCount === 0 && (
-          <p className="log-empty">Awaiting combat...</p>
-        )}
+      {roundCount === 0 && (
+        <p className="log-empty">Awaiting combat...</p>
+      )}
 
-        {rounds.map((round, rIdx) => {
-          const expanded = isExpanded(rIdx);
-          return (
-            <div key={rIdx} className="log-round">
-              {round.header && (
-                <button
-                  className="log-round-header"
-                  onClick={() => toggleRound(rIdx)}
-                  aria-expanded={expanded}
-                >
-                  <span className="log-round-arrow">{expanded ? '\u25BE' : '\u25B8'}</span>
-                  <span>{round.header.text}</span>
-                </button>
-              )}
-              {expanded &&
-                round.messages.map((msg, mIdx) => {
-                  if (msg.type === 'separator') {
-                    return <div key={mIdx} className="log-separator" />;
-                  }
-                  return (
-                    <div key={mIdx} className={`log-entry log-${msg.type}`}>
-                      {((msg.style && STYLE_ICONS[msg.style]) || MESSAGE_ICONS[msg.type]) && (
-                        <span className="log-icon">{(msg.style && STYLE_ICONS[msg.style]) || MESSAGE_ICONS[msg.type]}</span>
-                      )}
-                      <span className="log-text">{msg.text}</span>
-                    </div>
-                  );
-                })}
-            </div>
-          );
-        })}
+      {rounds.map((round, rIdx) => {
+        const expanded = isExpanded(rIdx);
+        return (
+          <div key={rIdx} className="log-round">
+            {round.header && (
+              <button
+                className="log-round-header"
+                onClick={() => toggleRound(rIdx)}
+                aria-expanded={expanded}
+              >
+                <span className="log-round-arrow">{expanded ? '\u25BE' : '\u25B8'}</span>
+                <span>{round.header.text}</span>
+              </button>
+            )}
+            {expanded &&
+              round.messages.map((msg, mIdx) => {
+                if (msg.type === 'separator') {
+                  return <div key={mIdx} className="log-separator" />;
+                }
+                return (
+                  <div key={mIdx} className={`log-entry log-${msg.type}`}>
+                    {((msg.style && STYLE_ICONS[msg.style]) || MESSAGE_ICONS[msg.type]) && (
+                      <span className="log-icon">{(msg.style && STYLE_ICONS[msg.style]) || MESSAGE_ICONS[msg.type]}</span>
+                    )}
+                    <span className="log-text">{msg.text}</span>
+                  </div>
+                );
+              })}
+          </div>
+        );
+      })}
 
-        {userScrolled && messages.length > 0 && (
-          <button className="log-scroll-btn" onClick={scrollToBottom}>
-            &darr; Latest
-          </button>
-        )}
-        <div ref={logEndRef} />
-      </div>
-      <button
-        className="combat-log-toggle"
-        onClick={onToggle}
-        title="Toggle combat log"
-      >
-        {isOpen ? '\u2715' : '\uD83D\uDCDC'}
-      </button>
-    </>
+      {userScrolled && messages.length > 0 && (
+        <button className="log-scroll-btn" onClick={scrollToBottom}>
+          &darr; Latest
+        </button>
+      )}
+      <div ref={logEndRef} />
+    </div>
   );
 }
 

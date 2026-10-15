@@ -1,0 +1,300 @@
+/* Creature card: fixed zones (header, art, stats, abilities) in a gold frame.
+   Every size is in em, so one font-size scales the whole card:
+   16px = full card (220px wide), 10px = compact. */
+
+.card {
+  --el: var(--element-color, #d4af37);
+  --gold: var(--accent, #d4af37);
+  --gold-hi: #f6e3a1;
+  --gold-lo: #8a6a1c;
+  --ring: transparent;
+  font-size: 16px;
+  width: 13.75em;
+  height: 20.5em;
+  max-width: 100%;
+  flex: 0 0 auto;
+  position: relative;
+  box-sizing: border-box;
+  padding: 0.22em;
+  border-radius: 0.85em;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  background: linear-gradient(155deg, #f3d27a 0%, var(--gold) 30%, var(--gold-lo) 55%, color-mix(in oklab, var(--el) 45%, var(--gold)) 100%);
+  box-shadow: 0 0.5em 1.2em rgba(0, 0, 0, 0.55), 0 0 0 0.2em var(--ring), 0 0 1.2em -0.2em var(--el);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.card:hover { transform: translateY(-0.25em); }
+
+.card-p1 { --select-ring: #f59e0b; }
+.card-p2 { --select-ring: #6366f1; }
+.card.selected {
+  --ring: var(--select-ring, var(--success, #2cce7d));
+  transform: translateY(-0.35em);
+  box-shadow: 0 0.5em 1.2em rgba(0, 0, 0, 0.55), 0 0 0 0.2em var(--ring), 0 0 1.4em 0.1em var(--ring);
+}
+
+.card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.card-inner {
+  height: 100%;
+  border-radius: 0.65em;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 2.25em minmax(0, 1fr) 3.1em auto;
+  background: linear-gradient(180deg, #1a2234, #0e1424);
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.35);
+}
+
+/* Header: element gem, name, defence shield */
+.card-head {
+  display: grid;
+  grid-template-columns: 1.7em minmax(0, 1fr) 1.7em;
+  align-items: center;
+  gap: 0.2em;
+  padding: 0 0.3em;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--el) 22%, #1a2234), #121a2c);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.45);
+}
+
+.card-name {
+  margin: 0;
+  font-family: Cinzel, Georgia, serif;
+  font-weight: 700;
+  font-size: 1.05em;
+  line-height: 1;
+  color: var(--gold-hi);
+  text-shadow: 0 1px 2px #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.element-badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  cursor: default;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.55) 0, color-mix(in oklab, var(--el) 85%, #000) 45%, color-mix(in oklab, var(--el) 50%, #000) 100%);
+  box-shadow: 0 0 0 0.1em var(--gold), 0 0 0.5em var(--el);
+}
+.element-badge > span[aria-hidden] {
+  font-size: 0.8em;
+  line-height: 1;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
+.element-badge-tooltip,
+.defense-tooltip-content {
+  position: absolute;
+  top: 115%;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(17, 24, 39, 0.96);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  font: 600 0.75rem/1.4 Inter, system-ui, sans-serif;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  z-index: 5;
+  pointer-events: none;
+}
+.element-badge-tooltip {
+  left: 0;
+  color: var(--el);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.element-badge:hover .element-badge-tooltip,
+.element-badge:focus-visible .element-badge-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.defense-tooltip {
+  position: relative;
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  width: 1.4em;
+  height: 1.4em;
+  color: var(--gold);
+  cursor: pointer;
+}
+.defense-tooltip svg { width: 100%; height: 100%; }
+.defense-tooltip-content {
+  right: 0;
+  width: 200px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #f9fafb;
+  font-weight: 400;
+}
+.defense-tooltip-content p { margin: 0; }
+.defense-tooltip-content p + p { margin-top: 4px; }
+.defense-tooltip:hover .defense-tooltip-content,
+.defense-tooltip:focus-visible .defense-tooltip-content,
+.defense-tooltip:focus-within .defense-tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Art window with the HP bar on its bottom edge */
+.card-art {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.45);
+}
+.card .creature-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card .health-bar {
+  position: absolute;
+  left: 0.45em;
+  right: 0.45em;
+  bottom: 0.45em;
+  height: 1.05em;
+  border-radius: 0.6em;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.65);
+  box-shadow: 0 0 0 1px rgba(246, 227, 161, 0.45);
+}
+.card .health-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, #7ee787, #1f9d3a);
+  transition: width 0.8s ease;
+}
+.card .health-bar.mid .health-bar-fill { background: linear-gradient(180deg, #ffd666, #c98a06); }
+.card .health-bar.low .health-bar-fill { background: linear-gradient(180deg, #ff8a80, #c62828); }
+.card .health-bar-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 800 0.68em/1 Inter, system-ui, sans-serif;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+  white-space: nowrap;
+}
+
+/* Stats: five icon cells */
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  margin: 0;
+  padding: 0 0.25em;
+  list-style: none;
+  background: linear-gradient(180deg, #172036, #10172a);
+}
+.card-stats li {
+  display: grid;
+  justify-items: center;
+  gap: 0.08em;
+  color: var(--gold);
+}
+.card-stats svg { width: 1.05em; height: 1.05em; opacity: 0.9; }
+.card-stats b { font: 800 0.82em/1 Inter, system-ui, sans-serif; color: #f4efe0; }
+.card-stats small { font: 600 0.48em/1 Inter, system-ui, sans-serif; letter-spacing: 0.08em; color: #8f9bb8; }
+
+/* Abilities */
+.card-abilities {
+  display: flex;
+  gap: 0.25em;
+  align-items: center;
+  justify-content: center;
+  height: 1.75em;
+  padding: 0 0.3em;
+  background: #0b1120;
+  border-top: 1px solid rgba(212, 175, 55, 0.22);
+}
+.card-abilities span {
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.35em 0.6em;
+  border-radius: 1em;
+  font: 600 0.56em/1 Inter, system-ui, sans-serif;
+  color: #e9e2cc;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+/* Foil sheen that sweeps across on hover and when selected */
+.card.foil::after {
+  content: "";
+  position: absolute;
+  inset: 0.22em;
+  border-radius: 0.65em;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.22) 45%, rgba(255, 240, 200, 0.08) 52%, transparent 65%);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  mix-blend-mode: screen;
+  transition: background-position 0.9s ease;
+}
+.card.foil:hover::after,
+.card.foil.selected::after { background-position: -20% 0; }
+
+.card .stunned-overlay { border-radius: 0.85em; }
+
+/* Compact: same layout, smaller, no abilities row */
+.card.compact {
+  font-size: 10px;
+  height: 18.5em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card.foil::after { transition: none; }
+}
+
+@media (max-width: 768px) {
+  .card { font-size: 13px; }
+  .card.compact { font-size: 9px; }
+
+  /* Deck slots are small on phones: name and art only */
+  .deck-display .card.compact { font-size: 7.5px; height: 15.5em; }
+  .deck-display .card-stats { display: none; }
+  .deck-display .card-inner { grid-template-rows: 2.25em minmax(0, 1fr); }
+
+  /* Room for the selected card's lift inside the swipe row */
+  .creature-pool .player-cards { padding-top: 10px; }
+  .creature-pool .card {
+    font-size: 11.5px;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Three hand cards side by side; drop the abilities row to keep text legible */
+  .player-hand .card {
+    font-size: clamp(7.3px, 2.04vw, 13px);
+    height: 18.75em;
+  }
+  .player-hand .card-abilities { display: none; }
+  .player-hand .card-stats small { display: none; }
+  .player-hand .card-stats svg { width: 1.15em; height: 1.15em; }
+  .player-hand .card-stats b { font-size: 1em; }
+
+  .deck-display .card.compact { font-size: 6px; }
+  .creature-pool .card { font-size: 9.5px; }
+}
