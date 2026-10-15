@@ -4,6 +4,8 @@ import Card from './Card';
 import Modal from './Modal';
 import CombatLog from './CombatLog';
 import Tabs from './Tabs';
+import ElementChart from './ElementChart';
+import MatchupHint from './MatchupHint';
 import AttackPicker from './AttackPicker';
 import { HomeIcon, HelpIcon, ScrollIcon, CrossedSwordsIcon } from './GameIcons';
 import './GameScreen.css';
@@ -11,6 +13,7 @@ import TutorialOverlay from './tutorial/TutorialOverlay';
 import { DECK_SIZE } from './constants';
 import { setRandomSource, seededRandom } from './rng';
 import {
+  abilityEffects,
   getRandomUniqueCards,
   getElementMultiplier,
   handleCombatRound,
@@ -281,9 +284,18 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     setPlayer1DamageEvents(p1DamageEvents);
     setPlayer2DamageEvents(p2DamageEvents);
     
-    // Set ability used for icon animation
+    // Set ability used for its special effect. Attacks and stuns play on the
+    // target; heals and defensive abilities play on the creature using them.
     if (outcome.abilityUsed) {
-      setAbilityUsed(outcome.abilityUsed);
+      const { ability, side } = outcome.abilityUsed;
+      const hitsTarget = ['damage', 'stun'].includes(abilityEffects[ability]?.type);
+      if (hitsTarget) {
+        const targetSide = side === 'p1' ? 'p2' : 'p1';
+        const target = side === 'p1' ? player2SelectedCard : player1SelectedCard;
+        setAbilityUsed({ ability, cardName: target.name, side: targetSide });
+      } else {
+        setAbilityUsed(outcome.abilityUsed);
+      }
     }
 
     // Update hands with new health and status (including isStunned from combat)
@@ -477,6 +489,13 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
           <div className="players-container">
             {renderPlayerArea('p1')}
 
+            <MatchupHint
+              p1Card={player1SelectedCard}
+              p2Card={player2SelectedCard}
+              p1Hand={player1Hand}
+              p2Hand={player2Hand}
+            />
+
             <div className="battle-strip">
               {isGameOver ? (!tutorial && (
                 <button
@@ -565,6 +584,9 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
           <h4>Initiative:</h4>
           <p>The creature with the higher initiative attacks first. Initiative is calculated from 40% Agility + 60% Intelligence, plus a random roll.</p>
         </div>
+        <div label="Elements">
+          <ElementChart />
+        </div>
         <div label="Abilities">
           <h4>Abilities:</h4>
           <p>Creatures have a 50% chance to use a special ability during combat. Abilities can deal extra damage, heal, provide defense, or apply status effects.</p>
@@ -598,7 +620,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
           <h4>Visual Feedback:</h4>
           <ul>
               <li><strong>Flying Numbers:</strong> Damage (red) and healing (green) amounts fly up from cards.</li>
-              <li><strong>Ability Icons:</strong> Emoji icons pop up when abilities trigger (🔥💚⚡🗡️ etc).</li>
+              <li><strong>Ability Effects:</strong> When an ability triggers, a themed effect plays with the ability's name: flames, frost shards, lightning, leaves, rocks, wind, healing motes, a shield dome, stun stars, dark wisps, arcane runes, holy light, blade slashes or arrow impacts. Attacks play on the target; heals and defensive abilities play on the user.</li>
+              <li><strong>Element Matchups:</strong> The panel by the Fight button shows whether your creature deals bonus (115%) or reduced (85%) damage to its opponent.</li>
               <li><strong>Status Badges:</strong> Colored badges show active status effects on cards.</li>
               <li><strong>Card Glow:</strong> Green when Blessed, red when Cursed.</li>
               <li><strong>Shake Animation:</strong> Cards shake when taking damage.</li>

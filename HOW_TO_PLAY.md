@@ -86,6 +86,31 @@ Initiative determines who attacks first:
 
 ---
 
+## 🔥 Elements
+
+Every creature belongs to one of eight elements, shown by the icon next to its name. Elements change how hard your attacks hit:
+
+- Attacking an element you are **strong** against deals **115%** damage.
+- Attacking an element that is strong against yours deals **85%** damage.
+- Every other pairing, including same-element fights, is neutral (100%).
+
+| Element | Strong vs (115%) | Weak vs (85%) |
+|---------|------------------|---------------|
+| 🔥 Fire | 🌿 Nature, 🌪️ Air | 🌊 Water, 🪨 Earth, ✨ Light |
+| 🌊 Water | 🔥 Fire, ⚡ Lightning | 🌿 Nature |
+| 🌿 Nature | 🌊 Water, 🪨 Earth | 🔥 Fire, 🌪️ Air, 🌑 Dark |
+| 🪨 Earth | 🔥 Fire, ⚡ Lightning | 🌿 Nature, 🌪️ Air |
+| 🌪️ Air | 🌿 Nature, 🪨 Earth | 🔥 Fire, ⚡ Lightning |
+| ⚡ Lightning | 🌊 Water, 🌪️ Air | 🪨 Earth, 🌑 Dark |
+| ✨ Light | 🔥 Fire, 🌑 Dark | None |
+| 🌑 Dark | 🌿 Nature, ⚡ Lightning | ✨ Light |
+
+Water and Lightning are each strong against the other, so both deal 115% in that fight.
+
+**In the game:** hover or tap a card's element icon to see its matchups. Once you pick a creature, the panel above the Fight button shows how it fares against each enemy creature, and once both creatures are chosen it shows the matchup in both directions. The full chart is in the in-game Help under **Elements**.
+
+---
+
 ## ✨ Abilities
 
 ### Ability Activation
@@ -219,12 +244,12 @@ The game provides rich visual feedback to help you track what's happening:
 - Numbers fly upward from the affected card
 - Larger numbers for bigger amounts
 
-### Ability Icons
+### Ability Effects
 
-- Emoji icons pop up when abilities are used
-- Each ability has a unique icon (🔥💚⚡🗡️🛡️⭐ etc.)
-- Icons appear for 2 seconds with a bouncing animation
-- Helps you see which abilities triggered
+- A themed particle effect plays when an ability triggers, with the ability's name in a banner
+- Effects match the ability: flames, frost shards, lightning, leaves, rocks, wind, healing motes, a shield dome, stun stars, dark wisps, arcane runes, holy light, blade slashes and arrow impacts
+- Attacks and stuns play on the target; heals and defensive abilities play on the creature using them
+- If your device is set to reduce motion, only the banner and a soft glow are shown
 
 ### Status Badges
 

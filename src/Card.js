@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import FlyingText from './FlyingText';
-import AbilityIcon from './AbilityIcon';
+import AbilityEffect from './AbilityEffect';
 import { ELEMENTS } from './constants';
-import { formatAbility } from './gameEngine';
+import { formatAbility, getElementMatchups } from './gameEngine';
 import './Card.css';
 
 const STAT_ORDER = ['strength', 'agility', 'intelligence', 'defense', 'magic'];
@@ -105,13 +105,13 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
     setActiveAbilityIcon(null);
   };
 
-  // Show ability icon when ability is used (with delay to avoid overlap with damage numbers)
+  // Play the ability effect on this card (the target for attacks, the user for heals/defence)
   useEffect(() => {
     if (abilityUsed && abilityUsed.cardName === creature.name && abilityUsed.side === side) {
-      // Delay the ability icon so it appears after damage numbers start
+      // Short delay so the effect lands with the hit rather than before it
       const timer = setTimeout(() => {
         setActiveAbilityIcon(abilityUsed.ability);
-      }, 400);
+      }, 150);
       return () => clearTimeout(timer);
     }
   }, [abilityUsed, creature.name, side]);
@@ -159,7 +159,17 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
           {element ? (
             <div className="element-badge" data-tutorial="card-element" tabIndex={compact ? undefined : 0} aria-label={`${creature.element} element`}>
               <span aria-hidden="true">{element.icon}</span>
-              {!compact && <span className="element-badge-tooltip">{elementLabel}</span>}
+              {!compact && (
+                <span className="element-badge-tooltip">
+                  {elementLabel}
+                  <span className="tooltip-matchups">
+                    Strong vs {getElementMatchups(creature.element).strong.map(e => ELEMENTS[e].icon).join(' ') || '–'}
+                  </span>
+                  <span className="tooltip-matchups">
+                    Weak vs {getElementMatchups(creature.element).weak.map(e => ELEMENTS[e].icon).join(' ') || '–'}
+                  </span>
+                </span>
+              )}
             </div>
           ) : <span />}
           <h2 ref={nameRef} className="card-name">{creature.name}</h2>
@@ -242,9 +252,9 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
         </div>
       )}
 
-      {/* Ability icon pop-up */}
+      {/* Ability special effect */}
       {activeAbilityIcon && (
-        <AbilityIcon ability={activeAbilityIcon} onComplete={handleAbilityIconComplete} />
+        <AbilityEffect ability={activeAbilityIcon} onComplete={handleAbilityIconComplete} />
       )}
     </div>
   );

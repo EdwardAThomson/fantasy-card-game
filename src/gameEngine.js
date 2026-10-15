@@ -76,6 +76,17 @@ export function getElementMultiplier(attacker, defender) {
   return 1;
 }
 
+// Which elements an element deals bonus / reduced damage to, derived from
+// getElementMultiplier so the UI always matches the combat maths.
+export function getElementMatchups(element) {
+  const others = Object.keys(ELEMENT_ADVANTAGES).filter(e => e !== element);
+  const mult = other => getElementMultiplier({ element }, { element: other });
+  return {
+    strong: others.filter(other => mult(other) > 1),
+    weak: others.filter(other => mult(other) < 1),
+  };
+}
+
 // --- Utility functions ---
 
 export const formatAbility = ability =>
