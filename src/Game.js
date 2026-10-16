@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import creatures from './creatures';
 import Card from './Card';
 import Modal from './Modal';
+import BattleResult, { snapshotCreature } from './BattleResult';
 import CombatLog from './CombatLog';
 import Tabs from './Tabs';
 import ElementChart from './ElementChart';
@@ -77,8 +78,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
   };
 
   // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+  const [result, setResult] = useState(null); // round or battle result shown in a dialog
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isCombatLogOpen, setIsCombatLogOpen] = useState(false);
   const [dyingCards, setDyingCards] = useState([]);
@@ -154,13 +154,11 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     if (player1Hand.length === 0) {
       addLog('Player 2 is the winner!', 'victory');
       if (tutorial) return emitTutorial('gameOver', { winner: 'p2' });
-      setModalMessage('Player 2 is the winner!');
-      setIsModalOpen(true);
+      setResult({ kind: 'game', winnerSide: 'p2', survivors: player2Hand.filter(c => c.currentHealth > 0).map(snapshotCreature) });
     } else if (player2Hand.length === 0) {
       addLog('Player 1 is the winner!', 'victory');
       if (tutorial) return emitTutorial('gameOver', { winner: 'p1' });
-      setModalMessage('Player 1 is the winner!');
-      setIsModalOpen(true);
+      setResult({ kind: 'game', winnerSide: 'p1', survivors: player1Hand.filter(c => c.currentHealth > 0).map(snapshotCreature) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player1Hand, player2Hand]);  // This will trigger when player1Hand or player2Hand changes
@@ -257,8 +255,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
       const winnerPlayer = outcome.winner === player1SelectedCard ? 'Player 1' : 'Player 2';
       // The tutorial explains defeats with its own tips instead
       if (!tutorial) {
-        setModalMessage(`${outcome.winner.name} (${winnerPlayer}) wins the round!`);
-        setIsModalOpen(true);
+        const p1Won = outcome.winner === player1SelectedCard;
+        setResult({
+          kind: 'round',
+          round,
+          winnerSide: p1Won ? 'p1' : 'p2',
+          winner: snapshotCreature(outcome.winner),
+          loser: snapshotCreature(p1Won ? player2SelectedCard : player1SelectedCard),
+        });
       }
       addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`, 'victory');
     }
@@ -543,10 +547,18 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
       />
     </div>
 
-    <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-      <h2>{modalMessage}</h2>
+    <Modal isOpen={!!result} onClose={() => setResult(null)} size="sm" label={result?.kind === 'game' ? 'Battle result' : 'Round result'}>
+      {result && (
+        <BattleResult
+          result={result}
+          singlePlayer={singlePlayer}
+          onContinue={() => setResult(null)}
+          onNewGame={resetGame}
+          onHome={onHome}
+        />
+      )}
     </Modal>
-    <Modal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)}>
+    <Modal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} label="How to play">
       <h2>How to Play</h2>
       <Tabs>
         <div label="Game Flow">
