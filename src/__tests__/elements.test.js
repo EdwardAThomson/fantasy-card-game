@@ -16,7 +16,27 @@ describe('getElementMatchups', () => {
     });
   });
 
-  test('fire is weak against water, earth and light', () => {
-    expect(getElementMatchups('fire').weak.sort()).toEqual(['earth', 'light', 'water']);
+  test('every element has exactly two strengths and two weaknesses', () => {
+    Object.keys(ELEMENTS).forEach(element => {
+      const { strong, weak } = getElementMatchups(element);
+      expect(strong).toHaveLength(2);
+      expect(weak).toHaveLength(2);
+    });
+  });
+
+  test('every element has at least one weakness', () => {
+    Object.keys(ELEMENTS).forEach(element => {
+      expect(getElementMatchups(element).weak.length).toBeGreaterThan(0);
+    });
+  });
+
+  test('no two elements are strong against each other', () => {
+    Object.entries(ELEMENT_ADVANTAGES).forEach(([element, beats]) => {
+      beats.forEach(other => expect(ELEMENT_ADVANTAGES[other]).not.toContain(element));
+    });
+  });
+
+  test('light is weak against water and lightning', () => {
+    expect(getElementMatchups('light').weak.sort()).toEqual(['lightning', 'water']);
   });
 });

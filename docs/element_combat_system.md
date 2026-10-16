@@ -28,16 +28,20 @@ The multipliers are intentionally modest — element matchups should influence d
 
 ### Matchup Table
 
-| Attacker    | Strong Against (1.25x)  | Weak Against (0.75x)    |
+Matches `ELEMENT_ADVANTAGES` in `src/constants.js`. Strong = 1.15x damage, weak = 0.85x.
+
+| Attacker    | Strong Against (1.15x)  | Weak Against (0.85x)    |
 |-------------|-------------------------|-------------------------|
-| Fire        | Nature, Air             | Water, Earth            |
-| Water       | Fire, Lightning         | Nature, Air             |
+| Fire        | Nature, Air             | Water, Light            |
+| Water       | Fire, Light             | Nature, Earth           |
 | Nature      | Water, Earth            | Fire, Dark              |
-| Earth       | Lightning, Fire         | Nature, Water           |
-| Air         | Earth, Nature           | Fire, Lightning         |
-| Lightning   | Water, Air              | Earth, Dark             |
-| Light       | Dark, Fire              | Lightning, Nature       |
-| Dark        | Lightning, Nature       | Light, Water            |
+| Earth       | Lightning, Water        | Nature, Air             |
+| Air         | Earth, Dark             | Fire, Lightning         |
+| Lightning   | Air, Light              | Earth, Dark             |
+| Light       | Dark, Fire              | Water, Lightning        |
+| Dark        | Lightning, Nature       | Light, Air              |
+
+Every element is strong against exactly two and weak against exactly two, and no pair is mutually strong.
 
 ### Design Rationale
 
@@ -46,14 +50,14 @@ Each pairing has a thematic justification:
 - **Fire > Nature** — fire burns forests
 - **Fire > Air** — fire feeds on oxygen, superheats air
 - **Water > Fire** — water extinguishes flame
-- **Water > Lightning** — water conducts and grounds electricity
+- **Water > Light** — mist and rain dim the sun
 - **Nature > Water** — plants absorb and control water
 - **Nature > Earth** — roots break stone, life reclaims land
 - **Earth > Lightning** — earth grounds electrical charge
-- **Earth > Fire** — earth smothers flame
+- **Earth > Water** — earth dams and drinks up water
 - **Air > Earth** — wind erodes rock
-- **Air > Nature** — storms uproot trees
-- **Lightning > Water** — electricity devastates through water
+- **Air > Dark** — wind scatters shadow and smoke
+- **Lightning > Light** — storm clouds blot out the sun
 - **Lightning > Air** — lightning splits the sky
 - **Light > Dark** — light banishes shadow
 - **Light > Fire** — divine light outshines mundane flame
@@ -72,6 +76,8 @@ No element is strictly better positioned than another.
 ---
 
 ## Proposed Multipliers
+
+> **Shipped values:** the game uses **1.15x / 0.85x** (`src/constants.js`). The 1.25x / 0.75x figures below were the original proposal.
 
 | Matchup      | Damage Multiplier |
 |--------------|-------------------|
@@ -98,17 +104,17 @@ Add to `constants.js`:
 // Element advantage web — each element lists what it is strong against
 export const ELEMENT_ADVANTAGES = {
   fire:      ['nature', 'air'],
-  water:     ['fire', 'lightning'],
+  water:     ['fire', 'light'],
   nature:    ['water', 'earth'],
-  earth:     ['lightning', 'fire'],
-  air:       ['earth', 'nature'],
-  lightning: ['water', 'air'],
+  earth:     ['lightning', 'water'],
+  air:       ['earth', 'dark'],
+  lightning: ['air', 'light'],
   light:     ['dark', 'fire'],
   dark:      ['lightning', 'nature'],
 };
 
-export const ADVANTAGE_MULTIPLIER = 1.25;
-export const DISADVANTAGE_MULTIPLIER = 0.75;
+export const ADVANTAGE_MULTIPLIER = 1.15;
+export const DISADVANTAGE_MULTIPLIER = 0.85;
 ```
 
 ### 2. Add a lookup function
