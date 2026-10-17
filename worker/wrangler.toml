@@ -1,0 +1,22 @@
+# Cloudflare Worker that hosts the online game rooms.
+#
+#   cd worker && npx wrangler dev        # local: ws://localhost:8787
+#   cd worker && npx wrangler deploy
+#
+# The worker bundles the game engine straight from ../src so there is one copy
+# of the rules shared by the browser and the server.
+name = "fantasy-card-game-rooms"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+[vars]
+# Origin allowed to open sockets. Set to the Vercel / Pages URL in production.
+ALLOWED_ORIGIN = "http://localhost:3000"
