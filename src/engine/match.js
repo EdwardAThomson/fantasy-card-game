@@ -199,7 +199,7 @@ export const resolveRound = (input) => {
       if (card.currentHealth <= 0) {
         deaths.push(side);
         log(`${card.name} (${side === 'p1' ? 'Player 1' : 'Player 2'}) has been killed.`, 'death');
-        emit({ type: 'death', side, uid: card.uid, cardName: card.name });
+        emit({ type: 'death', side, uid: card.uid, cardName: card.name, card: clone(card) });
       }
     });
 

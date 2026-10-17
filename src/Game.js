@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import creatures from './creatures';
 import Card from './Card';
 import Modal from './Modal';
-import BattleResult, { snapshotCreature } from './BattleResult';
+import BattleResult from './BattleResult';
 import CombatLog from './CombatLog';
 import Tabs from './Tabs';
 import ElementChart from './ElementChart';
@@ -12,372 +12,110 @@ import { HomeIcon, HelpIcon, ScrollIcon, CrossedSwordsIcon } from './GameIcons';
 import './GameScreen.css';
 import TutorialOverlay from './tutorial/TutorialOverlay';
 import { DECK_SIZE } from './constants';
-import { setRandomSource, seededRandom } from './rng';
-import {
-  abilityEffects,
-  getRandomUniqueCards,
-  getElementMultiplier,
-  handleCombatRound,
-  processDoTDamage,
-  makeAIDecision,
-} from './gameEngine';
+import { getRandomUniqueCards, makeAIDecision } from './gameEngine';
+import useLocalMatch from './hooks/useLocalMatch';
 
 
-// Main Game function
+// The game screen. Rounds are resolved by the shared match engine (via
+// useLocalMatch); this component only draws the match and animates events.
 function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null, onTutorialFinish, onHome }) {
 
   // Tutorial mode plays a fixed, seeded match (see tutorial/tutorialScript.js)
-  const [tutorialDecks] = useState(() => (tutorial ? tutorial.buildDecks() : null));
+  const decks = useMemo(() => {
+    if (tutorial) {
+      const { player, opponent } = tutorial.buildDecks();
+      return { p1Deck: player, p2Deck: opponent, seed: tutorial.seed };
+    }
+    const fromProp = deck => (deck && deck.length === DECK_SIZE ? deck : getRandomUniqueCards(creatures, DECK_SIZE));
+    return { p1Deck: fromProp(player1Deck), p2Deck: fromProp(player2Deck) };
+    // Decks are fixed for the life of the screen; App remounts for a new game.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const match = useLocalMatch(decks);
+  const { hands, selection, state } = match;
+  const player1Hand = hands.p1;
+  const player2Hand = hands.p2;
+  const player1SelectedCard = player1Hand.find(c => c.uid === selection.p1.uid) || null;
+  const player2SelectedCard = player2Hand.find(c => c.uid === selection.p2.uid) || null;
+  const player1Choice = selection.p1.style;
+  const player2Choice = selection.p2.style;
+  const round = match.round;
+  const isGameOver = match.isOver;
+
+  // Tutorial overlay events
   const [tutorialEvents, setTutorialEvents] = useState([]);
   const emitTutorial = (type, payload) => {
     if (tutorial) setTutorialEvents(prev => [...prev, { type, payload }]);
   };
-
   useEffect(() => {
-    if (!tutorial) return undefined;
-    setRandomSource(seededRandom(tutorial.seed));
-    return () => setRandomSource(null);
-  }, [tutorial]);
-
-  // Initialize player hands using useState
-  const [player1Hand, setPlayer1Hand] = useState(() => {
-    if (tutorialDecks) return tutorialDecks.player;
-    if (player1Deck && player1Deck.length === DECK_SIZE) {
-      return player1Deck.map(card => JSON.parse(JSON.stringify(card)));
+    if (!tutorial || !match.lastRound) return;
+    const { resolved, gameOver } = match.lastRound;
+    if (resolved) {
+      const { type, ...payload } = resolved;
+      emitTutorial('roundResolved', payload);
     }
-    return getRandomUniqueCards(creatures, DECK_SIZE);
-  });
-  const [player2Hand, setPlayer2Hand] = useState(() => {
-    if (tutorialDecks) return tutorialDecks.opponent;
-    if (player2Deck && player2Deck.length === DECK_SIZE) {
-      return player2Deck.map(card => JSON.parse(JSON.stringify(card)));
-    }
-    return getRandomUniqueCards(creatures, DECK_SIZE);
-  });
-
-  // Selected card in each hand
-  const [player1SelectedCard, setPlayer1SelectedCard] = useState(null);
-  const [player2SelectedCard, setPlayer2SelectedCard] = useState(null);
-
-  // Store the combat choice for both players
-  const [player1Choice, setPlayer1Choice] = useState('');
-  const [player2Choice, setPlayer2Choice] = useState('');
-
-  // Store combat log messages
-  const [logMessages, setLogMessages] = useState([]);
-  
-  // Store damage events for flying text animations
-  const [player1DamageEvents, setPlayer1DamageEvents] = useState([]);
-  const [player2DamageEvents, setPlayer2DamageEvents] = useState([]);
-  
-  // Store ability usage for icon animations
-  const [abilityUsed, setAbilityUsed] = useState(null);
-
-  const addLog = (message, type = 'info', style = null) => {
-    setLogMessages(prev => [...prev, { text: message, type, style }]);
-  };
+    if (gameOver) emitTutorial('gameOver', { winner: gameOver.winnerSide });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [match.lastRound]);
 
   // Modal state
-  const [result, setResult] = useState(null); // round or battle result shown in a dialog
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isCombatLogOpen, setIsCombatLogOpen] = useState(false);
-  const [dyingCards, setDyingCards] = useState([]);
+  // The tutorial explains results with its own tips instead of the dialog
+  const result = tutorial ? null : match.result;
 
-  // variables used in combat
-  const [round, setRound] = useState(1); // Track the number of rounds
+  const liveHand = side => state.sides[side].hand;
 
-  // AI decision logic
-  const runAIDecision = useCallback(() => {
-    if (!singlePlayer || tutorial) return;
-    if (!player1SelectedCard || !player1Choice) return;
-    if (player2Hand.length === 0) return;
-
-    const best = makeAIDecision(player2Hand);
-    if (best) {
-      setPlayer2SelectedCard(best.card);
-      setPlayer2Choice(best.choice);
-    }
-  }, [singlePlayer, tutorial, player1SelectedCard, player1Choice, player2Hand]);
-
+  // AI picks once the player has committed to a card and a style
   useEffect(() => {
-    runAIDecision();
-  }, [runAIDecision]);
+    if (!singlePlayer || tutorial || isGameOver) return;
+    if (!selection.p1.uid || !selection.p1.style) return;
+    const best = makeAIDecision(liveHand('p2'));
+    if (best) {
+      match.select('p2', best.card.uid);
+      match.choose('p2', best.choice);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [singlePlayer, tutorial, isGameOver, selection.p1.uid, selection.p1.style, state]);
 
   // Tutorial opponent commits first, following its script, so the player can counter-pick
   useEffect(() => {
-    if (!tutorial || player2SelectedCard) return;
-    const next = player2Hand.find(card => card.currentHealth > 0);
+    if (!tutorial || selection.p2.uid || isGameOver) return;
+    const next = liveHand('p2')[0];
     if (!next) return;
-    setPlayer2SelectedCard(next);
-    setPlayer2Choice(tutorial.opponentPlan[next.name] || makeAIDecision([next]).choice);
-  }, [tutorial, player2Hand, player2SelectedCard]);
+    match.select('p2', next.uid);
+    match.choose('p2', tutorial.opponentPlan[next.name] || makeAIDecision([next]).choice);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tutorial, selection.p2.uid, isGameOver, state]);
 
-  // Auto-select card if only one remains for player 1
+  // Auto-select the last creature standing on each side
   useEffect(() => {
-    if (player1Hand.length === 1 && !player1SelectedCard) {
-      setPlayer1SelectedCard(player1Hand[0]);
-    }
-  }, [player1Hand, player1SelectedCard]);
+    const p1 = liveHand('p1');
+    if (p1.length === 1 && !selection.p1.uid) match.select('p1', p1[0].uid);
+    const p2 = liveHand('p2');
+    if (!singlePlayer && p2.length === 1 && !selection.p2.uid) match.select('p2', p2[0].uid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, selection.p1.uid, selection.p2.uid, singlePlayer]);
 
-  // Auto-select card if only one remains for player 2 (in two-player mode)
-  useEffect(() => {
-    if (!singlePlayer && player2Hand.length === 1 && !player2SelectedCard) {
-      setPlayer2SelectedCard(player2Hand[0]);
-    }
-  }, [player2Hand, player2SelectedCard, singlePlayer]);
-
- // Handle card selection for Player 1
   const handlePlayer1CardSelect = (card) => {
-    setPlayer1SelectedCard(card); // Set the card as selected
+    match.select('p1', card.uid);
     emitTutorial('cardSelected', { side: 'p1', name: card.name });
   };
-
-  // Handle combat choice for Player 1
   const handlePlayer1ChoiceSelect = (choice) => {
-    setPlayer1Choice(choice);     // Set the chosen action
+    match.choose('p1', choice);
     emitTutorial('styleSelected', { side: 'p1', choice });
   };
+  const handlePlayer2CardSelect = (card) => match.select('p2', card.uid);
+  const handlePlayer2ChoiceSelect = (choice) => match.choose('p2', choice);
 
-  // Handle card selection for Player 2
-  const handlePlayer2CardSelect = (card) => {
-    setPlayer2SelectedCard(card); // Set the card as selected
-  };
-
-  // Handle combat choice for Player 2
-  const handlePlayer2ChoiceSelect = (choice) => {
-    setPlayer2Choice(choice);     // Set the chosen action
-  };
-
-
-  // Check for victory (overall) when hands change
-  useEffect(() => {
-    if (player1Hand.length === 0) {
-      addLog('Player 2 is the winner!', 'victory');
-      if (tutorial) return emitTutorial('gameOver', { winner: 'p2' });
-      setResult({ kind: 'game', winnerSide: 'p2', survivors: player2Hand.filter(c => c.currentHealth > 0).map(snapshotCreature) });
-    } else if (player2Hand.length === 0) {
-      addLog('Player 1 is the winner!', 'victory');
-      if (tutorial) return emitTutorial('gameOver', { winner: 'p1' });
-      setResult({ kind: 'game', winnerSide: 'p1', survivors: player1Hand.filter(c => c.currentHealth > 0).map(snapshotCreature) });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player1Hand, player2Hand]);  // This will trigger when player1Hand or player2Hand changes
-
-  // Fight logic
-  // - Call combat functions
-  // - Victory conditions (for a combat round) check
-  const Fight = () => {
-    addLog(`Round ${round}`, 'round-header');
-
-    const logDefensiveProfile = (card, sideLabel) => {
-      if (!card) return;
-      const immunities = Array.isArray(card.immunities) && card.immunities.length > 0
-        ? card.immunities.join(', ')
-        : 'none';
-      const resistanceEntries = card.resistances
-        ? Object.entries(card.resistances).map(([effect, multiplier]) => {
-            const percent = Math.round(multiplier * 100);
-            return `${effect} (${percent}% effect)`;
-          })
-        : [];
-      const resistances = resistanceEntries.length > 0 ? resistanceEntries.join(', ') : 'none';
-      addLog(`${sideLabel} ${card.name} defenses → Immunities: ${immunities}; Resistances: ${resistances}`, 'info');
-    };
-
-    logDefensiveProfile(player1SelectedCard, 'Player 1');
-    logDefensiveProfile(player2SelectedCard, 'Player 2');
-
-    // Process DoT (damage over time) effects at the start of the round
-    const p1DotDamage = processDoTDamage(player1SelectedCard, addLog);
-    const p2DotDamage = processDoTDamage(player2SelectedCard, addLog);
-    
-    // Track DoT damage for visual effects
-    const dotDamageEvents = [];
-    if (p1DotDamage > 0) {
-      dotDamageEvents.push({ damage: p1DotDamage, type: 'damage', cardName: player1SelectedCard.name, side: 'p1' });
-    }
-    if (p2DotDamage > 0) {
-      dotDamageEvents.push({ damage: p2DotDamage, type: 'damage', cardName: player2SelectedCard.name, side: 'p2' });
-    }
-    
-    // Show DoT damage visuals
-    if (dotDamageEvents.length > 0) {
-      const p1DotEvents = dotDamageEvents.filter(e => e.side === 'p1');
-      const p2DotEvents = dotDamageEvents.filter(e => e.side === 'p2');
-      setPlayer1DamageEvents(p1DotEvents);
-      setPlayer2DamageEvents(p2DotEvents);
-      
-      // Clear DoT damage events after animation
-      setTimeout(() => {
-        setPlayer1DamageEvents([]);
-        setPlayer2DamageEvents([]);
-      }, 1500);
-    }
-
-    // Clear stun status at the start of the round (BEFORE combat)
-    // If a creature was stunned in the previous round, they will skip their turn in THIS round
-    // Then the stun is cleared here, so they can act in the NEXT round
-    const wasPlayer1Stunned = player1SelectedCard && player1SelectedCard.isStunned;
-    const wasPlayer2Stunned = player2SelectedCard && player2SelectedCard.isStunned;
-    
-    if (wasPlayer1Stunned) {
-      addLog(`${player1SelectedCard.name} is recovering from stun...`, 'status');
-    }
-    if (wasPlayer2Stunned) {
-      addLog(`${player2SelectedCard.name} is recovering from stun...`, 'status');
-    }
-    
-    // Clear status effects at the start of each round (they last one round)
-    if (player1SelectedCard && player1SelectedCard.statusEffects) {
-      player1SelectedCard.statusEffects = [];
-    }
-    if (player2SelectedCard && player2SelectedCard.statusEffects) {
-      player2SelectedCard.statusEffects = [];
-    }
-
-    const outcome = handleCombatRound(
-      player1SelectedCard,
-      player2SelectedCard,
-      player1Choice,
-      player2Choice,
-      addLog
-    );
-    
-    // Clear stun AFTER combat (so the stunned creature skipped their turn this round)
-    if (wasPlayer1Stunned) {
-      player1SelectedCard.isStunned = false;
-    }
-    if (wasPlayer2Stunned) {
-      player2SelectedCard.isStunned = false;
-    }
-
-    if (outcome.haveWinner) {
-      const winnerPlayer = outcome.winner === player1SelectedCard ? 'Player 1' : 'Player 2';
-      // The tutorial explains defeats with its own tips instead
-      if (!tutorial) {
-        const p1Won = outcome.winner === player1SelectedCard;
-        setResult({
-          kind: 'round',
-          round,
-          winnerSide: p1Won ? 'p1' : 'p2',
-          winner: snapshotCreature(outcome.winner),
-          loser: snapshotCreature(p1Won ? player2SelectedCard : player1SelectedCard),
-        });
-      }
-      addLog(`${outcome.winner.name} (${winnerPlayer}) wins the round!`, 'victory');
-    }
-    
-    const p1DamageEvents = [];
-    const p2DamageEvents = [];
-
-    // Trigger damage events for flying text immediately (no delay)
-    // Only show damage if the card is still alive
-    if (outcome.player1Damage > 0 && player1SelectedCard.currentHealth > 0) {
-      p1DamageEvents.push({ damage: outcome.player1Damage, type: 'damage', cardName: player1SelectedCard.name });
-    }
-    if (outcome.player2Damage > 0 && player2SelectedCard.currentHealth > 0) {
-      p2DamageEvents.push({ damage: outcome.player2Damage, type: 'damage', cardName: player2SelectedCard.name });
-    }
-    if (outcome.player1Heal > 0) {
-      p1DamageEvents.push({ damage: outcome.player1Heal, type: 'heal', cardName: player1SelectedCard.name });
-    }
-    if (outcome.player2Heal > 0) {
-      p2DamageEvents.push({ damage: outcome.player2Heal, type: 'heal', cardName: player2SelectedCard.name });
-    }
-
-    setPlayer1DamageEvents(p1DamageEvents);
-    setPlayer2DamageEvents(p2DamageEvents);
-    
-    // Set ability used for its special effect. Attacks and stuns play on the
-    // target; heals and defensive abilities play on the creature using them.
-    if (outcome.abilityUsed) {
-      const { ability, side } = outcome.abilityUsed;
-      const hitsTarget = ['damage', 'stun'].includes(abilityEffects[ability]?.type);
-      if (hitsTarget) {
-        const targetSide = side === 'p1' ? 'p2' : 'p1';
-        const target = side === 'p1' ? player2SelectedCard : player1SelectedCard;
-        setAbilityUsed({ ability, cardName: target.name, side: targetSide });
-      } else {
-        setAbilityUsed(outcome.abilityUsed);
-      }
-    }
-
-    // Update hands with new health and status (including isStunned from combat)
-    setPlayer1Hand(prevHand => prevHand.map(card => card.name === outcome.player1card.name ? outcome.player1card : card));
-    setPlayer2Hand(prevHand => prevHand.map(card => card.name === outcome.player2card.name ? outcome.player2card : card));
-    
-    // Note: Stun status will persist until the next round starts
-    // It will be cleared at the END of the next round's combat (after the stunned creature skips their turn)
-
-    // Clear events after a delay
-    setTimeout(() => {
-      setPlayer1DamageEvents([]);
-      setPlayer2DamageEvents([]);
-      setAbilityUsed(null);
-    }, 2000);
-
-    // Remove cards on zero HP (with death animation)
-    const deadCards = [];
-    if (player1SelectedCard.currentHealth <= 0) {
-      setPlayer1DamageEvents([]);
-      deadCards.push(player1SelectedCard.name);
-      addLog(`${player1SelectedCard.name} (Player 1) has been killed.`, 'death');
-      setTimeout(() => {
-        setPlayer1Hand(prevHand =>
-          prevHand.filter(card => card.name !== player1SelectedCard.name)
-        );
-        setDyingCards(prev => prev.filter(n => n !== player1SelectedCard.name));
-      }, 600);
-      setPlayer1SelectedCard(null);
-      setPlayer1Choice('');
-    }
-    if (player2SelectedCard.currentHealth <= 0) {
-      setPlayer2DamageEvents([]);
-      deadCards.push(player2SelectedCard.name);
-      addLog(`${player2SelectedCard.name} (Player 2) has been killed.`, 'death');
-      setTimeout(() => {
-        setPlayer2Hand(prevHand =>
-          prevHand.filter(card => card.name !== player2SelectedCard.name)
-        );
-        setDyingCards(prev => prev.filter(n => n !== player2SelectedCard.name));
-      }, 600);
-      setPlayer2SelectedCard(null);
-      setPlayer2Choice('');
-    }
-    if (deadCards.length > 0) {
-      setDyingCards(prev => [...prev, ...deadCards]);
-    }
-
-    emitTutorial('roundResolved', {
-      round,
-      p1Multiplier: getElementMultiplier(player1SelectedCard, player2SelectedCard),
-      p2Multiplier: getElementMultiplier(player2SelectedCard, player1SelectedCard),
-      abilityUsed: outcome.abilityUsed,
-      newStatuses: [...(player1SelectedCard.statusEffects || []), ...(player2SelectedCard.statusEffects || [])],
-      stunned: !!(player1SelectedCard.isStunned || player2SelectedCard.isStunned),
-      deaths: deadCards,
-    });
-
-    setRound(prev => prev + 1);
-  } // ends Fight function
-
-
-  // Combat button should only be enabled if both players have selected a stat
-  const isCombatReady =
-    player1SelectedCard &&
-    player2SelectedCard &&
-    player1Choice &&
-    player2Choice &&
-    player1SelectedCard.currentHealth > 0 &&
-    player2SelectedCard.currentHealth > 0;
+  const Fight = match.fight;
+  const isCombatReady = match.canFight;
 
   // Determine tint color for Fight CTA based on chosen style
   const styleColorMap = { Melee: '#22c55e', Ranged: '#3b82f6', Magic: '#ef4444' };
   const fightTint = styleColorMap[player1Choice] || styleColorMap[player2Choice] || undefined;
   const glowClass = singlePlayer ? 'glow-ai' : 'glow-player';
-
-  // Overall game over when a player's hand is empty
-  const isGameOver = player1Hand.length === 0 || player2Hand.length === 0;
 
   // Full reset: refresh the app (simple, reliable)
   const resetGame = () => {
@@ -386,13 +124,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     }
   };
 
-  // Reset current round selections (helper for UX)
-  const resetSelections = () => {
-    setPlayer1SelectedCard(null);
-    setPlayer2SelectedCard(null);
-    setPlayer1Choice('');
-    setPlayer2Choice('');
-  };
+  const resetSelections = match.clearSelections;
 
   // Short prompt under each player's name saying what they still need to do
   const getPlayerStatus = (card, choice, isAI) => {
@@ -434,17 +166,17 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
           />
         </div>
         <div className="player-hand" data-tutorial={`${side}-hand`}>
-          {hand.map((card, index) => (
+          {hand.map((card) => (
             <Card
-              key={index}
+              key={card.uid}
               creature={card}
               onCardSelect={() => onCardSelect(card)}
-              isSelected={selectedCard === card}
-              isDying={dyingCards.includes(card.name)}
+              isSelected={selectedCard?.uid === card.uid}
+              isDying={match.dying.includes(card.name)}
               disabled={isAI}
               side={side}
-              damageEvents={isP1 ? player1DamageEvents : player2DamageEvents}
-              abilityUsed={abilityUsed}
+              damageEvents={match.damageEvents[side]}
+              abilityUsed={match.abilityUsed}
             />
           ))}
         </div>
@@ -541,18 +273,18 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
       </div>
 
       <CombatLog
-        messages={logMessages}
+        messages={match.log}
         isOpen={isCombatLogOpen}
         onClose={() => setIsCombatLogOpen(false)}
       />
     </div>
 
-    <Modal isOpen={!!result} onClose={() => setResult(null)} size="sm" label={result?.kind === 'game' ? 'Battle result' : 'Round result'}>
+    <Modal isOpen={!!result} onClose={match.dismissResult} size="sm" label={result?.kind === 'game' ? 'Battle result' : 'Round result'}>
       {result && (
         <BattleResult
           result={result}
           singlePlayer={singlePlayer}
-          onContinue={() => setResult(null)}
+          onContinue={match.dismissResult}
           onNewGame={resetGame}
           onHome={onHome}
         />
