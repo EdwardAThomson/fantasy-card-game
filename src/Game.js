@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import creatures from './creatures';
-import Card from './Card';
+import Card, { CardBack } from './Card';
 import Modal from './Modal';
 import BattleResult, { snapshotCreature } from './BattleResult';
 import CombatLog from './CombatLog';
@@ -86,6 +86,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
   // variables used in combat
   const [round, setRound] = useState(1); // Track the number of rounds
 
+  // Against the AI its hand stays face down; each card turns face up the first
+  // time it fights. The tutorial keeps everything visible so it can teach
+  // counter-picking, and hot-seat players share one screen anyway.
+  const hideOpponent = singlePlayer && !tutorial;
+  const [revealedP2, setRevealedP2] = useState([]);
+  const [revealingP2, setRevealingP2] = useState(null); // card mid-flip before a fight
+  const isHiddenP2 = card => hideOpponent && !!card && !revealedP2.includes(card.name);
+
   // AI decision logic
   const runAIDecision = useCallback(() => {
     if (!singlePlayer || tutorial) return;
@@ -128,12 +136,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
 
  // Handle card selection for Player 1
   const handlePlayer1CardSelect = (card) => {
+    if (revealingP2) return;
     setPlayer1SelectedCard(card); // Set the card as selected
     emitTutorial('cardSelected', { side: 'p1', name: card.name });
   };
 
   // Handle combat choice for Player 1
   const handlePlayer1ChoiceSelect = (choice) => {
+    if (revealingP2) return;
     setPlayer1Choice(choice);     // Set the chosen action
     emitTutorial('styleSelected', { side: 'p1', choice });
   };
@@ -167,6 +177,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
   // - Call combat functions
   // - Victory conditions (for a combat round) check
   const Fight = () => {
+    setRevealingP2(null);
     addLog(`Round ${round}`, 'round-header');
 
     const logDefensiveProfile = (card, sideLabel) => {
@@ -361,6 +372,17 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     setRound(prev => prev + 1);
   } // ends Fight function
 
+  // Turn the AI's card face up first so the player sees what they're facing
+  const REVEAL_MS = 550;
+  const handleFight = () => {
+    if (revealingP2) return;
+    if (!isHiddenP2(player2SelectedCard)) return Fight();
+    const { name } = player2SelectedCard;
+    setRevealedP2(prev => [...prev, name]);
+    setRevealingP2(name);
+    setTimeout(Fight, REVEAL_MS);
+  };
+
 
   // Combat button should only be enabled if both players have selected a stat
   const isCombatReady =
@@ -369,7 +391,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     player1Choice &&
     player2Choice &&
     player1SelectedCard.currentHealth > 0 &&
-    player2SelectedCard.currentHealth > 0;
+    player2SelectedCard.currentHealth > 0 &&
+    !revealingP2;
 
   // Determine tint color for Fight CTA based on chosen style
   const styleColorMap = { Melee: '#22c55e', Ranged: '#3b82f6', Magic: '#ef4444' };
@@ -413,6 +436,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     const onChoiceSelect = isP1 ? handlePlayer1ChoiceSelect : handlePlayer2ChoiceSelect;
     const name = isP1 ? 'Player 1' : 'Player 2';
     const status = getPlayerStatus(selectedCard, choice, isAI);
+    const pickHidden = !isP1 && isHiddenP2(selectedCard);
 
     return (
       <section className={`player-area${isAI ? ' is-ai' : ''}`} aria-label={name} data-tutorial={`${side}-area`}>
@@ -425,18 +449,20 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
             <p className={`player-status${status === 'Ready' ? ' is-ready' : ''}`}>{status}</p>
           )}
           <AttackPicker
-            choice={choice}
+            choice={pickHidden ? '' : choice}
             onSelect={onChoiceSelect}
-            card={selectedCard}
+            card={pickHidden ? null : selectedCard}
             readOnly={isAI}
             label={`${name} attack style`}
             tutorialId={`${side}-style`}
           />
         </div>
         <div className="player-hand" data-tutorial={`${side}-hand`}>
-          {hand.map((card, index) => (
+          {hand.map((card, index) => (!isP1 && isHiddenP2(card)) ? (
+            <CardBack key={`back-${card.name}`} isSelected={selectedCard === card} side={side} />
+          ) : (
             <Card
-              key={index}
+              key={hideOpponent && !isP1 ? card.name : index}
               creature={card}
               onCardSelect={() => onCardSelect(card)}
               isSelected={selectedCard === card}
@@ -445,6 +471,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
               side={side}
               damageEvents={isP1 ? player1DamageEvents : player2DamageEvents}
               abilityUsed={abilityUsed}
+              isRevealing={!isP1 && revealingP2 === card.name}
             />
           ))}
         </div>
@@ -495,9 +522,9 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
 
             <MatchupHint
               p1Card={player1SelectedCard}
-              p2Card={player2SelectedCard}
+              p2Card={isHiddenP2(player2SelectedCard) ? null : player2SelectedCard}
               p1Hand={player1Hand}
-              p2Hand={player2Hand}
+              p2Hand={player2Hand.filter(card => !isHiddenP2(card))}
             />
 
             <div className="battle-strip">
@@ -514,7 +541,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
                   <button
                     className={`btn btn-primary btn-lg btn-fight ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
                     style={fightTint ? { '--choice': fightTint } : undefined}
-                    onClick={Fight}
+                    onClick={handleFight}
                     disabled={!isCombatReady}
                     data-tutorial="fight"
                     aria-label="Start combat"

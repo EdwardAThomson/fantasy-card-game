@@ -41,7 +41,7 @@ const ShieldIcon = () => (
 const NAME_SIZE_EM = 1.05;
 const MIN_NAME_SCALE = 0.55;
 
-function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, damageEvents = [], abilityUsed = null, compact = false }) {
+function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, damageEvents = [], abilityUsed = null, compact = false, isRevealing = false }) {
   const [displayHealth, setDisplayHealth] = useState(creature.currentHealth);
   const [activeDamageTexts, setActiveDamageTexts] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -126,6 +126,7 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
     if (side === 'p2') classes.push('card-p2');
     if (isShaking) classes.push('shake');
     if (isDying) classes.push('dying');
+    if (isRevealing) classes.push('flip-in');
 
     // Add buff/debuff glow effects
     if (creature.statusEffects && creature.statusEffects.length > 0) {
@@ -256,6 +257,24 @@ function Card({ creature, onCardSelect, isSelected, isDying, disabled, side, dam
       {activeAbilityIcon && (
         <AbilityEffect ability={activeAbilityIcon} onComplete={handleAbilityIconComplete} />
       )}
+    </div>
+  );
+}
+
+// Face-down card for a creature the opponent hasn't played yet. It carries no
+// creature data, so nothing about the card can be read from the page.
+export function CardBack({ isSelected, side }) {
+  const classes = ['card', 'card-back', 'disabled'];
+  if (isSelected) classes.push('selected');
+  if (side) classes.push(`card-${side}`);
+  return (
+    <div className={classes.join(' ')} role="img" aria-label={isSelected ? 'Hidden card, chosen to fight' : 'Hidden card'}>
+      <div className="card-inner">
+        <svg className="card-back-crest" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M32 4l22 8v17c0 14-9.4 25.4-22 31C19.4 54.4 10 43 10 29V12z" />
+          <path d="M23 41l18-18M41 41L23 23M20 26l6-6M38 20l6 6M20 38l6 6M38 44l6-6" />
+        </svg>
+      </div>
     </div>
   );
 }
