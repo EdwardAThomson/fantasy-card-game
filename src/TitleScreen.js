@@ -4,6 +4,8 @@ import { ELEMENTS } from './constants';
 import './TitleScreen.css';
 
 const FIRST_YEAR = 2024;
+// Change here if the site moves; set to null to show the byline without a link.
+const WEBSITE_URL = 'https://octonion.io/';
 
 const svgProps = {
   viewBox: '0 0 24 24',
@@ -122,7 +124,11 @@ function TitleScreen({ onSelectMode, tutorialDone = true }) {
       </main>
 
       <footer className="title-footer">
-        © {years} Edward Thomson (Octonion Software)
+        © {years} Edward Thomson (
+        {WEBSITE_URL ? (
+          <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer">Octonion Software</a>
+        ) : 'Octonion Software'}
+        )
       </footer>
     </div>
   );
