@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import creatures from './creatures';
-import Card from './Card';
+import Card, { CardBack } from './Card';
 import Modal from './Modal';
 import BattleResult from './BattleResult';
 import CombatLog from './CombatLog';
@@ -67,6 +67,14 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
 
   const liveHand = side => state.sides[side].hand;
 
+  // Against the AI its hand stays face down; each card turns face up the first
+  // time it fights. The tutorial keeps everything visible so it can teach
+  // counter-picking, and hot-seat players share one screen anyway.
+  const hideOpponent = singlePlayer && !tutorial;
+  const [revealedP2, setRevealedP2] = useState([]);
+  const [revealingP2, setRevealingP2] = useState(null); // card mid-flip before a fight
+  const isHiddenP2 = card => hideOpponent && !!card && !revealedP2.includes(card.uid);
+
   // AI picks once the player has committed to a card and a style
   useEffect(() => {
     if (!singlePlayer || tutorial || isGameOver) return;
@@ -99,18 +107,29 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
   }, [state, selection.p1.uid, selection.p2.uid, singlePlayer]);
 
   const handlePlayer1CardSelect = (card) => {
+    if (revealingP2) return;
     match.select('p1', card.uid);
     emitTutorial('cardSelected', { side: 'p1', name: card.name });
   };
   const handlePlayer1ChoiceSelect = (choice) => {
+    if (revealingP2) return;
     match.choose('p1', choice);
     emitTutorial('styleSelected', { side: 'p1', choice });
   };
   const handlePlayer2CardSelect = (card) => match.select('p2', card.uid);
   const handlePlayer2ChoiceSelect = (choice) => match.choose('p2', choice);
 
-  const Fight = match.fight;
-  const isCombatReady = match.canFight;
+  // Turn the AI's card face up first so the player sees what they're facing
+  const REVEAL_MS = 550;
+  const handleFight = () => {
+    if (revealingP2) return;
+    if (!isHiddenP2(player2SelectedCard)) return match.fight();
+    const { uid } = player2SelectedCard;
+    setRevealedP2(prev => [...prev, uid]);
+    setRevealingP2(uid);
+    setTimeout(() => { setRevealingP2(null); match.fight(); }, REVEAL_MS);
+  };
+  const isCombatReady = match.canFight && !revealingP2;
 
   // Determine tint color for Fight CTA based on chosen style
   const styleColorMap = { Melee: '#22c55e', Ranged: '#3b82f6', Magic: '#ef4444' };
@@ -145,6 +164,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     const onChoiceSelect = isP1 ? handlePlayer1ChoiceSelect : handlePlayer2ChoiceSelect;
     const name = isP1 ? 'Player 1' : 'Player 2';
     const status = getPlayerStatus(selectedCard, choice, isAI);
+    const pickHidden = !isP1 && isHiddenP2(selectedCard);
 
     return (
       <section className={`player-area${isAI ? ' is-ai' : ''}`} aria-label={name} data-tutorial={`${side}-area`}>
@@ -157,16 +177,18 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
             <p className={`player-status${status === 'Ready' ? ' is-ready' : ''}`}>{status}</p>
           )}
           <AttackPicker
-            choice={choice}
+            choice={pickHidden ? '' : choice}
             onSelect={onChoiceSelect}
-            card={selectedCard}
+            card={pickHidden ? null : selectedCard}
             readOnly={isAI}
             label={`${name} attack style`}
             tutorialId={`${side}-style`}
           />
         </div>
         <div className="player-hand" data-tutorial={`${side}-hand`}>
-          {hand.map((card) => (
+          {hand.map((card) => (!isP1 && isHiddenP2(card)) ? (
+            <CardBack key={card.uid} isSelected={selectedCard?.uid === card.uid} side={side} />
+          ) : (
             <Card
               key={card.uid}
               creature={card}
@@ -177,6 +199,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
               side={side}
               damageEvents={match.damageEvents[side]}
               abilityUsed={match.abilityUsed}
+              isRevealing={!isP1 && revealingP2 === card.uid}
             />
           ))}
         </div>
@@ -227,9 +250,9 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
 
             <MatchupHint
               p1Card={player1SelectedCard}
-              p2Card={player2SelectedCard}
+              p2Card={isHiddenP2(player2SelectedCard) ? null : player2SelectedCard}
               p1Hand={player1Hand}
-              p2Hand={player2Hand}
+              p2Hand={player2Hand.filter(card => !isHiddenP2(card))}
             />
 
             <div className="battle-strip">
@@ -246,7 +269,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
                   <button
                     className={`btn btn-primary btn-lg btn-fight ${fightTint ? 'tinted' : ''} ${isCombatReady ? `btn-glow ${glowClass}` : ''}`}
                     style={fightTint ? { '--choice': fightTint } : undefined}
-                    onClick={Fight}
+                    onClick={handleFight}
                     disabled={!isCombatReady}
                     data-tutorial="fight"
                     aria-label="Start combat"
