@@ -9,6 +9,8 @@ files) for the full plan; this directory is the Phase 2 sketch.
 | File | Purpose |
 |------|---------|
 | `wrangler.toml` | Worker config and the `Room` Durable Object binding |
+| `SETUP.md` | One-off Cloudflare and GitHub steps to deploy it |
+| `package.json` | `npm run dev` / `deploy` / `check` (wrangler) |
 | `src/index.js` | `POST /api/rooms` (create, returns a 5-letter code) and `GET /ws/:code` (WebSocket) |
 | `src/Room.js` | The room: seats, sockets, lobby, authoritative match, pick timer, reconnect grace, cleanup |
 
@@ -41,17 +43,20 @@ hook `src/online/useOnlineMatch.js`.
 
 ```sh
 cd worker
-npm install -D wrangler          # not yet in package.json; add when Phase 2 lands
-npx wrangler dev                 # ws://localhost:8787
+npm install
+npm run dev                      # ws://localhost:8787, accepts http://localhost:3000
 ```
 
-Then in the app set `REACT_APP_ROOMS_WS=ws://localhost:8787` and open two
-browser tabs.
+Then from the repo root `REACT_APP_ROOMS_WS=ws://localhost:8787 npm start`
+and open two browser tabs.
+
+Deploying is `npm run deploy` from `worker/`, or automatic from the
+GitHub Action in `.github/workflows/deploy-worker.yml` once the secrets in
+`SETUP.md` are set.
 
 ## Not done yet (Phase 2 work)
 
-- No `package.json` / wrangler dependency; this has not been run under
-  `wrangler dev` yet.
 - Rate limiting on `POST /api/rooms`.
-- Tests for the room (Miniflare / `@cloudflare/vitest-pool-workers`).
-- Deploy: `ALLOWED_ORIGIN` must be the app's URL (Vercel today).
+- Tests for the room (`@cloudflare/vitest-pool-workers`); so far it has been
+  exercised by a two-client script against `wrangler dev` (full match, bad
+  deck rejected, hidden picks, reconnect by token, third player refused).
