@@ -1,0 +1,30 @@
+# Cloudflare Worker that hosts the online game rooms.
+#
+#   cd worker && npm run dev           # local: ws://localhost:8787 (accepts the CRA dev server)
+#   cd worker && npm run deploy        # publish to your Cloudflare account
+#
+# The worker bundles the game engine straight from ../src so there is one copy
+# of the rules shared by the browser and the server. See SETUP.md.
+name = "fantasy-card-game-rooms"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+[vars]
+# The only page allowed to open sockets: the deployed game.
+ALLOWED_ORIGIN = "https://fantasy-card-game.vercel.app"
+
+# `npm run dev` uses this environment so the local CRA dev server is accepted too.
+[env.dev]
+[env.dev.durable_objects]
+bindings = [{ name = "ROOMS", class_name = "Room" }]
+
+[env.dev.vars]
+ALLOWED_ORIGIN = "http://localhost:3000"

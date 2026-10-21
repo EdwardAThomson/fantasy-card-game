@@ -1,0 +1,36 @@
+# Deploys the rooms worker to Cloudflare whenever the worker or the engine it
+# bundles changes on master. Needs two repository secrets:
+#   CLOUDFLARE_API_TOKEN   an API token made from the "Edit Cloudflare Workers" template
+#   CLOUDFLARE_ACCOUNT_ID  from the Workers & Pages overview page
+# See worker/SETUP.md.
+name: Deploy rooms worker
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'worker/**'
+      - 'src/engine/**'
+      - 'src/gameEngine.js'
+      - 'src/creatures.js'
+      - 'src/constants.js'
+      - 'src/rng.js'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
