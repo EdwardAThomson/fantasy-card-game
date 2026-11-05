@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import creatures from './creatures';
 import Card, { CardBack } from './Card';
 import Modal from './Modal';
@@ -11,6 +11,9 @@ import AttackPicker from './AttackPicker';
 import { HomeIcon, HelpIcon, ScrollIcon, CrossedSwordsIcon } from './GameIcons';
 import './GameScreen.css';
 import TutorialOverlay from './tutorial/TutorialOverlay';
+import SoundControl from './SoundControl';
+import { getAbilityFamily } from './AbilityEffect';
+import { play } from './sound';
 import { DECK_SIZE } from './constants';
 import { setRandomSource, seededRandom } from './rng';
 import {
@@ -22,6 +25,8 @@ import {
   makeAIDecision,
 } from './gameEngine';
 
+
+const STYLE_SOUND = { Melee: 'Melee', Ranged: 'Ranged', Magic: 'Magic' };
 
 // Main Game function
 function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null, onTutorialFinish, onHome }) {
@@ -137,6 +142,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
  // Handle card selection for Player 1
   const handlePlayer1CardSelect = (card) => {
     if (revealingP2) return;
+    if (card !== player1SelectedCard) play('select');
     setPlayer1SelectedCard(card); // Set the card as selected
     emitTutorial('cardSelected', { side: 'p1', name: card.name });
   };
@@ -144,23 +150,38 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
   // Handle combat choice for Player 1
   const handlePlayer1ChoiceSelect = (choice) => {
     if (revealingP2) return;
+    if (STYLE_SOUND[choice]) play(`style${STYLE_SOUND[choice]}`);
     setPlayer1Choice(choice);     // Set the chosen action
     emitTutorial('styleSelected', { side: 'p1', choice });
   };
 
   // Handle card selection for Player 2
   const handlePlayer2CardSelect = (card) => {
+    if (card !== player2SelectedCard) play('select');
     setPlayer2SelectedCard(card); // Set the card as selected
   };
 
   // Handle combat choice for Player 2
   const handlePlayer2ChoiceSelect = (choice) => {
+    if (STYLE_SOUND[choice]) play(`style${STYLE_SOUND[choice]}`);
     setPlayer2Choice(choice);     // Set the chosen action
   };
 
 
+  // Victory or defeat fanfare, once per game. Against the AI, Player 1 is
+  // "you"; in hot-seat play someone always wins, so it's always a fanfare.
+  const gameOverSoundPlayed = useRef(false);
+  const playGameOverSound = (winnerSide) => {
+    if (gameOverSoundPlayed.current) return;
+    gameOverSoundPlayed.current = true;
+    play(!singlePlayer || winnerSide === 'p1' ? 'gameWin' : 'gameLoss');
+  };
+
   // Check for victory (overall) when hands change
   useEffect(() => {
+    if (player1Hand.length === 0 || player2Hand.length === 0) {
+      playGameOverSound(player1Hand.length === 0 ? 'p2' : 'p1');
+    }
     if (player1Hand.length === 0) {
       addLog('Player 2 is the winner!', 'victory');
       if (tutorial) return emitTutorial('gameOver', { winner: 'p2' });
@@ -359,6 +380,8 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
       setDyingCards(prev => [...prev, ...deadCards]);
     }
 
+    playRoundSounds({ outcome, p1DotDamage, p2DotDamage, wasPlayer1Stunned, wasPlayer2Stunned, deadCards });
+
     emitTutorial('roundResolved', {
       round,
       p1Multiplier: getElementMultiplier(player1SelectedCard, player2SelectedCard),
@@ -372,6 +395,29 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     setRound(prev => prev + 1);
   } // ends Fight function
 
+  // Sound for one round, timed to land with the animations: DoT ticks, each
+  // side's swing and hit, the ability, any knockouts, then the round result.
+  const playRoundSounds = ({ outcome, p1DotDamage, p2DotDamage, wasPlayer1Stunned, wasPlayer2Stunned, deadCards }) => {
+    if (p1DotDamage > 0 || p2DotDamage > 0) play('dot');
+    if (!wasPlayer1Stunned) play(`swing${STYLE_SOUND[player1Choice] || 'Melee'}`, 40);
+    if (outcome.player2Damage > 0) play('hit', 150);
+    if (!wasPlayer2Stunned) play(`swing${STYLE_SOUND[player2Choice] || 'Melee'}`, 300);
+    if (outcome.player1Damage > 0) play('hit', 410);
+    if (outcome.abilityUsed) play(getAbilityFamily(outcome.abilityUsed.ability), 180);
+    if ((outcome.player1Heal > 0 || outcome.player2Heal > 0) && getAbilityFamily(outcome.abilityUsed?.ability) !== 'heal') {
+      play('heal', 240);
+    }
+    if (deadCards.length > 0) play('ko', 520);
+
+    // The last knockout of the game gets the game-over fanfare instead
+    const p1Out = player1SelectedCard.currentHealth <= 0 && player1Hand.length <= 1;
+    const p2Out = player2SelectedCard.currentHealth <= 0 && player2Hand.length <= 1;
+    if (outcome.haveWinner && !p1Out && !p2Out) {
+      const p1Won = outcome.winner === player1SelectedCard;
+      play(!singlePlayer || p1Won ? 'roundWin' : 'roundLoss', 850);
+    }
+  };
+
   // Turn the AI's card face up first so the player sees what they're facing
   const REVEAL_MS = 550;
   const handleFight = () => {
@@ -380,6 +426,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     const { name } = player2SelectedCard;
     setRevealedP2(prev => [...prev, name]);
     setRevealingP2(name);
+    play('flip');
     setTimeout(Fight, REVEAL_MS);
   };
 
@@ -495,6 +542,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
         {isGameOver ? 'Battle over' : `Round ${round}`}
       </div>
       <div className="game-hud-side is-end">
+        <SoundControl />
         <button
           type="button"
           className="hud-btn hud-btn-log"
@@ -544,6 +592,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
                     onClick={handleFight}
                     disabled={!isCombatReady}
                     data-tutorial="fight"
+                    data-sfx="off"
                     aria-label="Start combat"
                   >
                     <CrossedSwordsIcon size={22} />

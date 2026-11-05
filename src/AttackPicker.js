@@ -16,6 +16,7 @@ function AttackPicker({ choice, onSelect, card, readOnly = false, label, tutoria
     <div
       className={`attack-picker${readOnly ? ' is-readonly' : ''}`}
       role="radiogroup"
+      data-sfx="off"
       aria-label={label}
     >
       {ATTACKS.map(({ choice: c, stat, Icon, className }) => {
