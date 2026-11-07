@@ -19,13 +19,14 @@ Welcome to the Fantasy Card Game, a strategic two-player game where each player 
 * **Health-Based Elimination**: Creatures are removed from play when their health reaches zero.
 * **Victory Condition**: A player wins when the other player runs out of cards.
 
-* **Single-Player Mode (AI)**: Play against a simple AI that picks its best combat style.
-* **Polished UI**: Themed combat buttons, tinted Fight CTA with glow, and player-specific card selection rings.
-* **New Game Button**: Appears when the match ends to quickly reset and play again.
+* **Elements and Abilities**: Every creature has an element with two strengths and two weaknesses, plus special abilities such as Stun, Berserk and Poison Bite.
+* **Game Modes**: Quick Battle against the AI with random decks, build your own deck against the AI, or draft and duel with a friend on one screen.
+* **AI Opponent**: The AI keeps its hand face down until each card is played.
+* **How to Play Tutorial**: A short guided first battle for new players.
 
 ## Screenshot
 
-![Fantasy Combat Card Game screenshot](./Screenshot_20260409.png)
+![Fantasy Combat Card Game screenshot](./Screenshot_20261107.png)
 
 ## Game Rules / How To Play
 1. **Deal**: Each player is dealt a hand of 3 unique creatures, each with its own stats (Strength, Agility, Intelligence, Defense, Magic).
