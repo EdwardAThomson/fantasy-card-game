@@ -1,0 +1,135 @@
+.sound-control {
+  position: relative;
+  display: inline-flex;
+}
+
+.sound-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1000;
+  width: 240px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--accent) 55%, transparent);
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(212, 175, 55, 0.12), transparent 60%),
+    linear-gradient(180deg, #1c2438 0%, #111827 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 14px 30px rgba(0, 0, 0, 0.5);
+  color: #e5e7eb;
+  text-align: left;
+  animation: sound-panel-in .14s ease-out;
+}
+@keyframes sound-panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
+.sound-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sound-panel-title {
+  font-family: Cinzel, Georgia, serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sound-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #0b1020;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.sound-switch.is-on {
+  background: color-mix(in oklab, var(--accent) 70%, #0b1020);
+  border-color: var(--accent);
+}
+.sound-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: transform .2s ease;
+}
+.sound-switch.is-on .sound-switch-knob { transform: translateX(20px); background: #fff8e1; }
+.sound-switch:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+
+.sound-panel-volume {
+  display: grid;
+  grid-template-columns: auto 1fr 2.2em;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+.sound-panel-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #f6e3a1;
+}
+
+.sound-panel-volume input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent) var(--fill), rgba(255, 255, 255, 0.15) var(--fill));
+  cursor: pointer;
+}
+.sound-panel-volume input[type="range"]:disabled { opacity: 0.4; cursor: default; }
+.sound-panel-volume input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff8e1;
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+.sound-panel-volume input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff8e1;
+  border: 2px solid var(--accent);
+}
+.sound-panel-volume input[type="range"]:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+
+/* Floating copy on the title screen and deck builder */
+.sound-control.is-floating {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+}
+@media (max-width: 768px) {
+  .sound-control.is-floating { top: 10px; right: 10px; }
+}
+
+/* On phones the button isn't at the screen edge, so pin the panel to it */
+@media (max-width: 640px) {
+  .sound-panel {
+    position: fixed;
+    top: 64px;
+    right: 10px;
+    width: min(260px, calc(100vw - 20px));
+  }
+}

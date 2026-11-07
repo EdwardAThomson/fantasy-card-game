@@ -6,6 +6,7 @@ import { getRandomUniqueCards } from './gameEngine';
 import Modal from './Modal';
 import Tabs from './Tabs';
 import { HelpIcon } from './GameIcons';
+import { play } from './sound';
 
 function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
   const [player1Deck, setPlayer1Deck] = useState([]);
@@ -36,6 +37,7 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
 
     setDeck([...deck, creature]);
     setError('');
+    play('select');
   };
 
   const handleRemoveCreature = (player, creature) => {
@@ -46,6 +48,7 @@ function DeckBuilder({ onDecksSelected, singlePlayer = false }) {
     const setDeck = player === 1 ? setPlayer1Deck : setPlayer2Deck;
     const newDeck = deck.filter(c => c.name !== creature.name);
     setDeck(newDeck);
+    play('deselect');
   };
 
   const handleConfirmDeck = () => {
