@@ -35,7 +35,7 @@ describe('Immunity smoke tests', () => {
     expect(randomSpy).toHaveBeenCalled();
     expect(outcome.damageDealt).toBe(0);
     expect(defender.currentHealth).toBe(initialHealth);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('is immune to burning'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('is immune to burning'), 'status');
   });
 
   test('Giant Spider resists poison damage over time', () => {
@@ -51,7 +51,7 @@ describe('Immunity smoke tests', () => {
 
     expect(totalDamage).toBe(2);
     expect(spider.currentHealth).toBe(298);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('resists some of')); // resistance message
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('resists some of'), 'status'); // resistance message
   });
 
   test('Undead Knight is immune to bleeding status', () => {
@@ -61,6 +61,6 @@ describe('Immunity smoke tests', () => {
     applyStatusEffect(undead, 'bleeding', logSpy);
 
     expect(undead.statusEffects).toEqual([]);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('shrugs off Bleeding'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('shrugs off Bleeding'), 'status');
   });
 });
