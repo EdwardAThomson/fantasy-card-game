@@ -126,8 +126,8 @@ function TitleScreen({ onSelectMode, tutorialDone = true }) {
       <footer className="title-footer">
         © {years} Edward Thomson (
         {WEBSITE_URL ? (
-          <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer">Octonion Software</a>
-        ) : 'Octonion Software'}
+          <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer">Octonion Games</a>
+        ) : 'Octonion Games'}
         )
       </footer>
     </div>
