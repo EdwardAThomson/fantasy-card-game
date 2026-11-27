@@ -1,0 +1,13 @@
+{
+  "name": "fantasy-card-game-rooms",
+  "private": true,
+  "description": "Cloudflare Worker hosting the online game rooms",
+  "scripts": {
+    "dev": "wrangler dev --env dev",
+    "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run --outdir=dist"
+  },
+  "devDependencies": {
+    "wrangler": "^4.151.3"
+  }
+}
