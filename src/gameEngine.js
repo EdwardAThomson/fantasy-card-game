@@ -15,7 +15,8 @@ export const abilityEffects = {
   [ABILITIES.DARK_SPELL]: { type: 'damage', value: 15, statusEffect: 'cursed' },
   [ABILITIES.NECROTIC_BLAST]: { type: 'damage', value: 15, statusEffect: 'cursed' },
   [ABILITIES.DARK_BLAST]: { type: 'damage', value: 15, statusEffect: 'cursed' },
-  [ABILITIES.LIGHT_BEAM]: { type: 'damage', value: 15, statusEffect: 'blessed' },
+  // Light Beam blesses its caster (like Holy Smite), not the creature it hits
+  [ABILITIES.LIGHT_BEAM]: { type: 'damage', value: 15, selfBless: true },
   [ABILITIES.NATURES_WRATH]: { type: 'damage', value: 18, statusEffect: 'poisoned', dot: { damage: 5, duration: 3 } },
   [ABILITIES.BACKSTAB]: { type: 'damage', value: 25, statusEffect: 'bleeding', dot: { damage: 3, duration: 3 } },
   // Damage — pure
@@ -319,6 +320,10 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
   } else if (elementMult < 1) {
     logFn(`${attacker.element} is weak against ${defender.element}. (${Math.round(elementMult * 100)}% damage)`, 'disadvantage');
   }
+  // Blessed/Cursed change damage from the next hit on. Read them before the
+  // ability resolves so a Curse doesn't amplify the very hit that applies it.
+  const defenderWasBlessed = !!defender.statusEffects?.includes('blessed');
+  const defenderWasCursed = !!defender.statusEffects?.includes('cursed');
   let ability = null;
   let heal = 0;
 
@@ -354,13 +359,13 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
     }
   }
 
-  if (damage > 0 && defender.statusEffects?.includes('blessed')) {
+  if (damage > 0 && defenderWasBlessed) {
     const reduced = Math.round(damage * 0.9);
     logFn(`${defender.name}'s blessing absorbs ${damage - reduced} damage!`, 'status');
     damage = reduced;
   }
 
-  if (damage > 0 && defender.statusEffects?.includes('cursed')) {
+  if (damage > 0 && defenderWasCursed) {
     const increased = Math.round(damage * 1.1);
     logFn(`${defender.name}'s curse amplifies the damage by ${increased - damage}!`, 'status');
     damage = increased;
@@ -384,10 +389,7 @@ export function combatRound(attacker, defender, combatChoice, logFn) {
 
   // Self-bless: apply blessed to attacker
   if (abilityUsed && abilityEffects[abilityUsed]?.selfBless) {
-    if (!attacker.statusEffects) attacker.statusEffects = [];
-    if (!attacker.statusEffects.includes('blessed')) {
-      attacker.statusEffects.push('blessed');
-    }
+    applyStatusEffect(attacker, 'blessed', logFn);
   }
 
   const player1Health = attacker.currentHealth;

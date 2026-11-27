@@ -167,8 +167,8 @@ export const resolveRound = (input) => {
     // A creature stunned last round skips this one; the stun clears after combat.
     const p1WasStunned = !!p1.isStunned;
     const p2WasStunned = !!p2.isStunned;
-    if (p1WasStunned) log(`${p1.name} is recovering from stun...`, 'status');
-    if (p2WasStunned) log(`${p2.name} is recovering from stun...`, 'status');
+    if (p1WasStunned) { log(`${p1.name} is recovering from stun...`, 'status'); emit({ type: 'stunSkip', side: 'p1', uid: p1.uid }); }
+    if (p2WasStunned) { log(`${p2.name} is recovering from stun...`, 'status'); emit({ type: 'stunSkip', side: 'p2', uid: p2.uid }); }
 
     // Status effects last one round
     p1.statusEffects = [];

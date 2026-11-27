@@ -11,7 +11,7 @@
 //   match.round, match.isOver, match.winner
 //   match.log, match.damageEvents.p1 / .p2, match.abilityUsed, match.dying
 //   match.result                 round or game result for the dialog (null to dismiss)
-//   match.lastRound              the engine's roundResolved / gameOver events for the tutorial
+//   match.lastRound              { resolved, gameOver, events } of the last round, for the tutorial and sounds
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createMatch, applyIntent, resolveRound, SIDES } from '../engine/match';
 import { snapshotCreature } from '../BattleResult';
@@ -115,7 +115,7 @@ export default function useLocalMatch({ p1Deck, p2Deck, seed }) {
       });
     }
 
-    setLastRound({ resolved: events.find(e => e.type === 'roundResolved'), gameOver });
+    setLastRound({ resolved: events.find(e => e.type === 'roundResolved'), gameOver, events });
     setState(next);
   }, [canFight, state, selection]);
 

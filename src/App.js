@@ -5,6 +5,7 @@ import TitleScreen from './TitleScreen';
 import TUTORIAL from './tutorial/tutorialScript';
 import { DECK_SIZE } from './constants';
 import { HomeIcon } from './GameIcons';
+import SoundControl from './SoundControl';
 import './App.css';
 
 const TUTORIAL_DONE_KEY = 'fcg.tutorialDone';
@@ -43,6 +44,9 @@ function App() {
     </button>
   );
 
+  // The game screen puts this in its top bar instead.
+  const floatingSound = <SoundControl className="is-floating" />;
+
   const handleTutorialFinish = (next) => {
     try {
       window.localStorage.setItem(TUTORIAL_DONE_KEY, '1');
@@ -55,11 +59,11 @@ function App() {
 
   const renderContent = () => {
     if (gameMode === 'mp_builder' && (player1Deck.length !== DECK_SIZE || player2Deck.length !== DECK_SIZE)) {
-      return <>{homeButton}<DeckBuilder onDecksSelected={handleDecksSelected} /></>;
+      return <>{homeButton}{floatingSound}<DeckBuilder onDecksSelected={handleDecksSelected} /></>;
     }
 
     if (gameMode === 'sp_builder' && player1Deck.length !== DECK_SIZE) {
-      return <>{homeButton}<DeckBuilder onDecksSelected={handleDecksSelected} singlePlayer /></>;
+      return <>{homeButton}{floatingSound}<DeckBuilder onDecksSelected={handleDecksSelected} singlePlayer /></>;
     }
 
     if (gameMode === 'tutorial') {
@@ -78,7 +82,7 @@ function App() {
       return <Game player1Deck={player1Deck} player2Deck={player2Deck} onHome={handleReset} />;
     }
 
-    return <TitleScreen onSelectMode={setGameMode} tutorialDone={tutorialDone} />;
+    return <>{floatingSound}<TitleScreen onSelectMode={setGameMode} tutorialDone={tutorialDone} /></>;
   };
 
   return (

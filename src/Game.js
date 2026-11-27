@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import creatures from './creatures';
 import Card, { CardBack } from './Card';
 import Modal from './Modal';
@@ -11,10 +11,14 @@ import AttackPicker from './AttackPicker';
 import { HomeIcon, HelpIcon, ScrollIcon, CrossedSwordsIcon } from './GameIcons';
 import './GameScreen.css';
 import TutorialOverlay from './tutorial/TutorialOverlay';
+import SoundControl from './SoundControl';
+import { getAbilityFamily } from './AbilityEffect';
+import { play } from './sound';
 import { DECK_SIZE } from './constants';
 import { getRandomUniqueCards, makeAIDecision } from './gameEngine';
 import useLocalMatch from './hooks/useLocalMatch';
 
+const STYLE_SOUND = { Melee: 'Melee', Ranged: 'Ranged', Magic: 'Magic' };
 
 // The game screen. Rounds are resolved by the shared match engine (via
 // useLocalMatch); this component only draws the match and animates events.
@@ -48,9 +52,39 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
   const emitTutorial = (type, payload) => {
     if (tutorial) setTutorialEvents(prev => [...prev, { type, payload }]);
   };
+  // Victory or defeat fanfare, once per game. Against the AI, Player 1 is
+  // "you"; in hot-seat play someone always wins, so it's always a fanfare.
+  const gameOverSoundPlayed = useRef(false);
+
+  // Sound for one round, timed to land with the animations: DoT ticks, each
+  // side's swing and hit, the ability, any knockouts, then the round result.
+  const playRoundSounds = (events, { resolved, gameOver }) => {
+    const has = (type, side) => events.some(e => e.type === type && (!side || e.side === side));
+    if (has('dot')) play('dot');
+    if (!has('stunSkip', 'p1')) play(`swing${STYLE_SOUND[selection.p1.style] || 'Melee'}`, 40);
+    if (has('damage', 'p2')) play('hit', 150);
+    if (!has('stunSkip', 'p2')) play(`swing${STYLE_SOUND[selection.p2.style] || 'Melee'}`, 300);
+    if (has('damage', 'p1')) play('hit', 410);
+    const ability = resolved?.abilityUsed?.ability;
+    if (ability) play(getAbilityFamily(ability), 180);
+    if (has('heal') && getAbilityFamily(ability) !== 'heal') play('heal', 240);
+    if (has('death')) play('ko', 520);
+
+    if (gameOver) {
+      if (gameOverSoundPlayed.current) return;
+      gameOverSoundPlayed.current = true;
+      play(!singlePlayer || gameOver.winnerSide === 'p1' ? 'gameWin' : 'gameLoss');
+      return;
+    }
+    const roundResult = events.find(e => e.type === 'roundResult');
+    if (roundResult) play(!singlePlayer || roundResult.winnerSide === 'p1' ? 'roundWin' : 'roundLoss', 850);
+  };
+
   useEffect(() => {
-    if (!tutorial || !match.lastRound) return;
-    const { resolved, gameOver } = match.lastRound;
+    if (!match.lastRound) return;
+    const { resolved, gameOver, events } = match.lastRound;
+    playRoundSounds(events, { resolved, gameOver });
+    if (!tutorial) return;
     if (resolved) {
       const { type, ...payload } = resolved;
       emitTutorial('roundResolved', payload);
@@ -108,16 +142,24 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
 
   const handlePlayer1CardSelect = (card) => {
     if (revealingP2) return;
+    if (card.uid !== selection.p1.uid) play('select');
     match.select('p1', card.uid);
     emitTutorial('cardSelected', { side: 'p1', name: card.name });
   };
   const handlePlayer1ChoiceSelect = (choice) => {
     if (revealingP2) return;
+    if (STYLE_SOUND[choice]) play(`style${STYLE_SOUND[choice]}`);
     match.choose('p1', choice);
     emitTutorial('styleSelected', { side: 'p1', choice });
   };
-  const handlePlayer2CardSelect = (card) => match.select('p2', card.uid);
-  const handlePlayer2ChoiceSelect = (choice) => match.choose('p2', choice);
+  const handlePlayer2CardSelect = (card) => {
+    if (card.uid !== selection.p2.uid) play('select');
+    match.select('p2', card.uid);
+  };
+  const handlePlayer2ChoiceSelect = (choice) => {
+    if (STYLE_SOUND[choice]) play(`style${STYLE_SOUND[choice]}`);
+    match.choose('p2', choice);
+  };
 
   // Turn the AI's card face up first so the player sees what they're facing
   const REVEAL_MS = 550;
@@ -127,6 +169,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
     const { uid } = player2SelectedCard;
     setRevealedP2(prev => [...prev, uid]);
     setRevealingP2(uid);
+    play('flip');
     setTimeout(() => { setRevealingP2(null); match.fight(); }, REVEAL_MS);
   };
   const isCombatReady = match.canFight && !revealingP2;
@@ -223,6 +266,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
         {isGameOver ? 'Battle over' : `Round ${round}`}
       </div>
       <div className="game-hud-side is-end">
+        <SoundControl />
         <button
           type="button"
           className="hud-btn hud-btn-log"
@@ -272,6 +316,7 @@ function Game({ player1Deck, player2Deck, singlePlayer = false, tutorial = null,
                     onClick={handleFight}
                     disabled={!isCombatReady}
                     data-tutorial="fight"
+                    data-sfx="off"
                     aria-label="Start combat"
                   >
                     <CrossedSwordsIcon size={22} />

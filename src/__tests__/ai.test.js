@@ -1,5 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import Game from '../Game';
+import { makeAIDecision } from '../gameEngine';
 
 const createCard = (name, stats) => ({
   name,
@@ -16,7 +18,23 @@ const createCard = (name, stats) => ({
   maxHealth: 100,
 });
 
-test('AI selects highest stat card and style', async () => {
+test('makeAIDecision picks the card and style with the highest attack stat', () => {
+  const hand = [
+    createCard('Warrior', { strength: 10, agility: 1, magic: 1 }),
+    createCard('Archer', { strength: 1, agility: 8, magic: 1 }),
+    createCard('Mage', { strength: 1, agility: 1, magic: 12 }),
+  ];
+  const best = makeAIDecision(hand);
+  expect(best.card.name).toBe('Mage');
+  expect(best.choice).toBe('Magic');
+
+  // Fainted cards are never picked
+  hand[2].currentHealth = 0;
+  expect(makeAIDecision(hand).card.name).toBe('Warrior');
+  expect(makeAIDecision(hand).choice).toBe('Melee');
+});
+
+test('AI picks in secret and its card is revealed when the fight starts', async () => {
   const player1Deck = [
     createCard('Hero', { strength: 5, agility: 5, magic: 5 }),
     createCard('Spare1', { strength: 4, agility: 4, magic: 4 }),
@@ -38,23 +56,32 @@ test('AI selects highest stat card and style', async () => {
     />
   );
 
+  // The AI hand is face down from the start
+  expect(screen.queryByText('Mage')).toBeNull();
+  expect(screen.getAllByRole('img', { name: /^Hidden card/ })).toHaveLength(3);
+
   fireEvent.click(screen.getByText('Hero'));
   fireEvent.click(screen.getAllByText(/Melee/)[0]);
 
-  await waitFor(() => {
-    const aiMagicBtn = screen.getAllByText(/Magic/)[1].closest('button');
-    expect(aiMagicBtn.classList.contains('selected')).toBe(true);
-    const mageCard = screen.getByText('Mage').closest('.card');
-    expect(mageCard.classList.contains('selected')).toBe(true);
-  });
+  // The AI commits to a card without revealing which one it is
+  const fightBtn = screen.getByRole('button', { name: 'Start combat' });
+  await waitFor(() => expect(fightBtn.disabled).toBe(false));
+  const backs = screen.getAllByRole('img', { name: /^Hidden card/ });
+  expect(backs[2]).toHaveAttribute('aria-label', 'Hidden card, chosen to fight');
+  expect(backs[2].classList.contains('selected')).toBe(true);
+  expect(screen.queryByText('Mage')).toBeNull();
 
-  const fightBtn = screen.getByText(/Fight/i);
-  expect(fightBtn.disabled).toBe(false);
   fireEvent.click(fightBtn);
 
+  // The chosen card flips over and fights with Magic
   await waitFor(() => {
-    expect(screen.queryByText(/Round 1/i)).not.toBeNull();
+    expect(screen.getByText('Mage')).toBeInTheDocument();
   });
+  await waitFor(() => {
+    expect(screen.getByText('Attacker: Mage (Magic)')).toBeInTheDocument();
+  });
+  expect(screen.queryByText('Warrior')).toBeNull();
+  expect(screen.queryByText('Archer')).toBeNull();
 
   Math.random.mockRestore();
 });
